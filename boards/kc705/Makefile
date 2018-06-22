@@ -126,7 +126,7 @@ $(build_dir)/$(cores_dir): $(build_Dir) $(PKG_SRC)
 	cp -R ../../$(cores_dir) $(build_dir)
 
 build_setup: $(build_dir) $(build_dir)/$(rtl_dir) $(build_dir)/$(test_dir) $(build_dir)/$(ip_catalog_dir) $(build_dir)/$(create_ip_dir) $(build_dir)/$(tcl_dir) $(build_dir)/$(xdc_dir) $(build_dir)/$(cores_dir)
-	cp build.mk $(build_dir)/Makefile
+	cp Makefile.Build $(build_dir)/Makefile
 
 .PHONY: clean
 clean:
