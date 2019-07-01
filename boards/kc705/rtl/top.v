@@ -169,6 +169,14 @@ wire [KEEP_WIDTH-1:0]      pcie_rx_tkeep;
 wire [C_DATA_WIDTH-1:0]    pcie_rx_tdata;
 wire  [21:0]               pcie_rx_tuser;
 
+wire [31:0] magic;
+wire [47:0] dstmac;
+wire [47:0] srcmac;
+wire [31:0] dstip;
+wire [31:0] srcip;
+wire [15:0] dstport;
+wire [15:0] srcport;
+
 tlp_rx_snoop tlp_rx_snoop0 (
 	.sys_rst156       (sys_rst156),
 	.pcie_rst         (pcie_rst),
@@ -191,7 +199,15 @@ tlp_rx_snoop tlp_rx_snoop0 (
 	.pcie_rx_tdata     (pcie_rx_tdata),
 	.pcie_rx_tkeep     (pcie_rx_tkeep),
 	.pcie_rx_tlast     (pcie_rx_tlast),
-	.pcie_rx_tuser     (pcie_rx_tuser)
+	.pcie_rx_tuser     (pcie_rx_tuser),
+
+    .magic(magic),
+    .dstmac(dstmac),
+    .srcmac(srcmac),
+    .dstip(dstip),
+    .srcip(srcip),
+    .dstport(dstport),
+    .srcport(srcport)
 );
 
 /*
@@ -729,7 +745,15 @@ pcie_app_7x  #(
   .cfg_interrupt_assert           ( cfg_interrupt_assert ),
   .cfg_interrupt_di               ( cfg_interrupt_di ),
   .cfg_interrupt_stat             ( cfg_interrupt_stat ),
-  .cfg_pciecap_interrupt_msgnum   ( cfg_pciecap_interrupt_msgnum )
+  .cfg_pciecap_interrupt_msgnum   ( cfg_pciecap_interrupt_msgnum ),
+  
+  .magic(magic),
+  .dstmac(dstmac),
+  .srcmac(srcmac),
+  .dstip(dstip),
+  .srcip(srcip),
+  .dstport(dstport),
+  .srcport(srcport)
 );
 
 

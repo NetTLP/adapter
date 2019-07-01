@@ -11,7 +11,10 @@ import nettlp_pkg::*;
 
 module eth_encap #(
 	//parameter eth_dst   = 48'h90_E2_BA_5D_91_D0,
-	parameter eth_dst   = 48'h90_E2_BA_5D_8F_CD,
+	//parameter eth_dst   = 48'h90_E2_BA_5D_8F_CD,
+	//parameter eth_dst   = 48'ha0_36_9f_22_ec_c0,
+	//parameter eth_dst   = 48'hA0_36_9F_28_AE_9C,
+	parameter eth_dst   = 48'hFF_FF_FF_FF_FF_FF,
 	parameter eth_src   = 48'h00_11_22_33_44_55,
 	parameter eth_proto = ETH_P_IP,
 	parameter ip_saddr  = {8'd192, 8'd168, 8'd10, 8'd1},
@@ -33,7 +36,15 @@ module eth_encap #(
 	output ETH_TLAST64     eth_tlast,
 	output ETH_TKEEP64     eth_tkeep,
 	output ETH_TDATA64     eth_tdata,
-	output ETH_TUSER64_TX  eth_tuser
+	output ETH_TUSER64_TX  eth_tuser,
+	
+    input wire [31:0] magic,
+    input wire [47:0] dstmac,
+    input wire [47:0] srcmac,
+    input wire [31:0] dstip,
+    input wire [31:0] srcip,
+    input wire [15:0] dstport,
+    input wire [15:0] srcport
 );
 
 /* function: ipcheck_gen() */
@@ -90,8 +101,8 @@ always_ff @(posedge eth_clk) begin
 		tx_count <= 0;
 	end else begin
 		// immutable values
-		tx_hdr0.eth.h_dest <= eth_dst;
-		{tx_hdr0.eth.h_source0, tx_hdr1.eth.h_source1} <= eth_src;
+		tx_hdr0.eth.h_dest <= dstmac;
+		{tx_hdr0.eth.h_source0, tx_hdr1.eth.h_source1} <= srcmac;
 
 		tx_hdr1.eth.h_proto <= eth_proto;
 		tx_hdr1.ip.version <= IPVERSION;
@@ -100,12 +111,12 @@ always_ff @(posedge eth_clk) begin
 		tx_hdr2.ip.ttl <= IPDEFTTL;
 		tx_hdr2.ip.protocol <= IP4_PROTO_UDP;
 
-		tx_hdr3.ip.saddr <= ip_saddr;
-		tx_hdr3.ip.daddr0 <= ip_daddr[31:16];
+		tx_hdr3.ip.saddr <= srcip;
+		tx_hdr3.ip.daddr0 <= dstip[31:16];
 
-		tx_hdr4.ip.daddr1 <= ip_daddr[15:0];
-		tx_hdr4.udp.source <= udp_sport;
-		tx_hdr4.udp.dest <= udp_dport;
+		tx_hdr4.ip.daddr1 <= dstip[15:0];
+		tx_hdr4.udp.source <= srcport;
+		tx_hdr4.udp.dest <= dstport;
 
 		// free running counter for performance measurement
 		tx_hdr5.tcap.tstamp <= tx_hdr5.tcap.tstamp + 1;
@@ -115,7 +126,7 @@ always_ff @(posedge eth_clk) begin
 			// mutable values
 			tx_hdr2.ip.tot_len <= dout.tlp_len + PACKET_HDR_LEN - ETH_HDR_LEN;
 
-			tx_hdr3.ip.check <= ipcheck_gen(dout.tlp_len, ip_saddr, ip_daddr);
+			tx_hdr3.ip.check <= ipcheck_gen(dout.tlp_len, srcip, dstip);
 
 			tx_hdr4.udp.len <= dout.tlp_len + NETTLP_HDR_LEN + UDP_HDR_LEN;
 

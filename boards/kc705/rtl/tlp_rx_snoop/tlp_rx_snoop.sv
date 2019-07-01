@@ -46,7 +46,15 @@ module tlp_rx_snoop #(
 	input wire  [KEEP_WIDTH-1:0]       pcie_rx_tkeep,
 	input wire                         pcie_rx_tlast,
 	input wire                         pcie_rx_tvalid,
-	input wire  [21:0]                 pcie_rx_tuser
+	input wire  [21:0]                 pcie_rx_tuser,
+	
+    input wire [31:0] magic,
+    input wire [47:0] dstmac,
+    input wire [47:0] srcmac,
+    input wire [31:0] dstip,
+    input wire [31:0] srcip,
+    input wire [15:0] dstport,
+    input wire [15:0] srcport
 );
 
 /*
@@ -115,7 +123,15 @@ eth_encap eth_encap0 (
 	.eth_tdata (eth_tx_tdata),
 	.eth_tkeep (eth_tx_tkeep),
 	.eth_tlast (eth_tx_tlast),
-	.eth_tuser (eth_tx_tuser)
+	.eth_tuser (eth_tx_tuser),
+	
+    .magic(magic),
+    .dstmac(dstmac),
+    .srcmac(srcmac),
+    .dstip(dstip),
+    .srcip(srcip),
+    .dstport(dstport),
+    .srcport(srcport)
 );
 
 
