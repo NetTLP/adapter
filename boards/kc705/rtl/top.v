@@ -155,19 +155,77 @@ eth_top eth_top0 (
 wire sys_rst_n_c;
 wire sys_clk;
 
+// PCIe Rx
+wire                       m_axis_rx_tready;
+wire                       m_axis_rx_tvalid;
+wire                       m_axis_rx_tlast;
+wire [KEEP_WIDTH-1:0]      m_axis_rx_tkeep;
+wire [C_DATA_WIDTH-1:0]    m_axis_rx_tdata;
+wire [21:0]                m_axis_rx_tuser;
+
+wire                       pcie_app_rx_tready;
+wire                       pcie_app_rx_tvalid;
+wire                       pcie_app_rx_tlast;
+wire [KEEP_WIDTH-1:0]      pcie_app_rx_tkeep;
+wire [C_DATA_WIDTH-1:0]    pcie_app_rx_tdata;
+wire [21:0]                pcie_app_rx_tuser;
+
+wire                       pcie_snoop_rx_tready;
+wire                       pcie_snoop_rx_tvalid;
+wire                       pcie_snoop_rx_tlast;
+wire [KEEP_WIDTH-1:0]      pcie_snoop_rx_tkeep;
+wire [C_DATA_WIDTH-1:0]    pcie_snoop_rx_tdata;
+wire [21:0]                pcie_snoop_rx_tuser;
+
+pcie_rx_filter #(
+	.C_DATA_WIDTH (C_DATA_WIDTH),
+	.KEEP_WIDTH   (KEEP_WIDTH)
+) pcie_rx_filter (
+	// PCIe input from pcie_7x_support
+	.m_axis_rx_tready    (m_axis_rx_tready), 
+	.m_axis_rx_tvalid    (m_axis_rx_tvalid),
+	.m_axis_rx_tdata     (m_axis_rx_tdata),
+	.m_axis_rx_tkeep     (m_axis_rx_tkeep),
+	.m_axis_rx_tlast     (m_axis_rx_tlast),
+	.m_axis_rx_tuser     (m_axis_rx_tuser),
+		
+	// PCIe output to pcie_app (hardware PIO engine)
+	.pcie_app_rx_tready    (pcie_app_rx_tready),
+	.pcie_app_rx_tvalid    (pcie_app_rx_tvalid),
+	.pcie_app_rx_tdata     (pcie_app_rx_tdata),
+	.pcie_app_rx_tkeep     (pcie_app_rx_tkeep),
+	.pcie_app_rx_tlast     (pcie_app_rx_tlast),
+	.pcie_app_rx_tuser     (pcie_app_rx_tuser),
+
+	// PCIe output to tlp_rx_snoop (ethernet)
+	.pcie_snoop_rx_tready    (pcie_snoop_rx_tready),
+	.pcie_snoop_rx_tvalid    (pcie_snoop_rx_tvalid),
+	.pcie_snoop_rx_tdata     (pcie_snoop_rx_tdata),
+	.pcie_snoop_rx_tkeep     (pcie_snoop_rx_tkeep),
+	.pcie_snoop_rx_tlast     (pcie_snoop_rx_tlast),
+	.pcie_snoop_rx_tuser     (pcie_snoop_rx_tuser)
+);
+
+//assign m_axis_rx_tready = pcie_app_rx_tready;
+//assign pcie_app_rx_tvalid = m_axis_rx_tvalid;
+//assign pcie_app_rx_tlast  = m_axis_rx_tlast;
+//assign pcie_app_rx_tkeep  = m_axis_rx_tkeep;
+//assign pcie_app_rx_tdata  = m_axis_rx_tdata;
+//assign pcie_app_rx_tuser  = m_axis_rx_tuser;
+// 
+//assign pcie_snoop_rx_tready = pcie_app_rx_tready;
+//assign pcie_snoop_rx_tvalid = m_axis_rx_tvalid;
+//assign pcie_snoop_rx_tlast  = m_axis_rx_tlast;
+//assign pcie_snoop_rx_tkeep  = m_axis_rx_tkeep;
+//assign pcie_snoop_rx_tdata  = m_axis_rx_tdata;
+//assign pcie_snoop_rx_tuser  = m_axis_rx_tuser;
+
+
 /*
  * ****************************
  * PCIe-Ethernet bridge (tlp_rx_snoop) top instance
  * ****************************
  */
-
-// PCIe Rx
-wire                       pcie_rx_tready;
-wire                       pcie_rx_tvalid;
-wire                       pcie_rx_tlast;
-wire [KEEP_WIDTH-1:0]      pcie_rx_tkeep;
-wire [C_DATA_WIDTH-1:0]    pcie_rx_tdata;
-wire  [21:0]               pcie_rx_tuser;
 
 wire [31:0] magic;
 wire [47:0] dstmac;
@@ -194,12 +252,12 @@ tlp_rx_snoop tlp_rx_snoop0 (
 	.eth_tx_tuser     (eth_tx_tuser),
 
 	// PCIe input
-	.pcie_rx_tready    (pcie_rx_tready), 
-	.pcie_rx_tvalid    (pcie_rx_tvalid),
-	.pcie_rx_tdata     (pcie_rx_tdata),
-	.pcie_rx_tkeep     (pcie_rx_tkeep),
-	.pcie_rx_tlast     (pcie_rx_tlast),
-	.pcie_rx_tuser     (pcie_rx_tuser),
+	.pcie_rx_tready    (pcie_snoop_rx_tready), 
+	.pcie_rx_tvalid    (pcie_snoop_rx_tvalid),
+	.pcie_rx_tdata     (pcie_snoop_rx_tdata),
+	.pcie_rx_tkeep     (pcie_snoop_rx_tkeep),
+	.pcie_rx_tlast     (pcie_snoop_rx_tlast),
+	.pcie_rx_tuser     (pcie_snoop_rx_tuser),
 
     .magic(magic),
     .dstmac(dstmac),
@@ -430,12 +488,12 @@ pcie_7x_support_i
   .s_axis_tx_tuser                           ( pcie_tx_tuser ),
 
   // Rx
-  .m_axis_rx_tready                          ( pcie_rx_tready ),
-  .m_axis_rx_tvalid                          ( pcie_rx_tvalid ),
-  .m_axis_rx_tlast                           ( pcie_rx_tlast ),
-  .m_axis_rx_tkeep                           ( pcie_rx_tkeep ),
-  .m_axis_rx_tdata                           ( pcie_rx_tdata ),
-  .m_axis_rx_tuser                           ( pcie_rx_tuser ),
+  .m_axis_rx_tready                          ( m_axis_rx_tready ),
+  .m_axis_rx_tvalid                          ( m_axis_rx_tvalid ),
+  .m_axis_rx_tlast                           ( m_axis_rx_tlast ),
+  .m_axis_rx_tkeep                           ( m_axis_rx_tkeep ),
+  .m_axis_rx_tdata                           ( m_axis_rx_tdata ),
+  .m_axis_rx_tuser                           ( m_axis_rx_tuser ),
 
   // Flow Control
   .fc_cpld                                   ( ),
@@ -669,12 +727,12 @@ pcie_app_7x  #(
   .s_axis_tx_tuser                ( pcie_tx_tuser_app ),
 
   // Rx: input
-  .m_axis_rx_tready               ( pcie_rx_tready ),
-  .m_axis_rx_tvalid               ( pcie_rx_tvalid ),
-  .m_axis_rx_tlast                ( pcie_rx_tlast ),
-  .m_axis_rx_tkeep                ( pcie_rx_tkeep ),
-  .m_axis_rx_tdata                ( pcie_rx_tdata ),
-  .m_axis_rx_tuser                ( pcie_rx_tuser ),
+  .m_axis_rx_tready               ( pcie_app_rx_tready ),
+  .m_axis_rx_tvalid               ( pcie_app_rx_tvalid ),
+  .m_axis_rx_tlast                ( pcie_app_rx_tlast ),
+  .m_axis_rx_tkeep                ( pcie_app_rx_tkeep ),
+  .m_axis_rx_tdata                ( pcie_app_rx_tdata ),
+  .m_axis_rx_tuser                ( pcie_app_rx_tuser ),
 
   .tx_cfg_gnt                     ( tx_cfg_gnt ),
   .rx_np_ok                       ( rx_np_ok ),

@@ -110,7 +110,6 @@ module PIO #(
   output wire [31:0] srcip,
   output wire [15:0] dstport,
   output wire [15:0] srcport
-  
 ); // synthesis syn_hier = "hard"
 
 

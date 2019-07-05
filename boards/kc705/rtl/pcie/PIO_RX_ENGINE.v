@@ -1049,10 +1049,10 @@ module PIO_RX_ENGINE  #(
     end // pio_rx_sm_128
   endgenerate
 
-assign    mem64_bar_hit_n = ~(m_axis_rx_tuser[4]);
+assign    mem64_bar_hit_n = ~(m_axis_rx_tuser[4]);  // bar2
 assign    io_bar_hit_n = 1'b1;
-assign    mem32_bar_hit_n = ~(m_axis_rx_tuser[2]);
-assign    erom_bar_hit_n  = ~(m_axis_rx_tuser[8]);
+assign    mem32_bar_hit_n = ~(m_axis_rx_tuser[2]);  // bar0
+assign    erom_bar_hit_n  = ~(m_axis_rx_tuser[8]);  // erom
 
 
   always @*
@@ -1064,11 +1064,11 @@ assign    erom_bar_hit_n  = ~(m_axis_rx_tuser[8]);
       end // 4'b0111
 
       4'b1011 : begin
-        region_select <= #TCQ 2'b01;    // Select Mem32 region
+        region_select <= #TCQ 2'b01;    // Select Mem32 region (bar0)
       end // 4'b1011
 
       4'b1101 : begin
-        region_select <= #TCQ 2'b10;    // Select Mem64 region
+        region_select <= #TCQ 2'b10;    // Select Mem64 region (bar2)
       end // 4'b1101
 
       4'b1110 : begin

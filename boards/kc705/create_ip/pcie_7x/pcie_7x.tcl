@@ -19,12 +19,18 @@ set_property -dict [list                       \
 	CONFIG.Bar2_Prefetchable {true}        \
 	CONFIG.Bar2_Scale {Gigabytes}          \
 	CONFIG.Bar2_Size {1}                   \
+	CONFIG.Bar2_Type {Memory}              \
+	CONFIG.Bar4_Enabled {true}             \
+	CONFIG.Bar4_64bit {true}               \
+	CONFIG.Bar4_Prefetchable {true}        \
+	CONFIG.Bar4_Scale {Gigabytes}          \
+	CONFIG.Bar4_Size {1}                   \
+	CONFIG.Bar4_Type {Memory}              \
 	CONFIG.Vendor_ID {3776}                \
 	CONFIG.Device_ID {8022}                \
 	CONFIG.Subsystem_Vendor_ID {3776}      \
 	CONFIG.Subsystem_ID {8022}             \
 	CONFIG.Interface_Width {64_bit}        \
-	CONFIG.Bar2_Type {Memory}              \
 	CONFIG.Max_Payload_Size {512_bytes}    \
 	CONFIG.Trgt_Link_Speed {4'h2}          \
 	CONFIG.MSIx_Table_BIR {BAR_0}          \

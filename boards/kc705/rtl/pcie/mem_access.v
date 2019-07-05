@@ -54,7 +54,6 @@ mybram #( .WIDTH(8), .DEPTH(8) ) bar2_bram3 ( .clk(pcie_clk), .we(bram_bar2_we3)
 // bar0
 reg [31:0] read_data_bar0;
 
-// BAR0
 always @(posedge pcie_clk) begin
     if (pcie_rst) begin
         magic <= 32'h01_23_45_67;
@@ -68,60 +67,64 @@ always @(posedge pcie_clk) begin
         if (wr_en == 1'b1) begin  // write
     		case (wr_addr[13:12])
     		2'b01: begin
-                case (wr_addr[5:0])
-                6'h00: begin  // magic code
-                if (wr_be[0]) magic[ 7: 0] <= wr_data[31:24];
-                if (wr_be[1]) magic[15: 8] <= wr_data[23:16];
-                if (wr_be[2]) magic[23:16] <= wr_data[15: 8];
-                if (wr_be[3]) magic[31:24] <= wr_data[ 7: 0];
-                end
-                6'h01: begin  // dstmac_low
-                if (wr_be[0]) dstmac[ 7: 0] <= wr_data[31:24];
-                if (wr_be[1]) dstmac[15: 8] <= wr_data[23:16];
-                if (wr_be[2]) dstmac[23:16] <= wr_data[15: 8];
-                if (wr_be[3]) dstmac[31:24] <= wr_data[ 7: 0];
-                end
-                6'h02: begin  // dstmac_high
-                if (wr_be[0]) dstmac[39:32] <= wr_data[31:24];
-                if (wr_be[1]) dstmac[47:40] <= wr_data[23:16];
-                end
-                6'h03: begin  // srcmac_low
-                if (wr_be[0]) srcmac[ 7: 0] <= wr_data[31:24];
-                if (wr_be[1]) srcmac[15: 8] <= wr_data[23:16];
-                if (wr_be[2]) srcmac[23:16] <= wr_data[15: 8];
-                if (wr_be[3]) srcmac[31:24] <= wr_data[ 7: 0];
-                end
-                6'h04: begin  // srcmac_high
-                if (wr_be[0]) srcmac[39:32] <= wr_data[31:24];
-                if (wr_be[1]) srcmac[47:40] <= wr_data[23:16];
-                end
-                6'h05: begin  // dstip
-                if (wr_be[0]) dstip[ 7: 0] <= wr_data[31:24];
-                if (wr_be[1]) dstip[15: 8] <= wr_data[23:16];
-                if (wr_be[2]) dstip[23:16] <= wr_data[15: 8];
-                if (wr_be[3]) dstip[31:24] <= wr_data[ 7: 0];
-                end
-                6'h06: begin  // srcip
-                if (wr_be[0]) srcip[ 7: 0] <= wr_data[31:24];
-                if (wr_be[1]) srcip[15: 8] <= wr_data[23:16];
-                if (wr_be[2]) srcip[23:16] <= wr_data[15: 8];
-                if (wr_be[3]) srcip[31:24] <= wr_data[ 7: 0];
-                end
-                6'h07: begin  // dstport
-                if (wr_be[0]) dstport[ 7: 0] <= wr_data[31:24];
-                if (wr_be[1]) dstport[15: 8] <= wr_data[23:16];
-                end
-                6'h08: begin  // srcport
-                if (wr_be[0]) srcport[ 7: 0] <= wr_data[31:24];
-                if (wr_be[1]) srcport[15: 8] <= wr_data[23:16];
-                end
-                endcase
+			case (wr_addr[5:0])
+			// parameter
+			6'h00: begin  // magic code
+			    if (wr_be[0]) magic[ 7: 0] <= wr_data[31:24];
+			    if (wr_be[1]) magic[15: 8] <= wr_data[23:16];
+			    if (wr_be[2]) magic[23:16] <= wr_data[15: 8];
+			    if (wr_be[3]) magic[31:24] <= wr_data[ 7: 0];
+			end
+			6'h01: begin  // dstmac_low
+			    if (wr_be[0]) dstmac[ 7: 0] <= wr_data[31:24];
+			    if (wr_be[1]) dstmac[15: 8] <= wr_data[23:16];
+			    if (wr_be[2]) dstmac[23:16] <= wr_data[15: 8];
+			    if (wr_be[3]) dstmac[31:24] <= wr_data[ 7: 0];
+			end
+			6'h02: begin  // dstmac_high
+			    if (wr_be[0]) dstmac[39:32] <= wr_data[31:24];
+			    if (wr_be[1]) dstmac[47:40] <= wr_data[23:16];
+			end
+			6'h03: begin  // srcmac_low
+			    if (wr_be[0]) srcmac[ 7: 0] <= wr_data[31:24];
+			    if (wr_be[1]) srcmac[15: 8] <= wr_data[23:16];
+			    if (wr_be[2]) srcmac[23:16] <= wr_data[15: 8];
+			    if (wr_be[3]) srcmac[31:24] <= wr_data[ 7: 0];
+			end
+			6'h04: begin  // srcmac_high
+			    if (wr_be[0]) srcmac[39:32] <= wr_data[31:24];
+			    if (wr_be[1]) srcmac[47:40] <= wr_data[23:16];
+			end
+			6'h05: begin  // dstip
+			    if (wr_be[0]) dstip[ 7: 0] <= wr_data[31:24];
+			    if (wr_be[1]) dstip[15: 8] <= wr_data[23:16];
+			    if (wr_be[2]) dstip[23:16] <= wr_data[15: 8];
+			    if (wr_be[3]) dstip[31:24] <= wr_data[ 7: 0];
+			end
+			6'h06: begin  // srcip
+			    if (wr_be[0]) srcip[ 7: 0] <= wr_data[31:24];
+			    if (wr_be[1]) srcip[15: 8] <= wr_data[23:16];
+			    if (wr_be[2]) srcip[23:16] <= wr_data[15: 8];
+			    if (wr_be[3]) srcip[31:24] <= wr_data[ 7: 0];
+			end
+			6'h07: begin  // dstport
+			    if (wr_be[0]) dstport[ 7: 0] <= wr_data[31:24];
+			    if (wr_be[1]) dstport[15: 8] <= wr_data[23:16];
+			end
+			6'h08: begin  // srcport
+			    if (wr_be[0]) srcport[ 7: 0] <= wr_data[31:24];
+			    if (wr_be[1]) srcport[15: 8] <= wr_data[23:16];
+			end
+			
+			// config
+			endcase
     		end
     		endcase
         end else begin  // read
             case (rd_addr[13:12])
             2'b01: begin
                 case (rd_addr[5:0])
+                // parameter
                 6'h00: read_data_bar0 <= { magic[7:0], magic[15:8], magic[23:16], magic[31:24] };
                 6'h01: read_data_bar0 <= { dstmac[7:0], dstmac[15:8], dstmac[23:16], dstmac[31:24] };
                 6'h02: read_data_bar0 <= { dstmac[39:32], dstmac[47:40], 8'h0, 8'h0 };
@@ -131,6 +134,8 @@ always @(posedge pcie_clk) begin
                 6'h06: read_data_bar0 <= { srcip[7:0], srcip[15:8], srcip[23:16], srcip[31:24] };
                 6'h07: read_data_bar0 <= { dstport[7:0], dstport[15:8], 8'h0, 8'h0 };
                 6'h08: read_data_bar0 <= { srcport[7:0], srcport[15:8], 8'h0, 8'h0 };
+                
+                // config
                 default:
                     read_data_bar0 <= 32'h0;
                 endcase
@@ -143,9 +148,9 @@ always @(posedge pcie_clk) begin
     end
 end
 
+// BAR2
 reg [31:0] read_data_bar2;
 
-// BAR2
 always @* begin
    	bram_bar2_we0 <= 1'b0;
 	bram_bar2_we1 <= 1'b0;
