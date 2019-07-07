@@ -17,14 +17,14 @@ set_property -dict [list                       \
 	CONFIG.Bar2_Enabled {true}             \
 	CONFIG.Bar2_64bit {true}               \
 	CONFIG.Bar2_Prefetchable {true}        \
-	CONFIG.Bar2_Scale {Gigabytes}          \
-	CONFIG.Bar2_Size {1}                   \
+	CONFIG.Bar2_Scale {Megabytes}          \
+	CONFIG.Bar2_Size {512}                 \
 	CONFIG.Bar2_Type {Memory}              \
 	CONFIG.Bar4_Enabled {true}             \
 	CONFIG.Bar4_64bit {true}               \
 	CONFIG.Bar4_Prefetchable {true}        \
-	CONFIG.Bar4_Scale {Gigabytes}          \
-	CONFIG.Bar4_Size {1}                   \
+	CONFIG.Bar4_Scale {Megabytes}          \
+	CONFIG.Bar4_Size {512}                 \
 	CONFIG.Bar4_Type {Memory}              \
 	CONFIG.Vendor_ID {3776}                \
 	CONFIG.Device_ID {8022}                \
@@ -40,6 +40,10 @@ set_property -dict [list                       \
 	CONFIG.Trans_Buf_Pipeline {None}       \
 	CONFIG.Ref_Clk_Freq {100_MHz}          \
 ] [get_ips $ip_name]
+
+set_property -dict [list
+] [get_ips pcie_7x]
+
 
 #generate_target {instantiation_template} [get_files /home/sora/wrk/tmp/project_1/project_1.srcs/sources_1/ip/pcie_7x_0/pcie_7x_0.xci]
 #update_compile_order -fileset sources_1
