@@ -22,6 +22,32 @@ module pcie2fifo (
 	input  wire           full
 );
 
+PCIE_TREADY64     pcie_tready_nxt;
+PCIE_TVALID64     pcie_tvalid_nxt;
+PCIE_TLAST64      pcie_tlast_nxt;
+PCIE_TKEEP64      pcie_tkeep_nxt;
+PCIE_TDATA64      pcie_tdata_nxt;
+PCIE_TUSER64_RX   pcie_tuser_nxt;
+always_ff @(posedge pcie_clk) begin
+	if (pcie_rst) begin
+		pcie_tready_nxt <= 1'b0;
+		pcie_tvalid_nxt <= 1'b0;
+		pcie_tlast_nxt  <= 1'b0;
+		pcie_tkeep_nxt  <= 8'b0;
+		pcie_tuser_nxt  <= '{default: '0};
+
+		pcie_tdata_nxt.raw <= '{default: '0};
+	end else begin
+		pcie_tready_nxt <= pcie_tready;
+		pcie_tvalid_nxt <= pcie_tvalid;
+		pcie_tlast_nxt  <= pcie_tlast;
+		pcie_tkeep_nxt  <= pcie_tkeep;
+		pcie_tuser_nxt  <= pcie_tuser;
+
+		pcie_tdata_nxt.raw <= pcie_tdata.raw;
+	end
+end
+
 enum logic [2:0] {
 	IDLE,
 	HEADER,
@@ -56,8 +82,8 @@ end
 localparam TLP_3DW_HDR_LEN = 12;
 localparam TLP_4DW_HDR_LEN = 16;
 
-wire [12:0] bytelen3DW = (pcie_tdata.clk0_mem.length << 2) + TLP_3DW_HDR_LEN;
-wire [12:0] bytelen4DW = (pcie_tdata.clk0_mem.length << 2) + TLP_4DW_HDR_LEN;
+wire [12:0] bytelen3DW = (pcie_tdata_nxt.clk0_mem.length << 2) + TLP_3DW_HDR_LEN;
+wire [12:0] bytelen4DW = (pcie_tdata_nxt.clk0_mem.length << 2) + TLP_4DW_HDR_LEN;
 
 always_comb begin
 	state_next = state;
@@ -65,31 +91,56 @@ always_comb begin
 	wr_en = 0;
 
 	din.tlp_len = 0;
-	din.tvalid = pcie_tvalid;
-	din.tlast = pcie_tlast;
-	din.tkeep = pcie_tkeep;
-	din.tdata = pcie_tdata;
-	din.tuser = pcie_tuser;
+	din.tlp_tag = 0;
+	din.tvalid = pcie_tvalid_nxt;
+	din.tlast = pcie_tlast_nxt;
+	din.tkeep = pcie_tkeep_nxt;
+	din.tdata = pcie_tdata_nxt;
+	din.tuser = pcie_tuser_nxt;
 
 	case (state)
 	IDLE: begin
-		if (pcie_tready) begin
-			if (pcie_tvalid && !pcie_tlast && !full) begin
+		if (pcie_tready_nxt) begin
+			if (pcie_tvalid_nxt && !pcie_tlast_nxt && !full) begin
 				state_next = HEADER;
 
 				wr_en = 1;
 
-				case ({pcie_tdata.clk0_mem.format, pcie_tdata.clk0_mem.pkttype})
-				{MRD_3DW_NODATA, MEMRW}: din.tlp_len = TLP_3DW_HDR_LEN;   // Memory read request 3DW
-				{MRD_4DW_NODATA, MEMRW}: din.tlp_len = TLP_4DW_HDR_LEN;   // Memory read request 4DW
-				{MWR_3DW_DATA,   MEMRW}: din.tlp_len = bytelen3DW[10:0];  // Memory write request 3DW
-				{MWR_4DW_DATA,   MEMRW}: din.tlp_len = bytelen4DW[10:0];  // Memory write request 4DW
-				{CPL_NODATA,     COMPL}: din.tlp_len = TLP_3DW_HDR_LEN;   // Completion: No data
-				{CPL_DATA,       COMPL}: din.tlp_len = bytelen3DW[10:0];  // Completion: data
-				default: begin
-					state_next = IDLE;
-					wr_en = 0;
-				end
+				case ({pcie_tdata_nxt.clk0_mem.format, pcie_tdata_nxt.clk0_mem.pkttype})
+					// Memory read request 3DW
+					{MRD_3DW_NODATA, MEMRW}: begin
+						din.tlp_len = TLP_3DW_HDR_LEN;
+						din.tlp_tag = pcie_tdata_nxt.clk0_mem.tag;
+					end
+					// Memory read request 4DW
+					{MRD_4DW_NODATA, MEMRW}: begin
+						din.tlp_len = TLP_4DW_HDR_LEN;
+						din.tlp_tag = pcie_tdata_nxt.clk0_mem.tag;
+					end
+					// Memory write request 3DW
+					{MWR_3DW_DATA, MEMRW}: begin
+						din.tlp_len = bytelen3DW[10:0];
+						din.tlp_tag = pcie_tdata_nxt.clk0_mem.tag;
+					end
+					// Memory write request 4DW
+					{MWR_4DW_DATA,MEMRW}: begin
+						din.tlp_len = bytelen4DW[10:0];
+						din.tlp_tag = pcie_tdata_nxt.clk0_mem.tag;
+					end
+					// Completion: No data
+					{CPL_NODATA, COMPL}: begin
+						din.tlp_len = TLP_3DW_HDR_LEN;
+						din.tlp_tag = pcie_tdata.clk1_cpl.tag;
+					end
+					// Completion: data
+					{CPL_DATA, COMPL}: begin
+						din.tlp_len = bytelen3DW[10:0];
+						din.tlp_tag = pcie_tdata.clk1_cpl.tag;
+					end
+					default: begin
+						state_next = IDLE;
+						wr_en = 0;
+					end
 				endcase
 			end
 		end
@@ -97,9 +148,9 @@ always_comb begin
 	HEADER: begin
 		if (timeout == timeout_val) begin
 			state_next = ERR_TIMEOUT;
-		end else if (pcie_tready) begin
-			if (pcie_tvalid && !full) begin
-				if (pcie_tlast) begin
+		end else if (pcie_tready_nxt) begin
+			if (pcie_tvalid_nxt && !full) begin
+				if (pcie_tlast_nxt) begin
 					state_next = IDLE;
 				end else
 					state_next = DATA;
@@ -113,9 +164,9 @@ always_comb begin
 	DATA: begin
 		if (timeout == timeout_val) begin
 			state_next = ERR_TIMEOUT;
-		end else if (pcie_tready) begin
-			if (pcie_tvalid && !full) begin
-				if (pcie_tlast) begin
+		end else if (pcie_tready_nxt) begin
+			if (pcie_tvalid_nxt && !full) begin
+				if (pcie_tlast_nxt) begin
 					state_next = IDLE;
 				end
 

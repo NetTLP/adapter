@@ -72,8 +72,11 @@ package nettlp_pkg;
 
 	typedef bit [10:0] TLP_LEN;  // max: 2048
 
+	typedef bit [7:0] TLP_TAG;
+
 	typedef struct packed {
-		TLP_LEN         tlp_len;   // 11b
+		TLP_LEN         tlp_len;   // 11
+		TLP_TAG         tlp_tag;   // 8
 		PCIE_TVALID64   tvalid;    // 1
 		PCIE_TLAST64    tlast;     // 1
 		PCIE_TKEEP64    tkeep;     // 8

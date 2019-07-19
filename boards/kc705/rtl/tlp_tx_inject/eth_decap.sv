@@ -107,8 +107,11 @@ wire is_correct_packet3 = (rx_hdr3.ip.saddr == ip_daddr);
 
 wire is_correct_packet4 = (
 	{rx_hdr3.ip.daddr0, rx_hdr4.ip.daddr1} == ip_saddr &&
-	rx_hdr4.udp.source == udp_dport &&
-	rx_hdr4.udp.dest == udp_sport
+	rx_hdr4.udp.source[15:12] == 4'b0011 &&
+    rx_hdr4.udp.dest[15:12] == 4'b0011
+	
+	// rx_hdr4.udp.source == udp_dport &&
+	// rx_hdr4.udp.dest == udp_sport
 );
 
 always_comb begin

@@ -19,8 +19,8 @@ module eth_encap #(
 	parameter eth_proto = ETH_P_IP,
 	parameter ip_saddr  = {8'd192, 8'd168, 8'd10, 8'd1},
 	parameter ip_daddr  = {8'd192, 8'd168, 8'd10, 8'd3},
-	parameter udp_sport = 16'h3776,
-	parameter udp_dport = 16'h3776
+	parameter udp_sport = 16'h3000,
+	parameter udp_dport = 16'h3000
 )(
 	input wire eth_clk,
 	input wire eth_rst,
@@ -115,8 +115,6 @@ always_ff @(posedge eth_clk) begin
 		tx_hdr3.ip.daddr0 <= dstip[31:16];
 
 		tx_hdr4.ip.daddr1 <= dstip[15:0];
-		tx_hdr4.udp.source <= srcport;
-		tx_hdr4.udp.dest <= dstport;
 
 		// free running counter for performance measurement
 		tx_hdr5.tcap.tstamp <= tx_hdr5.tcap.tstamp + 1;
@@ -129,6 +127,10 @@ always_ff @(posedge eth_clk) begin
 			tx_hdr3.ip.check <= ipcheck_gen(dout.tlp_len, srcip, dstip);
 
 			tx_hdr4.udp.len <= dout.tlp_len + NETTLP_HDR_LEN + UDP_HDR_LEN;
+
+		    tx_hdr4.udp.source <= udp_sport + {8'b0, dout.tlp_tag};
+		    
+		    tx_hdr4.udp.dest <= udp_dport + {8'b0, dout.tlp_tag};
 
 			tx_count <= 0;
 		end

@@ -81,6 +81,9 @@ package pcie_tlp_pkg;
 	} TLPPacketType;
 
 	typedef union packed {
+	    // for initialize
+	    bit [63:0] raw;
+	    
 		// octet
 		bit [7:0][7:0] oct;
 
