@@ -128,9 +128,9 @@ always_ff @(posedge eth_clk) begin
 
 			tx_hdr4.udp.len <= dout.tlp_len + NETTLP_HDR_LEN + UDP_HDR_LEN;
 
-		    tx_hdr4.udp.source <= udp_sport + {8'b0, dout.tlp_tag};
+		    tx_hdr4.udp.source <= udp_sport + {12'b0, dout.tlp_tag[3:0]};
 		    
-		    tx_hdr4.udp.dest <= udp_dport + {8'b0, dout.tlp_tag};
+		    tx_hdr4.udp.dest <= udp_dport + {12'b0, dout.tlp_tag[3:0]};
 
 			tx_count <= 0;
 		end
