@@ -10,6 +10,7 @@ create_project -in_memory -part ${device_name}
 create_ip -name $ip_name -vendor $ip_vendor -library ip -version $ip_ver -module_name $ip_name
 
 set_property -dict [list                       \
+	CONFIG.mode_selection {Advanced}       \
 	CONFIG.Maximum_Link_Width {X4}         \
 	CONFIG.Link_Speed {5.0_GT/s}           \
 	CONFIG.User_Clk_Freq {250}             \
@@ -33,8 +34,15 @@ set_property -dict [list                       \
 	CONFIG.Interface_Width {64_bit}        \
 	CONFIG.Max_Payload_Size {512_bytes}    \
 	CONFIG.Trgt_Link_Speed {4'h2}          \
-	CONFIG.MSIx_Table_BIR {BAR_0}          \
-	CONFIG.MSIx_PBA_BIR {BAR_0}            \
+	CONFIG.Legacy_Interrupt {NONE}         \
+	CONFIG.IntX_Generation {false}         \
+	CONFIG.MSI_Enabled {false}             \
+	CONFIG.MSIx_Table_BIR {BAR_5:4}        \
+	CONFIG.MSIx_PBA_BIR {BAR_5:4}          \
+	CONFIG.MSIx_Enabled {true}             \
+	CONFIG.MSIx_Table_Size {16}            \
+	CONFIG.MSIx_Table_Offset {0}           \
+	CONFIG.MSIx_PBA_Offset {80}            \
 	CONFIG.RBAR_Num {0}                    \
 	CONFIG.PCIe_Blk_Locn {X0Y0}            \
 	CONFIG.Trans_Buf_Pipeline {None}       \
