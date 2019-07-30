@@ -37,18 +37,17 @@ set_property -dict [list                       \
 	CONFIG.Legacy_Interrupt {NONE}         \
 	CONFIG.IntX_Generation {false}         \
 	CONFIG.MSI_Enabled {false}             \
-	CONFIG.MSIx_Table_BIR {BAR_5:4}        \
-	CONFIG.MSIx_PBA_BIR {BAR_5:4}          \
+	CONFIG.MSIx_Table_BIR {BAR_3:2}        \
+	CONFIG.MSIx_PBA_BIR {BAR_3:2}          \
 	CONFIG.MSIx_Enabled {true}             \
 	CONFIG.MSIx_Table_Size {16}            \
 	CONFIG.MSIx_Table_Offset {0}           \
-	CONFIG.MSIx_PBA_Offset {80}            \
+	CONFIG.MSIx_PBA_Offset {60}            \
 	CONFIG.RBAR_Num {0}                    \
 	CONFIG.PCIe_Blk_Locn {X0Y0}            \
 	CONFIG.Trans_Buf_Pipeline {None}       \
 	CONFIG.Ref_Clk_Freq {100_MHz}          \
 ] [get_ips $ip_name]
-
 
 #generate_target {instantiation_template} [get_files /home/sora/wrk/tmp/project_1/project_1.srcs/sources_1/ip/pcie_7x_0/pcie_7x_0.xci]
 #update_compile_order -fileset sources_1
