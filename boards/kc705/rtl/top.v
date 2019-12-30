@@ -227,13 +227,13 @@ pcie_rx_filter #(
  * ****************************
  */
 
-wire [31:0] magic;
-wire [47:0] dstmac;
-wire [47:0] srcmac;
-wire [31:0] dstip;
-wire [31:0] srcip;
-wire [15:0] dstport;
-wire [15:0] srcport;
+wire [31:0] adapter_reg_magic;
+wire [47:0] adapter_reg_dstmac;
+wire [47:0] adapter_reg_srcmac;
+wire [31:0] adapter_reg_dstip;
+wire [31:0] adapter_reg_srcip;
+wire [15:0] adapter_reg_dstport;
+wire [15:0] adapter_reg_srcport;
 
 tlp_rx_snoop tlp_rx_snoop0 (
 	.sys_rst156       (sys_rst156),
@@ -259,13 +259,13 @@ tlp_rx_snoop tlp_rx_snoop0 (
 	.pcie_rx_tlast     (pcie_snoop_rx_tlast),
 	.pcie_rx_tuser     (pcie_snoop_rx_tuser),
 
-    .magic(magic),
-    .dstmac(dstmac),
-    .srcmac(srcmac),
-    .dstip(dstip),
-    .srcip(srcip),
-    .dstport(dstport),
-    .srcport(srcport)
+	.adapter_reg_magic  (adapter_reg_magic),
+	.adapter_reg_dstmac (adapter_reg_dstmac),
+	.adapter_reg_srcmac (adapter_reg_srcmac),
+	.adapter_reg_dstip  (adapter_reg_dstip),
+	.adapter_reg_srcip  (adapter_reg_srcip),
+	.adapter_reg_dstport(adapter_reg_dstport),
+	.adapter_reg_srcport(adapter_reg_srcport)
 );
 
 /*
@@ -805,13 +805,13 @@ pcie_app_7x  #(
   .cfg_interrupt_stat             ( cfg_interrupt_stat ),
   .cfg_pciecap_interrupt_msgnum   ( cfg_pciecap_interrupt_msgnum ),
   
-  .magic(magic),
-  .dstmac(dstmac),
-  .srcmac(srcmac),
-  .dstip(dstip),
-  .srcip(srcip),
-  .dstport(dstport),
-  .srcport(srcport)
+	.adapter_reg_magic  (adapter_reg_magic),
+	.adapter_reg_dstmac (adapter_reg_dstmac),
+	.adapter_reg_srcmac (adapter_reg_srcmac),
+	.adapter_reg_dstip  (adapter_reg_dstip),
+	.adapter_reg_srcip  (adapter_reg_srcip),
+	.adapter_reg_dstport(adapter_reg_dstport),
+	.adapter_reg_srcport(adapter_reg_srcport)
 );
 
 

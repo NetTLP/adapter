@@ -38,13 +38,13 @@ module eth_encap #(
 	output ETH_TDATA64     eth_tdata,
 	output ETH_TUSER64_TX  eth_tuser,
 	
-    input wire [31:0] magic,
-    input wire [47:0] dstmac,
-    input wire [47:0] srcmac,
-    input wire [31:0] dstip,
-    input wire [31:0] srcip,
-    input wire [15:0] dstport,
-    input wire [15:0] srcport
+	input wire [31:0] adapter_reg_magic,
+	input wire [47:0] adapter_reg_dstmac,
+	input wire [47:0] adapter_reg_srcmac,
+	input wire [31:0] adapter_reg_dstip,
+	input wire [31:0] adapter_reg_srcip,
+	input wire [15:0] adapter_reg_dstport,
+	input wire [15:0] adapter_reg_srcport
 );
 
 /* function: ipcheck_gen() */
@@ -101,8 +101,8 @@ always_ff @(posedge eth_clk) begin
 		tx_count <= 0;
 	end else begin
 		// immutable values
-		tx_hdr0.eth.h_dest <= dstmac;
-		{tx_hdr0.eth.h_source0, tx_hdr1.eth.h_source1} <= srcmac;
+		tx_hdr0.eth.h_dest <= adapter_reg_dstmac;
+		{tx_hdr0.eth.h_source0, tx_hdr1.eth.h_source1} <= adapter_reg_srcmac;
 
 		tx_hdr1.eth.h_proto <= eth_proto;
 		tx_hdr1.ip.version <= IPVERSION;
@@ -111,10 +111,10 @@ always_ff @(posedge eth_clk) begin
 		tx_hdr2.ip.ttl <= IPDEFTTL;
 		tx_hdr2.ip.protocol <= IP4_PROTO_UDP;
 
-		tx_hdr3.ip.saddr <= srcip;
-		tx_hdr3.ip.daddr0 <= dstip[31:16];
+		tx_hdr3.ip.saddr <= adapter_reg_srcip;
+		tx_hdr3.ip.daddr0 <= adapter_reg_dstip[31:16];
 
-		tx_hdr4.ip.daddr1 <= dstip[15:0];
+		tx_hdr4.ip.daddr1 <= adapter_reg_dstip[15:0];
 
 		// free running counter for performance measurement
 		tx_hdr5.tcap.tstamp <= tx_hdr5.tcap.tstamp + 1;
@@ -124,13 +124,13 @@ always_ff @(posedge eth_clk) begin
 			// mutable values
 			tx_hdr2.ip.tot_len <= dout.tlp_len + PACKET_HDR_LEN - ETH_HDR_LEN;
 
-			tx_hdr3.ip.check <= ipcheck_gen(dout.tlp_len, srcip, dstip);
+			tx_hdr3.ip.check <= ipcheck_gen(dout.tlp_len, adapter_reg_srcip, adapter_reg_dstip);
 
 			tx_hdr4.udp.len <= dout.tlp_len + NETTLP_HDR_LEN + UDP_HDR_LEN;
 
-		    tx_hdr4.udp.source <= udp_sport + {12'b0, dout.tlp_tag[3:0]};
-		    
-		    tx_hdr4.udp.dest <= udp_dport + {12'b0, dout.tlp_tag[3:0]};
+			tx_hdr4.udp.source <= udp_sport + {12'b0, dout.tlp_tag[3:0]};
+
+			tx_hdr4.udp.dest <= udp_dport + {12'b0, dout.tlp_tag[3:0]};
 
 			tx_count <= 0;
 		end

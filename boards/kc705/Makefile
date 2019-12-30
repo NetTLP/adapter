@@ -39,6 +39,7 @@ RTL_SRC := \
 	rtl/tlp_tx_inject/fifo2pcie.sv            \
 	rtl/tlp_tx_inject/tlp_tx_mux.sv           \
 	rtl/tlp_tx_inject/tlp_tx_inject.sv        \
+	rtl/pcie_rx_filter.sv                     \
 	rtl/top.v
 
 IPGEN_SRC := \

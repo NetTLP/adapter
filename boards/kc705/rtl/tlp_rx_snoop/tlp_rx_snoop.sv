@@ -48,13 +48,13 @@ module tlp_rx_snoop #(
 	input wire                         pcie_rx_tvalid,
 	input wire  [21:0]                 pcie_rx_tuser,
 	
-    input wire [31:0] magic,
-    input wire [47:0] dstmac,
-    input wire [47:0] srcmac,
-    input wire [31:0] dstip,
-    input wire [31:0] srcip,
-    input wire [15:0] dstport,
-    input wire [15:0] srcport
+	input wire [31:0] adapter_reg_magic,
+	input wire [47:0] adapter_reg_dstmac,
+	input wire [47:0] adapter_reg_srcmac,
+	input wire [31:0] adapter_reg_dstip,
+	input wire [31:0] adapter_reg_srcip,
+	input wire [15:0] adapter_reg_dstport,
+	input wire [15:0] adapter_reg_srcport
 );
 
 /*
@@ -125,13 +125,13 @@ eth_encap eth_encap0 (
 	.eth_tlast (eth_tx_tlast),
 	.eth_tuser (eth_tx_tuser),
 	
-    .magic(magic),
-    .dstmac(dstmac),
-    .srcmac(srcmac),
-    .dstip(dstip),
-    .srcip(srcip),
-    .dstport(dstport),
-    .srcport(srcport)
+	.adapter_reg_magic  (adapter_reg_magic),
+	.adapter_reg_dstmac (adapter_reg_dstmac),
+	.adapter_reg_srcmac (adapter_reg_srcmac),
+	.adapter_reg_dstip  (adapter_reg_dstip),
+	.adapter_reg_srcip  (adapter_reg_srcip),
+	.adapter_reg_dstport(adapter_reg_dstport),
+	.adapter_reg_srcport(adapter_reg_srcport)
 );
 
 

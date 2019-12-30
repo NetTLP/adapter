@@ -17,11 +17,11 @@ XCI_SRC := \
 
 all: clean
 	vivado -mode batch -source pcie_7x.tcl
-	patch -p1 -d pcie_7x_example_design/pcie_7x_ex/imports < pcie_7x.patch
+	#patch -p1 -d pcie_7x_example_design/pcie_7x_ex/imports < pcie_7x.patch
 	test -e $(build_dir) || mkdir $(build_dir)
 	test -e $(build_dir)/rtl || mkdir $(build_dir)/rtl
 	test -e $(build_dir)/rtl/pcie || mkdir $(build_dir)/rtl/pcie
-	cp $(RTL_SRC) $(build_dir)/rtl/pcie/
+	#cp $(RTL_SRC) $(build_dir)/rtl/pcie/
 	test -e $(build_dir)/ip_catalog || mkdir $(build_dir)/ip_catalog
 	test -e $(build_dir)/ip_catalog/pcie_7x || mkdir $(build_dir)/ip_catalog/pcie_7x
 	cp $(XCI_SRC) $(build_dir)/ip_catalog/pcie_7x/

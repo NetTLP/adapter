@@ -17,13 +17,13 @@ module mem_access  #(
 	input wire [31:0] wr_data,     // I [31:0]  Write Data
 	output wire wr_busy,           // O	 Write Controller Busy
 	
-	output reg [31:0] magic,
-    output reg [47:0] dstmac,
-    output reg [47:0] srcmac,
-    output reg [31:0] dstip,
-    output reg [31:0] srcip,
-    output reg [15:0] dstport,
-    output reg [15:0] srcport
+	output reg [31:0] adapter_reg_magic,
+	output reg [47:0] adapter_reg_dstmac,
+	output reg [47:0] adapter_reg_srcmac,
+	output reg [31:0] adapter_reg_dstip,
+	output reg [31:0] adapter_reg_srcip,
+	output reg [15:0] adapter_reg_dstport,
+	output reg [15:0] adapter_reg_srcport
 );
 
 assign wr_busy = 1'b0;
@@ -56,64 +56,64 @@ reg [31:0] read_data_bar0;
 
 always @(posedge pcie_clk) begin
     if (pcie_rst) begin
-        magic <= 32'h01_23_45_67;
-        dstmac <= 48'hFF_FF_FF_FF_FF_FF;
-        srcmac <= 48'h00_11_22_33_44_55;
-        dstip <= {8'd192, 8'd168, 8'd10, 8'd3};
-        srcip <= {8'd192, 8'd168, 8'd10, 8'd1};
-        dstport <= 16'h3776;
-        srcport <= 16'h3776;
+        adapter_reg_magic <= 32'h01_23_45_67;
+        adapter_reg_dstmac <= 48'hFF_FF_FF_FF_FF_FF;
+        adapter_reg_srcmac <= 48'h00_11_22_33_44_55;
+        adapter_reg_dstip <= {8'd192, 8'd168, 8'd10, 8'd3};
+        adapter_reg_srcip <= {8'd192, 8'd168, 8'd10, 8'd1};
+        adapter_reg_dstport <= 16'h3776;
+        adapter_reg_srcport <= 16'h3776;
     end else begin
         if (wr_en == 1'b1) begin  // write
     		case (wr_addr[13:12])
     		2'b01: begin
 			case (wr_addr[5:0])
 			// parameter
-			6'h00: begin  // magic code
-			    if (wr_be[0]) magic[ 7: 0] <= wr_data[31:24];
-			    if (wr_be[1]) magic[15: 8] <= wr_data[23:16];
-			    if (wr_be[2]) magic[23:16] <= wr_data[15: 8];
-			    if (wr_be[3]) magic[31:24] <= wr_data[ 7: 0];
+			6'h00: begin  // adapter_reg_magic code
+			    if (wr_be[0]) adapter_reg_magic[ 7: 0] <= wr_data[31:24];
+			    if (wr_be[1]) adapter_reg_magic[15: 8] <= wr_data[23:16];
+			    if (wr_be[2]) adapter_reg_magic[23:16] <= wr_data[15: 8];
+			    if (wr_be[3]) adapter_reg_magic[31:24] <= wr_data[ 7: 0];
 			end
-			6'h01: begin  // dstmac_low
-			    if (wr_be[0]) dstmac[ 7: 0] <= wr_data[31:24];
-			    if (wr_be[1]) dstmac[15: 8] <= wr_data[23:16];
-			    if (wr_be[2]) dstmac[23:16] <= wr_data[15: 8];
-			    if (wr_be[3]) dstmac[31:24] <= wr_data[ 7: 0];
+			6'h01: begin  // adapter_reg_dstmac_low
+			    if (wr_be[0]) adapter_reg_dstmac[ 7: 0] <= wr_data[31:24];
+			    if (wr_be[1]) adapter_reg_dstmac[15: 8] <= wr_data[23:16];
+			    if (wr_be[2]) adapter_reg_dstmac[23:16] <= wr_data[15: 8];
+			    if (wr_be[3]) adapter_reg_dstmac[31:24] <= wr_data[ 7: 0];
 			end
-			6'h02: begin  // dstmac_high
-			    if (wr_be[0]) dstmac[39:32] <= wr_data[31:24];
-			    if (wr_be[1]) dstmac[47:40] <= wr_data[23:16];
+			6'h02: begin  // adapter_reg_dstmac_high
+			    if (wr_be[0]) adapter_reg_dstmac[39:32] <= wr_data[31:24];
+			    if (wr_be[1]) adapter_reg_dstmac[47:40] <= wr_data[23:16];
 			end
-			6'h03: begin  // srcmac_low
-			    if (wr_be[0]) srcmac[ 7: 0] <= wr_data[31:24];
-			    if (wr_be[1]) srcmac[15: 8] <= wr_data[23:16];
-			    if (wr_be[2]) srcmac[23:16] <= wr_data[15: 8];
-			    if (wr_be[3]) srcmac[31:24] <= wr_data[ 7: 0];
+			6'h03: begin  // adapter_reg_srcmac_low
+			    if (wr_be[0]) adapter_reg_srcmac[ 7: 0] <= wr_data[31:24];
+			    if (wr_be[1]) adapter_reg_srcmac[15: 8] <= wr_data[23:16];
+			    if (wr_be[2]) adapter_reg_srcmac[23:16] <= wr_data[15: 8];
+			    if (wr_be[3]) adapter_reg_srcmac[31:24] <= wr_data[ 7: 0];
 			end
-			6'h04: begin  // srcmac_high
-			    if (wr_be[0]) srcmac[39:32] <= wr_data[31:24];
-			    if (wr_be[1]) srcmac[47:40] <= wr_data[23:16];
+			6'h04: begin  // adapter_reg_srcmac_high
+			    if (wr_be[0]) adapter_reg_srcmac[39:32] <= wr_data[31:24];
+			    if (wr_be[1]) adapter_reg_srcmac[47:40] <= wr_data[23:16];
 			end
-			6'h05: begin  // dstip
-			    if (wr_be[0]) dstip[ 7: 0] <= wr_data[31:24];
-			    if (wr_be[1]) dstip[15: 8] <= wr_data[23:16];
-			    if (wr_be[2]) dstip[23:16] <= wr_data[15: 8];
-			    if (wr_be[3]) dstip[31:24] <= wr_data[ 7: 0];
+			6'h05: begin  // adapter_reg_dstip
+			    if (wr_be[0]) adapter_reg_dstip[ 7: 0] <= wr_data[31:24];
+			    if (wr_be[1]) adapter_reg_dstip[15: 8] <= wr_data[23:16];
+			    if (wr_be[2]) adapter_reg_dstip[23:16] <= wr_data[15: 8];
+			    if (wr_be[3]) adapter_reg_dstip[31:24] <= wr_data[ 7: 0];
 			end
-			6'h06: begin  // srcip
-			    if (wr_be[0]) srcip[ 7: 0] <= wr_data[31:24];
-			    if (wr_be[1]) srcip[15: 8] <= wr_data[23:16];
-			    if (wr_be[2]) srcip[23:16] <= wr_data[15: 8];
-			    if (wr_be[3]) srcip[31:24] <= wr_data[ 7: 0];
+			6'h06: begin  // adapter_reg_srcip
+			    if (wr_be[0]) adapter_reg_srcip[ 7: 0] <= wr_data[31:24];
+			    if (wr_be[1]) adapter_reg_srcip[15: 8] <= wr_data[23:16];
+			    if (wr_be[2]) adapter_reg_srcip[23:16] <= wr_data[15: 8];
+			    if (wr_be[3]) adapter_reg_srcip[31:24] <= wr_data[ 7: 0];
 			end
-			6'h07: begin  // dstport
-			    if (wr_be[0]) dstport[ 7: 0] <= wr_data[31:24];
-			    if (wr_be[1]) dstport[15: 8] <= wr_data[23:16];
+			6'h07: begin  // adapter_reg_dstport
+			    if (wr_be[0]) adapter_reg_dstport[ 7: 0] <= wr_data[31:24];
+			    if (wr_be[1]) adapter_reg_dstport[15: 8] <= wr_data[23:16];
 			end
-			6'h08: begin  // srcport
-			    if (wr_be[0]) srcport[ 7: 0] <= wr_data[31:24];
-			    if (wr_be[1]) srcport[15: 8] <= wr_data[23:16];
+			6'h08: begin  // adapter_reg_srcport
+			    if (wr_be[0]) adapter_reg_srcport[ 7: 0] <= wr_data[31:24];
+			    if (wr_be[1]) adapter_reg_srcport[15: 8] <= wr_data[23:16];
 			end
 			
 			// config
@@ -125,15 +125,15 @@ always @(posedge pcie_clk) begin
             2'b01: begin
                 case (rd_addr[5:0])
                 // parameter
-                6'h00: read_data_bar0 <= { magic[7:0], magic[15:8], magic[23:16], magic[31:24] };
-                6'h01: read_data_bar0 <= { dstmac[7:0], dstmac[15:8], dstmac[23:16], dstmac[31:24] };
-                6'h02: read_data_bar0 <= { dstmac[39:32], dstmac[47:40], 8'h0, 8'h0 };
-                6'h03: read_data_bar0 <= { srcmac[7:0], srcmac[15:8], srcmac[23:16], srcmac[31:24] };
-                6'h04: read_data_bar0 <= { srcmac[39:32], srcmac[47:40], 8'h0, 8'h0 };
-                6'h05: read_data_bar0 <= { dstip[7:0], dstip[15:8], dstip[23:16], dstip[31:24] };
-                6'h06: read_data_bar0 <= { srcip[7:0], srcip[15:8], srcip[23:16], srcip[31:24] };
-                6'h07: read_data_bar0 <= { dstport[7:0], dstport[15:8], 8'h0, 8'h0 };
-                6'h08: read_data_bar0 <= { srcport[7:0], srcport[15:8], 8'h0, 8'h0 };
+                6'h00: read_data_bar0 <= { adapter_reg_magic[7:0], adapter_reg_magic[15:8], adapter_reg_magic[23:16], adapter_reg_magic[31:24] };
+                6'h01: read_data_bar0 <= { adapter_reg_dstmac[7:0], adapter_reg_dstmac[15:8], adapter_reg_dstmac[23:16], adapter_reg_dstmac[31:24] };
+                6'h02: read_data_bar0 <= { adapter_reg_dstmac[39:32], adapter_reg_dstmac[47:40], 8'h0, 8'h0 };
+                6'h03: read_data_bar0 <= { adapter_reg_srcmac[7:0], adapter_reg_srcmac[15:8], adapter_reg_srcmac[23:16], adapter_reg_srcmac[31:24] };
+                6'h04: read_data_bar0 <= { adapter_reg_srcmac[39:32], adapter_reg_srcmac[47:40], 8'h0, 8'h0 };
+                6'h05: read_data_bar0 <= { adapter_reg_dstip[7:0], adapter_reg_dstip[15:8], adapter_reg_dstip[23:16], adapter_reg_dstip[31:24] };
+                6'h06: read_data_bar0 <= { adapter_reg_srcip[7:0], adapter_reg_srcip[15:8], adapter_reg_srcip[23:16], adapter_reg_srcip[31:24] };
+                6'h07: read_data_bar0 <= { adapter_reg_dstport[7:0], adapter_reg_dstport[15:8], 8'h0, 8'h0 };
+                6'h08: read_data_bar0 <= { adapter_reg_srcport[7:0], adapter_reg_srcport[15:8], 8'h0, 8'h0 };
                 
                 // config
                 default:

@@ -103,13 +103,13 @@ module PIO #(
   input [15:0]                  cfg_completer_id,
   
     
-  output wire [31:0] magic,
-  output wire [47:0] dstmac,
-  output wire [47:0] srcmac,
-  output wire [31:0] dstip,
-  output wire [31:0] srcip,
-  output wire [15:0] dstport,
-  output wire [15:0] srcport
+  output wire [31:0] adapter_reg_magic,
+  output wire [47:0] adapter_reg_dstmac,
+  output wire [47:0] adapter_reg_srcmac,
+  output wire [31:0] adapter_reg_dstip,
+  output wire [31:0] adapter_reg_srcip,
+  output wire [15:0] adapter_reg_dstport,
+  output wire [15:0] adapter_reg_srcport
 ); // synthesis syn_hier = "hard"
 
 
@@ -163,13 +163,13 @@ module PIO #(
 
     .cfg_completer_id ( cfg_completer_id ),        // I [15:0]
     
-    .magic(magic),
-    .dstmac(dstmac),
-    .srcmac(srcmac),
-    .dstip(dstip),
-    .srcip(srcip),
-    .dstport(dstport),
-    .srcport(srcport)
+    .adapter_reg_magic  (adapter_reg_magic),
+    .adapter_reg_dstmac (adapter_reg_dstmac),
+    .adapter_reg_srcmac (adapter_reg_srcmac),
+    .adapter_reg_dstip  (adapter_reg_dstip),
+    .adapter_reg_srcip  (adapter_reg_srcip),
+    .adapter_reg_dstport(adapter_reg_dstport),
+    .adapter_reg_srcport(adapter_reg_srcport)
   );
 
 
