@@ -6,12 +6,12 @@ set ip_version   "13.2"
 
 set module_name "afifo_tmpl"
 
-create_project -in_memory -part ${device_name}
+create_project -in_memory -part $device_name
 
 create_ip -name $ip_name -vendor $ip_vendor -library ip -version $ip_version -module_name $module_name
 
 set_property -dict [list                                          \
-	CONFIG.Component_Name {afifo0}                            \
+	CONFIG.Component_Name {$module_name}                      \
 	CONFIG.Fifo_Implementation {Independent_Clocks_Block_RAM} \
 	CONFIG.Performance_Options {First_Word_Fall_Through}      \
 	CONFIG.Input_Data_Width {80}                              \
