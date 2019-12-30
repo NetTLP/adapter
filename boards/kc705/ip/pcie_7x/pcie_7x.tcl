@@ -1,13 +1,14 @@
 set device_name "xc7k325tffg900-2"
 
-set ip_name "pcie_7x"
-set ip_ver "3.3"
-set ip_vendor "xilinx.com"
+set ip_name     "pcie_7x"
+set ip_vendor   "xilinx.com"
+set ip_version   "3.3"
 
-#create_project project_1 /home/sora/wrk/tmp/project_1 -part xc7k325tffg900-2
+set module_name "pcie_7x"
+
 create_project -in_memory -part ${device_name}
 
-create_ip -name $ip_name -vendor $ip_vendor -library ip -version $ip_ver -module_name $ip_name
+create_ip -name $ip_name -vendor $ip_vendor -library ip -version $ip_version -module_name $module_name
 
 set_property -dict [list                       \
 	CONFIG.mode_selection {Advanced}       \
@@ -47,12 +48,9 @@ set_property -dict [list                       \
 	CONFIG.PCIe_Blk_Locn {X0Y0}            \
 	CONFIG.Trans_Buf_Pipeline {None}       \
 	CONFIG.Ref_Clk_Freq {100_MHz}          \
-] [get_ips $ip_name]
+] [get_ips $module_name]
 
-#generate_target {instantiation_template} [get_files /home/sora/wrk/tmp/project_1/project_1.srcs/sources_1/ip/pcie_7x_0/pcie_7x_0.xci]
-#update_compile_order -fileset sources_1
-generate_target {synthesis} [get_ips $ip_name]
+generate_target {instantiation_template} [get_ips $module_name]
 
-#open_example_project -force -dir /home/sora/wrk/tmp/tmp [get_ips  pcie_7x_0]
-open_example_project -force -dir ${ip_name}_example_design [get_ips $ip_name]
+#open_example_project -force -dir ${ip_name}_example_design [get_ips $module_name]
 
