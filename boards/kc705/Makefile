@@ -22,9 +22,9 @@ PKG_SRC += $(cores_dir)/pkg/nettlp_pkg.sv
 
 RTL_SRC += $(cores_dir)/clk_sync/clk_sync.sv
 RTL_SRC += $(cores_dir)/clk_sync/clk_sync_ashot.sv
-RTL_SRC += $(rtl_dir)/eth/eth_pcspma_conf.v
-RTL_SRC += $(rtl_dir)/eth/eth_mac_conf.v
-RTL_SRC += $(rtl_dir)/eth/eth_top.v
+RTL_SRC += $(rtl_dir)/eth/eth_pcspma_conf.sv
+RTL_SRC += $(rtl_dir)/eth/eth_mac_conf.sv
+RTL_SRC += $(rtl_dir)/eth/eth_top.sv
 RTL_SRC += $(rtl_dir)/clock_control/clock_control.v
 RTL_SRC += $(rtl_dir)/clock_control/clock_control_program.v
 RTL_SRC += $(rtl_dir)/clock_control/kcpsm6.v
