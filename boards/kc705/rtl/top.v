@@ -1,8 +1,6 @@
 `default_nettype none
 `timescale 1ns / 1ps
 
-`include "setup.v"
-
 module top #(
 	parameter COLD_RESET_INTVAL   = 14'hfff,
 	parameter PL_FAST_TRAIN       = "FALSE", // Simulation Speedup
