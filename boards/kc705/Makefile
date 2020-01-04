@@ -46,7 +46,7 @@ RTL_SRC += $(rtl_dir)/tlp_tx_inject/fifo2pcie.sv
 RTL_SRC += $(rtl_dir)/tlp_tx_inject/tlp_tx_mux.sv
 RTL_SRC += $(rtl_dir)/tlp_tx_inject/tlp_tx_inject.sv
 RTL_SRC += $(rtl_dir)/pcie_rx_filter.sv
-RTL_SRC += $(rtl_dir)/top.v
+RTL_SRC += $(rtl_dir)/top.sv
 
 XDC_SRC += $(xdc_dir)/nettlp-kc705.xdc
 
