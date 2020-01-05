@@ -66,11 +66,9 @@ module PIO_EP #(
   parameter KEEP_WIDTH = C_DATA_WIDTH / 8,              // TSTRB width
   parameter TCQ        = 1
 ) (
-  input                         sys_rst,
 
   input                         clk,
   input                         rst_n,
-  input                         pcie_rst,
 
   // AXIS TX
   output wire                   s_axis_tx_req,
@@ -135,13 +133,11 @@ module PIO_EP #(
     //
     // ENDPOINT MEMORY : 8KB memory aperture implemented in FPGA BlockRAM(*)
     //
-    mem_access  #(
-       .TCQ( TCQ )
-       ) mem_access_inst (
-//      .sys_rst(sys_rst),       // I
+
+    mem_access mem_access_inst (
       
-      .pcie_clk(clk),               // I
-      .pcie_rst(pcie_rst),       // I
+      .clk(clk),               // I
+      .rst_n(rst_n),           // I
       
       // Read Port
       
@@ -209,6 +205,7 @@ module PIO_EP #(
     .wr_data(wr_data),                      // O [31:0]
     .wr_en(wr_en),                          // O
     .wr_busy(wr_busy)                       // I
+                                            
   );
 
     //
@@ -264,3 +261,4 @@ module PIO_EP #(
   assign compl_done = compl_done_int;
 
 endmodule // PIO_EP
+

@@ -56,11 +56,11 @@ TCL_SRC += $(tcl_dir)/vivado_place.tcl
 TCL_SRC += $(tcl_dir)/vivado_route.tcl
 TCL_SRC += $(tcl_dir)/vivado_bitstream.tcl
 
-IP_SRC += $(ip_dir)/ila_0/ila_0.xci
-IP_SRC += $(ip_dir)/pcie_afifo/pcie_afifo.xci
-IP_SRC += $(ip_dir)/eth_afifo/eth_afifo.xci
-IP_SRC += $(ip_dir)/axi_10g_ethernet_0/axi_10g_ethernet_0.xci
-IP_SRC += $(ip_dir)/pcie_7x/pcie_7x.xci
+IP_SRC += $(ip_dir)/ila_0/ila_0.tcl
+IP_SRC += $(ip_dir)/pcie_afifo/pcie_afifo.tcl
+IP_SRC += $(ip_dir)/eth_afifo/eth_afifo.tcl
+IP_SRC += $(ip_dir)/axi_10g_ethernet_0/axi_10g_ethernet_0.tcl
+IP_SRC += $(ip_dir)/pcie_7x/pcie_7x.tcl
 
 
 TARGET := $(build_dir)/$(project_name)

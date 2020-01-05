@@ -69,8 +69,6 @@ module  pcie_app_7x#(
   parameter KEEP_WIDTH = C_DATA_WIDTH / 8,              // TSTRB width
   parameter TCQ        = 1
 )(
-  input                         sys_rst,
-  input wire pcie_rst,
 
   input                         user_clk,
   input                         user_reset,
@@ -81,11 +79,11 @@ module  pcie_app_7x#(
   input  wire                   s_axis_tx_ack,
 
   input                         s_axis_tx_tready,
-  output                        s_axis_tx_tvalid,
-  output                        s_axis_tx_tlast,
-  output  [KEEP_WIDTH-1:0]      s_axis_tx_tkeep,
   output  [C_DATA_WIDTH-1:0]    s_axis_tx_tdata,
+  output  [KEEP_WIDTH-1:0]      s_axis_tx_tkeep,
   output  [3:0]                 s_axis_tx_tuser,
+  output                        s_axis_tx_tlast,
+  output                        s_axis_tx_tvalid,
 
   // Rx
   input  [C_DATA_WIDTH-1:0]     m_axis_rx_tdata,
@@ -239,9 +237,6 @@ module  pcie_app_7x#(
     .TCQ( TCQ )
 
   ) PIO (
-    .sys_rst( sys_rst ),
-
-    .pcie_rst( pcie_rst ),
 
     .user_clk ( user_clk ),                         // I
     .user_reset ( user_reset ),                     // I

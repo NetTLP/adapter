@@ -70,9 +70,6 @@ module PIO #(
   parameter KEEP_WIDTH = C_DATA_WIDTH / 8,              // TSTRB width
   parameter TCQ        = 1
 )(
-  input                         sys_rst,
-  input                         pcie_rst,
-
   input                         user_clk,
   input                         user_reset,
   input                         user_lnk_up,
@@ -101,8 +98,7 @@ module PIO #(
   output                        cfg_turnoff_ok,
 
   input [15:0]                  cfg_completer_id,
-  
-    
+
   output wire [31:0] adapter_reg_magic,
   output wire [47:0] adapter_reg_dstmac,
   output wire [47:0] adapter_reg_srcmac,
@@ -135,11 +131,8 @@ module PIO #(
     .KEEP_WIDTH( KEEP_WIDTH ),
     .TCQ( TCQ )
   ) PIO_EP_inst (
-    .sys_rst( sys_rst ),
-
     .clk( user_clk ),                             // I
     .rst_n( pio_reset_n ),                        // I
-    .pcie_rst(pcie_rst),
 
     .s_axis_tx_req(s_axis_tx_req),
     .s_axis_tx_ack(s_axis_tx_ack),
