@@ -22,23 +22,23 @@ module tlp_tx_inject #(
 	input wire eth_rst,
 
 	// output: pcie_support (IP)
-	input  wire                        pcie_tx_tready,
-	output wire                        pcie_tx_tvalid,
-	output wire                        pcie_tx_tlast,
-	output wire  [KEEP_WIDTH-1:0]      pcie_tx_tkeep,
-	output wire  [C_DATA_WIDTH-1:0]    pcie_tx_tdata,
-	output wire  [3:0]                 pcie_tx_tuser,
+	input  wire                        pcie_tx1_tready,
+	output wire                        pcie_tx1_tvalid,
+	output wire                        pcie_tx1_tlast,
+	output wire  [KEEP_WIDTH-1:0]      pcie_tx1_tkeep,
+	output wire  [C_DATA_WIDTH-1:0]    pcie_tx1_tdata,
+	output wire  [3:0]                 pcie_tx1_tuser,
 
 	// input: pcie_app(tx_engine)
-	input  wire                        pcie_tx1_req,
-	output wire                        pcie_tx1_ack,
+	input  wire                        pcie_tx_req,
+	output wire                        pcie_tx_ack,
 
-	output wire                        pcie_tx1_tready,
-	input  wire                        pcie_tx1_tvalid,
-	input  wire                        pcie_tx1_tlast,
-	input  wire  [KEEP_WIDTH-1:0]      pcie_tx1_tkeep,
-	input  wire  [C_DATA_WIDTH-1:0]    pcie_tx1_tdata,
-	input  wire  [3:0]                 pcie_tx1_tuser,
+	output wire                        pcie_tx_tready,
+	input  wire                        pcie_tx_tvalid,
+	input  wire                        pcie_tx_tlast,
+	input  wire  [KEEP_WIDTH-1:0]      pcie_tx_tkeep,
+	input  wire  [C_DATA_WIDTH-1:0]    pcie_tx_tdata,
+	input  wire  [3:0]                 pcie_tx_tuser,
 
 	// input: ethernet
 	input  wire        eth_rx_tvalid,
@@ -47,25 +47,6 @@ module tlp_tx_inject #(
 	input  wire [63:0] eth_rx_tdata,
 	input  wire        eth_rx_tuser
 );
-
-`ifdef zero
-ila_0 ila_0_ins (
-	.clk(pcie_clk),
-	.probe0({ pcie_rx_tready,
-	          pcie_rx_tuser,
-	          pcie_rx_tlast,
-	          pcie_rx_tkeep,
-	          pcie_rx_tvalid,
-	          pcie_rx_tdata }),
-	.probe1({ pcie_rx_tready,
-	          pcie_rx_tuser,
-	          pcie_rx_tlast,
-	          pcie_rx_tkeep,
-	          pcie_rx_tvalid,
-	          pcie_rx_tdata })
-);
-`endif
-
 
 /*
  * ****************************
@@ -177,23 +158,23 @@ tlp_tx_mux #(
 	.pcie_rst(pcie_rst),
 
 	// AXIS Output
-	.pcie_tx_tready   (pcie_tx_tready),
-	.pcie_tx_tvalid   (pcie_tx_tvalid),
-	.pcie_tx_tlast    (pcie_tx_tlast),
-	.pcie_tx_tkeep    (pcie_tx_tkeep),
-	.pcie_tx_tdata    (pcie_tx_tdata),
-	.pcie_tx_tuser    (pcie_tx_tuser),
+	.pcie_tx_tready   (pcie_tx1_tready),
+	.pcie_tx_tvalid   (pcie_tx1_tvalid),
+	.pcie_tx_tlast    (pcie_tx1_tlast),
+	.pcie_tx_tkeep    (pcie_tx1_tkeep),
+	.pcie_tx_tdata    (pcie_tx1_tdata),
+	.pcie_tx_tuser    (pcie_tx1_tuser),
 
 	// AXIS Input 1 (from tx engine)
-	.pcie_tx1_req     (pcie_tx1_req),
-	.pcie_tx1_ack     (pcie_tx1_ack),
+	.pcie_tx1_req     (pcie_tx_req),
+	.pcie_tx1_ack     (pcie_tx_ack),
 
-	.pcie_tx1_tready  (pcie_tx1_tready),
-	.pcie_tx1_tvalid  (pcie_tx1_tvalid),
-	.pcie_tx1_tlast   (pcie_tx1_tlast),
-	.pcie_tx1_tkeep   (pcie_tx1_tkeep),
-	.pcie_tx1_tdata   (pcie_tx1_tdata),
-	.pcie_tx1_tuser   (pcie_tx1_tuser),
+	.pcie_tx1_tready  (pcie_tx_tready),
+	.pcie_tx1_tvalid  (pcie_tx_tvalid),
+	.pcie_tx1_tlast   (pcie_tx_tlast),
+	.pcie_tx1_tkeep   (pcie_tx_tkeep),
+	.pcie_tx1_tdata   (pcie_tx_tdata),
+	.pcie_tx1_tuser   (pcie_tx_tuser),
 
 	// AXIS Input 2 (from ethernet)
 	.pcie_tx2_req     (pcie_tx2_req),
