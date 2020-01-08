@@ -2,6 +2,10 @@
 `timescale 1ns / 1ps
 
 module top #(
+	parameter C_DATA_WIDTH        = 64,
+	parameter KEEP_WIDTH          = C_DATA_WIDTH / 8,
+	parameter LINK_WIDTH          = C_DATA_WIDTH / 16,
+
 	parameter COLD_RESET_INTVAL   = 14'hfff
 ) (
 	input wire clk200_p,
@@ -171,7 +175,7 @@ tlp_rx_snoop tlp_rx_snoop0 (
 	.pcie_rst         (pcie_rst),
 
 	.eth_clk          (clk156),
-	.pcie_clk          (user_clk),
+	.pcie_clk          (pcie_clk),
 
 	.*
 );

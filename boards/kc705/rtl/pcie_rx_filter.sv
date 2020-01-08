@@ -39,9 +39,9 @@ wire [2:0] rx_bar_hit = {
 		m_axis_rx_tuser[6],
 		m_axis_rx_tuser[4],
 		m_axis_rx_tuser[2] };
-parameter [2:0] hit_bar0 = 3'b001;
-parameter [2:0] hit_bar2 = 3'b010;
-parameter [2:0] hit_bar4 = 3'b100;
+localparam [2:0] hit_bar0 = 3'b001;
+localparam [2:0] hit_bar2 = 3'b010;
+localparam [2:0] hit_bar4 = 3'b100;
 
 always_comb begin
 	m_axis_rx_tvalid1 = m_axis_rx_tvalid;

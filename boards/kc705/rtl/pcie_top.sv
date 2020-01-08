@@ -19,11 +19,11 @@ module pcie_top #(
 	input wire [LINK_WIDTH-1:0] pci_exp_rxn,
 
 	output wire pcie_clk,
-	output wire pcie_rst,
+	output logic pcie_rst,
 
 	// to inject
 	output wire                     pcie_tx_req,
-	output wire                     pcie_tx_ack,
+	input wire                      pcie_tx_ack,
 	input wire                      pcie_tx_tready,
 	output wire                     pcie_tx_tvalid,
 	output wire                     pcie_tx_tlast,
@@ -56,16 +56,12 @@ module pcie_top #(
 	output wire [15:0] adapter_reg_srcport
 );
 
-wire user_clk_out;
 wire user_reset_out;
 wire user_lnk_up;
 
-// output
-always_comb pcie_clk = user_clk_out;
-
 reg user_reset_q;
 reg user_lnk_up_q;
-always @(posedge user_clk_out) begin
+always @(posedge pcie_clk) begin
 	user_reset_q  <= user_reset_out;
 	user_lnk_up_q <= user_lnk_up;
 end
@@ -147,12 +143,12 @@ wire [KEEP_WIDTH-1:0] m_axis_rx_tkeep;
 wire [C_DATA_WIDTH-1:0] m_axis_rx_tdata;
 wire [21:0] m_axis_rx_tuser;
 
-wire s_axis_tx_tready;
-wire s_axis_tx_tvalid;
-wire s_axis_tx_tlast;
-wire [KEEP_WIDTH-1:0] s_axis_tx_tkeep;
-wire [C_DATA_WIDTH-1:0] s_axis_tx_tdata;
-wire [3:0] s_axis_tx_tuser;
+//wire s_axis_tx_tready;
+//wire s_axis_tx_tvalid;
+//wire s_axis_tx_tlast;
+//wire [KEEP_WIDTH-1:0] s_axis_tx_tkeep;
+//wire [C_DATA_WIDTH-1:0] s_axis_tx_tdata;
+//wire [3:0] s_axis_tx_tuser;
 
 localparam TCQ = 1;
 localparam USER_CLK_FREQ = 3;
@@ -168,6 +164,8 @@ pcie_7x_support #(
 	.PCIE_USE_MODE             ("3.0"), // PCIe use mode
 	.PCIE_GT_DEVICE            ("GTX") // PCIe GT device
 ) pcie_7x_support_i (
+	.user_clk_out                              (pcie_clk),
+
 	.user_app_rdy                              (),
 
 	.s_axis_tx_tready                          (pcie_tx1_tready),
@@ -337,7 +335,7 @@ pcie_app_7x  #(
 	.C_DATA_WIDTH(C_DATA_WIDTH),
 	.TCQ(TCQ)
 ) pcie_app_7x0 (
-	.user_clk                       (user_clk_out),
+	.user_clk                       (pcie_clk),
 	.user_reset                     (user_reset_q),
 	.user_lnk_up                    (user_lnk_up_q),
 

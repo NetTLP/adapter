@@ -114,20 +114,20 @@ set_false_path -from [get_ports sys_rst_n]
 # PCIe
 create_clock -name sys_clk -period 10 [get_pins refclk_ibuf/O]
 
-set_false_path -to [get_pins {pcie_7x_support_i/pipe_clock_i/pclk_i1_bufgctrl.pclk_i1/S0}]
-set_false_path -to [get_pins {pcie_7x_support_i/pipe_clock_i/pclk_i1_bufgctrl.pclk_i1/S1}]
+set_false_path -to [get_pins {pcie_top0/pcie_7x_support_i/pipe_clock_i/pclk_i1_bufgctrl.pclk_i1/S0}]
+set_false_path -to [get_pins {pcie_top0/pcie_7x_support_i/pipe_clock_i/pclk_i1_bufgctrl.pclk_i1/S1}]
 
-create_generated_clock -name clk_125mhz_x0y0 [get_pins pcie_7x_support_i/pipe_clock_i/mmcm_i/CLKOUT0]
-create_generated_clock -name clk_250mhz_x0y0 [get_pins pcie_7x_support_i/pipe_clock_i/mmcm_i/CLKOUT1]
+create_generated_clock -name clk_125mhz_x0y0 [get_pins pcie_top0/pcie_7x_support_i/pipe_clock_i/mmcm_i/CLKOUT0]
+create_generated_clock -name clk_250mhz_x0y0 [get_pins pcie_top0/pcie_7x_support_i/pipe_clock_i/mmcm_i/CLKOUT1]
 create_generated_clock -name clk_125mhz_mux_x0y0 \ 
-                        -source [get_pins pcie_7x_support_i/pipe_clock_i/pclk_i1_bufgctrl.pclk_i1/I0] \
+                        -source [get_pins pcie_top0/pcie_7x_support_i/pipe_clock_i/pclk_i1_bufgctrl.pclk_i1/I0] \
                         -divide_by 1 \
-                        [get_pins pcie_7x_support_i/pipe_clock_i/pclk_i1_bufgctrl.pclk_i1/O]
+                        [get_pins pcie_top0/pcie_7x_support_i/pipe_clock_i/pclk_i1_bufgctrl.pclk_i1/O]
 
 create_generated_clock -name clk_250mhz_mux_x0y0 \ 
-                        -source [get_pins pcie_7x_support_i/pipe_clock_i/pclk_i1_bufgctrl.pclk_i1/I1] \
-                        -divide_by 1 -add -master_clock [get_clocks -of [get_pins pcie_7x_support_i/pipe_clock_i/pclk_i1_bufgctrl.pclk_i1/I1]] \
-                        [get_pins pcie_7x_support_i/pipe_clock_i/pclk_i1_bufgctrl.pclk_i1/O]
+                        -source [get_pins pcie_top0/pcie_7x_support_i/pipe_clock_i/pclk_i1_bufgctrl.pclk_i1/I1] \
+                        -divide_by 1 -add -master_clock [get_clocks -of [get_pins pcie_top0/pcie_7x_support_i/pipe_clock_i/pclk_i1_bufgctrl.pclk_i1/I1]] \
+                        [get_pins pcie_top0/pcie_7x_support_i/pipe_clock_i/pclk_i1_bufgctrl.pclk_i1/O]
 
 set_clock_groups -name pcieclkmux -physically_exclusive -group clk_125mhz_mux_x0y0 -group clk_250mhz_mux_x0y0
 
