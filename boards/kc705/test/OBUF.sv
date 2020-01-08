@@ -1,4 +1,4 @@
-module BUFG (
+module OBUF (
 	input  logic I,
 	output logic O
 );
