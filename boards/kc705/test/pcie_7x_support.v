@@ -1,21 +1,17 @@
 `default_nettype none
 `timescale 1ns / 1ps
 
-module pcie_7x_0_support #(
-	parameter LINK_CAP_MAX_LINK_WIDTH = 8,                       // PCIe Lane Width
-	parameter CLK_SHARING_EN          = "FALSE",                 // Enable Clock Sharing
-	parameter C_DATA_WIDTH            = 256,                     // AXI interface data width
-	parameter KEEP_WIDTH              = C_DATA_WIDTH / 8,        // TSTRB width
-	parameter PCIE_REFCLK_FREQ        = 0,                       // PCIe reference clock frequency
-	parameter PCIE_USERCLK1_FREQ      = 2,                       // PCIe user clock 1 frequency
-	parameter PCIE_USERCLK2_FREQ      = 2,                       // PCIe user clock 2 frequency
-	parameter PCIE_GT_DEVICE          = "GTX",                   // PCIe GT device
-	parameter PCIE_USE_MODE           = "2.1"                    // PCIe use mode
+module pcie_7x_support #(
+	  parameter LINK_CAP_MAX_LINK_WIDTH = 8,                       // PCIe Lane Width
+	  parameter CLK_SHARING_EN          = "FALSE",                 // Enable Clock Sharing
+	  parameter C_DATA_WIDTH            = 256,                     // AXI interface data width
+	  parameter KEEP_WIDTH              = C_DATA_WIDTH / 8,        // TSTRB width
+	  parameter PCIE_REFCLK_FREQ        = 0,                       // PCIe reference clock frequency
+	  parameter PCIE_USERCLK1_FREQ      = 2,                       // PCIe user clock 1 frequency
+	  parameter PCIE_USERCLK2_FREQ      = 2,                       // PCIe user clock 2 frequency
+	  parameter PCIE_GT_DEVICE          = "GTX",                   // PCIe GT device
+	  parameter PCIE_USE_MODE           = "2.1"                    // PCIe use mode
 )(
-	//----------------------------------------------------------------------------------------------------------------//
-	// PCI Express (pci_exp) Interface                                                                                //
-	//----------------------------------------------------------------------------------------------------------------//
-
 	// Tx
 	output reg  [(LINK_CAP_MAX_LINK_WIDTH - 1) : 0] pci_exp_txn,
 	output reg  [(LINK_CAP_MAX_LINK_WIDTH - 1) : 0] pci_exp_txp,
@@ -75,12 +71,12 @@ module pcie_7x_0_support #(
 
 	// AXI RX
 	//-----------
-	output wire [C_DATA_WIDTH-1:0]                  m_axis_rx_tdata,
-	output wire                                     m_axis_rx_tvalid,
+	output logic [C_DATA_WIDTH-1:0]                  m_axis_rx_tdata,
+	output logic                                     m_axis_rx_tvalid,
 	input wire                                      m_axis_rx_tready,
-	output wire  [KEEP_WIDTH-1:0]                   m_axis_rx_tkeep,
-	output wire                                     m_axis_rx_tlast,
-	output wire  [21:0]                             m_axis_rx_tuser,
+	output logic  [KEEP_WIDTH-1:0]                   m_axis_rx_tkeep,
+	output logic                                     m_axis_rx_tlast,
+	output logic  [21:0]                             m_axis_rx_tuser,
 
 	// Flow Control
 	output reg  [11:0]                             fc_cpld,
@@ -263,35 +259,185 @@ module pcie_7x_0_support #(
 	input wire                                       sys_rst_n
 );
 
-localparam CLK200_FREQ = 200e6;
-localparam CLK200_HALF_PERIOD = 1/real'(CLK200_FREQ)*1000e6/2;
+// input ports
+wire _unused_ok = &{
+	cfg_err_acs,
+	cfg_err_atomic_egress_blocked,
+	cfg_err_cor,
+	cfg_err_cpl_abort,
+	cfg_err_cpl_timeout,
+	cfg_err_cpl_unexpect,
+	cfg_err_ecrc,
+	cfg_err_internal_cor,
+	cfg_err_internal_uncor,
+	cfg_err_locked,
+	cfg_err_malformed,
+	cfg_err_mc_blocked,
+	cfg_err_norecovery,
+	cfg_err_poisoned,
+	cfg_err_posted,
+	cfg_err_ur,
+	cfg_interrupt,
+	cfg_interrupt_assert,
+	cfg_interrupt_stat,
+	cfg_mgmt_rd_en,
+	cfg_mgmt_wr_en,
+	cfg_mgmt_wr_readonly,
+	cfg_mgmt_wr_rw1c_as_rw,
+	pcie_drp_clk,
+	pcie_drp_en,
+	pcie_drp_we,
+	pl_directed_link_auton,
+	pl_directed_link_speed,
+	pl_downstream_deemph_source,
+	pl_transmit_hot_rst,
+	pl_upstream_prefer_deemph,
+	sys_clk,
+	sys_rst_n,
+	cfg_pm_force_state_en,
+	cfg_pm_halt_aspm_l0s,
+	cfg_pm_halt_aspm_l1,
+	cfg_pm_send_pme_to,
+	cfg_pm_wake,
+	cfg_trn_pending,
+	cfg_turnoff_ok,
+	m_axis_rx_tready,
+	pipe_mmcm_rst_n,
+	rx_np_ok,
+	rx_np_req,
+	s_axis_tx_tlast,
+	s_axis_tx_tvalid,
+	tx_cfg_gnt,
+	pcie_drp_di,
+	pl_directed_link_change,
+	pl_directed_link_width,
+	cfg_pm_force_state,
+	cfg_ds_function_number,
+	cfg_mgmt_di,
+	cfg_mgmt_byte_en,
+	cfg_pciecap_interrupt_msgnum,
+	cfg_ds_device_number,
+	cfg_dsn,
+	cfg_interrupt_di,
+	cfg_ds_bus_number,
+	pcie_drp_addr,
+	cfg_mgmt_dwaddr,
+	pci_exp_rxn,
+	pci_exp_rxp,
+	cfg_err_aer_headerlog,
+	fc_sel,
+	s_axis_tx_tuser,
+	cfg_err_tlp_cpl_header,
+	cfg_aer_interrupt_msgnum,
+	s_axis_tx_tdata,
+	s_axis_tx_tkeep,
+	pipe_pclk_sel_slave,
+	1'b0
+};
 
-`ifndef verilator_sim
-always begin
-	#CLK200_HALF_PERIOD user_clk_out = 0;
-	#CLK200_HALF_PERIOD user_clk_out = 1;
-end
-`endif
-
-assign user_reset_out = ~sys_rst_n;
-assign user_lnk_up = 1;
-assign user_app_rdy = 1;
-
-assign s_axis_tx_tready = 1;
-
-reg [3:0] tuser = s_axis_tx_tuser;
-
-host_pio host_pio0 (
-	.pcie_clk(user_clk_out),
-	.sys_rst(user_reset_out),
-
-	.pcie_rx_tdata(m_axis_rx_tdata),
-	.pcie_rx_tuser(m_axis_rx_tuser),
-	.pcie_rx_tlast(m_axis_rx_tlast),
-	.pcie_rx_tkeep(m_axis_rx_tkeep),
-	.pcie_rx_tvalid(m_axis_rx_tvalid),
-	.pcie_rx_tready(m_axis_rx_tready)
-);
+// output ports
+always_comb cfg_aer_ecrc_check_en = 'b0;
+always_comb cfg_aer_ecrc_gen_en = 'b0;
+always_comb cfg_err_aer_headerlog_set = 'b0;
+always_comb cfg_err_cpl_rdy = 'b0;
+always_comb cfg_interrupt_msienable = 'b0;
+always_comb cfg_interrupt_msixenable = 'b0;
+always_comb cfg_interrupt_msixfm = 'b0;
+always_comb cfg_interrupt_rdy = 'b0;
+always_comb cfg_mgmt_rd_wr_done = 'b0;
+always_comb cfg_msg_received = 'b0;
+always_comb cfg_msg_received_assert_int_a = 'b0;
+always_comb cfg_msg_received_assert_int_b = 'b0;
+always_comb cfg_msg_received_assert_int_c = 'b0;
+always_comb cfg_msg_received_assert_int_d = 'b0;
+always_comb cfg_msg_received_deassert_int_a = 'b0;
+always_comb cfg_msg_received_deassert_int_b = 'b0;
+always_comb cfg_msg_received_deassert_int_c = 'b0;
+always_comb cfg_msg_received_deassert_int_d = 'b0;
+always_comb cfg_msg_received_err_cor = 'b0;
+always_comb cfg_msg_received_err_fatal = 'b0;
+always_comb cfg_msg_received_err_non_fatal = 'b0;
+always_comb cfg_msg_received_pm_as_nak = 'b0;
+always_comb cfg_msg_received_pm_pme = 'b0;
+always_comb cfg_msg_received_pme_to_ack = 'b0;
+always_comb cfg_msg_received_setslotpowerlimit = 'b0;
+always_comb pcie_drp_rdy = 'b0;
+always_comb pl_directed_change_done = 'b0;
+always_comb pl_link_gen2_cap = 'b0;
+always_comb pl_link_partner_gen2_supported = 'b0;
+always_comb pl_link_upcfg_cap = 'b0;
+always_comb pl_phy_lnk_up = 'b0;
+always_comb pl_received_hot_rst = 'b0;
+always_comb pl_sel_lnk_rate = 'b0;
+always_comb s_axis_tx_tready = 'b0;
+always_comb cfg_aer_rooterr_corr_err_received = 'b0;
+always_comb cfg_aer_rooterr_corr_err_reporting_en = 'b0;
+always_comb cfg_aer_rooterr_fatal_err_received = 'b0;
+always_comb cfg_aer_rooterr_fatal_err_reporting_en = 'b0;
+always_comb cfg_aer_rooterr_non_fatal_err_received = 'b0;
+always_comb cfg_aer_rooterr_non_fatal_err_reporting_en = 'b0;
+always_comb cfg_bridge_serr_en = 'b0;
+always_comb cfg_pmcsr_pme_en = 'b0;
+always_comb cfg_pmcsr_pme_status = 'b0;
+always_comb cfg_received_func_lvl_rst = 'b0;
+always_comb cfg_root_control_pme_int_en = 'b0;
+always_comb cfg_root_control_syserr_corr_err_en = 'b0;
+always_comb cfg_root_control_syserr_fatal_err_en = 'b0;
+always_comb cfg_root_control_syserr_non_fatal_err_en = 'b0;
+always_comb cfg_slot_control_electromech_il_ctl_pulse = 'b0;
+always_comb cfg_to_turnoff = 'b0;
+always_comb pipe_dclk_out = 'b0;
+always_comb pipe_mmcm_lock_out = 'b0;
+always_comb pipe_oobclk_out = 'b0;
+always_comb pipe_pclk_out_slave = 'b0;
+always_comb pipe_rxusrclk_out = 'b0;
+always_comb pipe_userclk1_out = 'b0;
+always_comb pipe_userclk2_out = 'b0;
+always_comb tx_cfg_req = 'b0;
+always_comb tx_err_drop = 'b0;
+always_comb user_app_rdy = 'b0;
+always_comb user_clk_out = 'b0;
+always_comb user_lnk_up = 'b0;
+always_comb user_reset_out = 'b0;
+always_comb cfg_msg_data = 'b0;
+always_comb pcie_drp_do = 'b0;
+always_comb cfg_command = 'b0;
+always_comb cfg_dcommand = 'b0;
+always_comb cfg_dcommand2 = 'b0;
+always_comb cfg_dstatus = 'b0;
+always_comb cfg_lcommand = 'b0;
+always_comb cfg_lstatus = 'b0;
+always_comb cfg_status = 'b0;
+always_comb pl_lane_reversal_mode = 'b0;
+always_comb pl_rx_pm_state = 'b0;
+always_comb pl_sel_lnk_width = 'b0;
+always_comb cfg_pmcsr_powerstate = 'b0;
+always_comb cfg_interrupt_mmenable = 'b0;
+always_comb pl_initial_link_width = 'b0;
+always_comb pl_tx_pm_state = 'b0;
+always_comb cfg_function_number = 'b0;
+always_comb cfg_pcie_link_state = 'b0;
+always_comb cfg_mgmt_do = 'b0;
+always_comb cfg_device_number = 'b0;
+always_comb pl_ltssm_state = 'b0;
+always_comb cfg_vc_tcvc_map = 'b0;
+always_comb cfg_interrupt_do = 'b0;
+always_comb cfg_bus_number = 'b0;
+always_comb pci_exp_txn = 'b0;
+always_comb pci_exp_txp = 'b0;
+always_comb fc_cpld = 'b0;
+always_comb fc_npd = 'b0;
+always_comb fc_pd = 'b0;
+always_comb tx_buf_av = 'b0;
+always_comb fc_cplh = 'b0;
+always_comb fc_nph = 'b0;
+always_comb fc_ph = 'b0;
+always_comb pipe_rxoutclk_out = 'b0;
+always_comb m_axis_rx_tlast = 'b0;
+always_comb m_axis_rx_tvalid = 'b0;
+always_comb m_axis_rx_tuser = 'b0;
+always_comb m_axis_rx_tkeep = 'b0;
+always_comb m_axis_rx_tdata = 'b0;
 
 endmodule
 
