@@ -81,6 +81,9 @@ $(build_dir)/%.xci: %.tcl
 lint:
 	verilator -Wall --lint-only -Wno-PINCONNECTEMPTY --top-module pcie_top -sv rtl/pcie_top.sv rtl/pcie_rx_filter.sv  test/pcie_7x_support.v test/pcie_app_7x.v
 
+lint-all:
+	verilator -Wall --lint-only -Wno-PINCONNECTEMPTY --top-module testbench -sv test/testbench.sv rtl/top.sv rtl/pcie_top.sv rtl/pcie_rx_filter.sv  test/pcie_7x_support.v test/pcie_app_7x.v test/IBUFDS_GTE2.sv test/IBUF.sv test/IBUFDS.sv test/BUFG.sv rtl/eth/eth_mac_conf.sv rtl/eth/eth_pcspma_conf.sv rtl/eth/eth_top.sv  test/clock_control.sv rtl/tlp_rx_snoop/* rtl/tlp_tx_inject/eth_decap.sv rtl/tlp_tx_inject/fifo2pcie.sv rtl/tlp_tx_inject/tlp_tx_inject.sv rtl/tlp_tx_inject/tlp_tx_mux.sv  ../../cores/pkg/endian_pkg.sv ../../cores/pkg/ethernet_pkg.sv ../../cores/pkg/ip_pkg.sv ../../cores/pkg/nettlp_pkg.sv ../../cores/pkg/pcie_tcap_pkg.sv ../../cores/pkg/pcie_tlp_pkg.sv ../../cores/pkg/pktgen_pkg.sv ../../cores/pkg/udp_pkg.sv ../../cores/pkg/utils_pkg.sv ../../cores/pkg/xgmii_pkg.sv
+
 prj: $(project_name).xpr
 $(project_name).xpr: $(XCIS)
 	vivado -mode batch -source $(tcl_dir)/vivado_createprj.tcl -log $(build_dir)/createprj_log.txt -nojournal -tempDir $(build_dir) -tclargs $(project_name) $(build_dir) $(device_name) "$(PKG_SRC) $(RTL_SRC)" "$(XCIS)" "$(XDC_SRC)"

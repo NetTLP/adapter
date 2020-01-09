@@ -1,4 +1,4 @@
-module IBUFDS_GTE4 (
+module IBUFDS_GTE2 (
 	input  logic I,
 	input  logic IB,
 	input  logic CEB,

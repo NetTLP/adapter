@@ -1,54 +1,46 @@
-module testbench (
-	input wire SYSCLK0_300_P,
-	input wire SYSCLK0_300_N,
+module testbench #(
+	parameter C_DATA_WIDTH        = 64,
+	parameter KEEP_WIDTH          = C_DATA_WIDTH / 8,
+	parameter LINK_WIDTH          = C_DATA_WIDTH / 16,
+	parameter COLD_RESET_INTVAL   = 14'hfff
+)(
+	input wire clk200_p,
+	input wire clk200_n,
 
-	input wire QSFP0_CLOCK_P,
-	input wire QSFP0_CLOCK_N,
+	input wire sys_clk_p,
+	input wire sys_clk_n,
+	input wire sys_rst_n,
 
-	input wire PCIE_CLK_P,
-	input wire PCIE_CLK_N,
-	input wire PCIE_RESET_N
+	input wire SFP_CLK_P,
+	input wire SFP_CLK_N
 );
 
+	// inout
+	wire I2C_FPGA_SCL = 'b0;
+	wire I2C_FPGA_SDA = 'b0;
+
 	// output
-	wire QSFP0_INTL = 1'b0;
-	wire QSFP0_MODPRSL = 1'b0;
-	wire [3:0] QSFP0_RX_P = 4'b0;
-	wire [3:0] QSFP0_RX_N = 4'b0;
-	wire [1:0] pci_exp_rxp = 2'b0;
-	wire [1:0] pci_exp_rxn = 2'b0;
+	wire [LINK_WIDTH-1:0] pci_exp_rxp = 'b0;
+	wire [LINK_WIDTH-1:0] pci_exp_rxn = 'b0;
+	wire ETH0_RX_N = 'b0;
+	wire ETH0_RX_P = 'b0;
+	wire ETH0_TX_DISABLE = 'b0;
+	wire I2C_FPGA_RST_N = 'b0;
+	wire SI5324_RST_N = 'b0;
 
 	// input
-	wire QSFP0_FS0;
-	wire QSFP0_FS1;
-	wire QSFP0_LPMODE;
-	wire QSFP0_MODSELL;
-	wire QSFP0_RESETL;
-	wire [3:0] QSFP0_TX_P;
-	wire [3:0] QSFP0_TX_N;
-	wire [1:0] pci_exp_txp;
-	wire [1:0] pci_exp_txn;
+	wire [LINK_WIDTH-1:0] pci_exp_txp;
+	wire [LINK_WIDTH-1:0] pci_exp_txn;
+	wire ETH0_TX_P;
+	wire ETH0_TX_N;
 
-	wire LED_R;
-	wire LED_Y;
-	wire LED_G;
-
-	top top_ins(.*);
+	top top0(.*);
 
 	wire _unused_ok = &{
-		1'b0,
-		QSFP0_FS0,
-		QSFP0_FS1,
-		QSFP0_LPMODE,
-		QSFP0_MODSELL,
-		QSFP0_RESETL,
-		QSFP0_TX_P,
-		QSFP0_TX_N,
 		pci_exp_txp,
 		pci_exp_txn,
-		LED_R,
-		LED_Y,
-		LED_G,
+		ETH0_TX_P,
+		ETH0_TX_N,
 		1'b0
 	};
 

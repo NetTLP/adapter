@@ -213,34 +213,6 @@ always_comb begin
 	endcase
 end
 
-`ifdef NO
-ila_0 ila0_ins (
-	.clk(eth_clk),
-	.probe0({       // 109: 107 + 1 + 1
-	       rd_en,
-	       dout.tlp_len,
-	       dout.tvalid,
-	       dout.tlast,
-	       dout.tkeep,
-	       dout.tdata,
-	       dout.tuser,
-	       empty
-	}),
-	.probe1({        // 80: 8 + 8 + 64
-	       tx_state,
-	       eth_tvalid,
-	       eth_tlast,
-	       eth_tready,
-	       eth_tvalid,
-	       eth_tlast,
-	       eth_tkeep,
-	       eth_tdata,
-	       eth_tuser
-	})
-	
-);
-`endif
-
 endmodule
 
 `default_nettype wire
