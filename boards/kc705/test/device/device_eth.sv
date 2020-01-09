@@ -1,10 +1,10 @@
 `default_nettype none
 `timescale 1ns / 1ps
 
-import endian_pkg::*;
-import utils_pkg::*;
-
-module device_eth #(
+module device_eth
+	import endian_pkg::*;
+	import utils_pkg::*;
+#(
 	parameter C_DATA_WIDTH               = 64,
 	parameter KEEP_WIDTH                 = C_DATA_WIDTH / 8
 )(
@@ -36,6 +36,7 @@ always_ff @(posedge eth_clk) begin
 				state <= IDLE;
 			end
 		end
+		default: state <= IDLE;
 		endcase
 	end
 end
@@ -93,6 +94,8 @@ always_comb begin
 	end
 	TX: begin
 		{eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b0, 1'b0, 8'b0000_0000, 64'h00000000_00000000, 1'b0};
+	end
+	default: begin
 	end
 	endcase
 end

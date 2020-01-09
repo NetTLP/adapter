@@ -53,14 +53,13 @@
 
 
 package nettlp_pkg;
-	parameter PACKET_HDR_LEN = 48;    // IPhdr + UDPhdr + NetTLPhdr
+	parameter PACKET_HDR_LEN = 11'd48;    // IPhdr + UDPhdr + NetTLPhdr
 
 	/* nettlp header */
-	parameter NETTLP_HDR_LEN = 6;
+	parameter NETTLP_HDR_LEN = 11'd6;
 
-	struct packed {
-		bit [5:0] resv;
-		bit [9:0] seq;
+	typedef struct packed {
+		bit [15:0] pktseq;
 		bit [31:0] tstamp;
 	} nettlp_hdr;
 
@@ -155,11 +154,7 @@ package nettlp_pkg;
 		struct packed {
 			bit [15:0] check;
 		} udp;
-		struct packed {
-			bit [5:0] resv;
-			bit [9:0] seq;
-			bit [31:0] tstamp;
-		} tcap;
+		nettlp_hdr tcap;
 	} PACKET_QWORD5;
 
 

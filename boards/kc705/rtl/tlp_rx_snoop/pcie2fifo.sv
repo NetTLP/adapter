@@ -1,10 +1,10 @@
 `default_nettype none
 `timescale 1ns/1ps
 
-import pcie_tlp_pkg::*;
-import nettlp_pkg::*;
-
-module pcie2fifo (
+module pcie2fifo
+	import pcie_tlp_pkg::*;
+	import nettlp_pkg::*;
+(
 	input wire pcie_clk,
 	input wire pcie_rst,
 
@@ -79,11 +79,13 @@ end
 
 
 // dword to byte + TLP header length
-localparam TLP_3DW_HDR_LEN = 12;
-localparam TLP_4DW_HDR_LEN = 16;
+localparam [11:0] TLP_3DW_HDR_LEN = 12'd12;
+localparam [11:0] TLP_4DW_HDR_LEN = 12'd16;
 
-wire [12:0] bytelen3DW = (pcie_tdata_nxt.clk0_mem.length << 2) + TLP_3DW_HDR_LEN;
-wire [12:0] bytelen4DW = (pcie_tdata_nxt.clk0_mem.length << 2) + TLP_4DW_HDR_LEN;
+logic [10:0] bytelen3DW;
+logic [10:0] bytelen4DW;
+always_comb {1'b0, bytelen3DW} = ({2'b0, pcie_tdata_nxt.clk0_mem.length} << 2) + TLP_3DW_HDR_LEN;
+always_comb {1'b0, bytelen4DW} = ({2'b0, pcie_tdata_nxt.clk0_mem.length} << 2) + TLP_4DW_HDR_LEN;
 
 always_comb begin
 	state_next = state;
@@ -109,12 +111,12 @@ always_comb begin
 				case ({pcie_tdata_nxt.clk0_mem.format, pcie_tdata_nxt.clk0_mem.pkttype})
 					// Memory read request 3DW
 					{MRD_3DW_NODATA, MEMRW}: begin
-						din.tlp_len = TLP_3DW_HDR_LEN;
+						din.tlp_len = TLP_3DW_HDR_LEN[10:0];
 						din.tlp_tag = pcie_tdata_nxt.clk0_mem.tag;
 					end
 					// Memory read request 4DW
 					{MRD_4DW_NODATA, MEMRW}: begin
-						din.tlp_len = TLP_4DW_HDR_LEN;
+						din.tlp_len = TLP_4DW_HDR_LEN[10:0];
 						din.tlp_tag = pcie_tdata_nxt.clk0_mem.tag;
 					end
 					// Memory write request 3DW
@@ -129,7 +131,7 @@ always_comb begin
 					end
 					// Completion: No data
 					{CPL_NODATA, COMPL}: begin
-						din.tlp_len = TLP_3DW_HDR_LEN;
+						din.tlp_len = TLP_3DW_HDR_LEN[10:0];
 						din.tlp_tag = pcie_tdata.clk1_cpl.tag;
 					end
 					// Completion: data

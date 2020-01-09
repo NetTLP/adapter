@@ -1,15 +1,15 @@
 `default_nettype none
 `timescale 1ns/1ps
 
-import utils_pkg::*;
-import endian_pkg::*;
-import ethernet_pkg::*;
-import ip_pkg::*;
-import udp_pkg::*;
-import pcie_tlp_pkg::*;
-import nettlp_pkg::*;
-
-module eth_encap #(
+module eth_encap
+	import utils_pkg::*;
+	import endian_pkg::*;
+	import ethernet_pkg::*;
+	import ip_pkg::*;
+	import udp_pkg::*;
+	import pcie_tlp_pkg::*;
+	import nettlp_pkg::*;
+#(
 	//parameter eth_dst   = 48'h90_E2_BA_5D_91_D0,
 	//parameter eth_dst   = 48'h90_E2_BA_5D_8F_CD,
 	//parameter eth_dst   = 48'ha0_36_9f_22_ec_c0,
@@ -55,7 +55,11 @@ function [15:0] ipcheck_gen (
 );
 	bit [23:0] sum;
 	sum = {8'h0, IPVERSION, 4'd5, 8'h0}
-	    + {8'h0, tlp_len + PACKET_HDR_LEN - ETH_HDR_LEN}   // tot_len
+	    + { // tot_len
+		    {13'h0, tlp_len} +
+		    {13'h0, PACKET_HDR_LEN} -
+		    {8'h0, ETH_HDR_LEN}
+	    }
 	    + {8'h0, 16'h0}
 	    + {8'h0, 16'h0}
 	    + {8'h0, IPDEFTTL, IP4_PROTO_UDP}
@@ -122,11 +126,19 @@ always_ff @(posedge eth_clk) begin
 		case(tx_state)
 		TX_IDLE: begin
 			// mutable values
-			tx_hdr2.ip.tot_len <= dout.tlp_len + PACKET_HDR_LEN - ETH_HDR_LEN;
+			tx_hdr2.ip.tot_len <= {
+				{5'h0, dout.tlp_len} +
+				{5'h0, PACKET_HDR_LEN} -
+				ETH_HDR_LEN
+			};
 
 			tx_hdr3.ip.check <= ipcheck_gen(dout.tlp_len, adapter_reg_srcip, adapter_reg_dstip);
 
-			tx_hdr4.udp.len <= dout.tlp_len + NETTLP_HDR_LEN + UDP_HDR_LEN;
+			tx_hdr4.udp.len <= {
+				{5'h0, dout.tlp_len} +
+		      		{5'h0, NETTLP_HDR_LEN} +
+		      		UDP_HDR_LEN
+			};
 
 			tx_hdr4.udp.source <= udp_sport + {12'b0, dout.tlp_tag[3:0]};
 
@@ -141,8 +153,10 @@ always_ff @(posedge eth_clk) begin
 		end
 		TX_DATA: begin
 			if (eth_tready && dout.tlast) begin
-				tx_hdr5.tcap.seq <= tx_hdr5.tcap.seq + 1;
+				tx_hdr5.tcap.pktseq <= tx_hdr5.tcap.pktseq + 1;
 			end
+		end
+		default: begin
 		end
 		endcase
 	end
@@ -199,7 +213,7 @@ always_comb begin
 			dout.tdata.oct[4], dout.tdata.oct[5], dout.tdata.oct[6], dout.tdata.oct[7],
 			dout.tdata.oct[0], dout.tdata.oct[1], dout.tdata.oct[2], dout.tdata.oct[3]
 		};
-		eth_tuser  = dout.tuser;
+		eth_tuser  = 1'b0;
 
 		if (eth_tready) begin
 			rd_en = 1;
@@ -212,6 +226,14 @@ always_comb begin
 		tx_state_next = TX_IDLE;
 	endcase
 end
+
+wire _unused_ok = &{
+	dout.tuser,
+	adapter_reg_magic,
+	adapter_reg_dstport,
+	adapter_reg_srcport,
+	1'b0
+};
 
 endmodule
 

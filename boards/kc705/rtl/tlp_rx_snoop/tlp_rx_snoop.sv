@@ -1,10 +1,10 @@
-import endian_pkg::*;
-import ethernet_pkg::*;
-import ip_pkg::*;
-import udp_pkg::*;
-import nettlp_pkg::*;
-
-module tlp_rx_snoop #(
+module tlp_rx_snoop
+	import endian_pkg::*;
+	import ethernet_pkg::*;
+	import ip_pkg::*;
+	import udp_pkg::*;
+	import nettlp_pkg::*;
+#(
 	parameter PL_FAST_TRAIN       = "FALSE", // Simulation Speedup
 	parameter PCIE_EXT_CLK        = "TRUE",    // Use External Clocking Module
 	parameter PCIE_EXT_GT_COMMON  = "FALSE",

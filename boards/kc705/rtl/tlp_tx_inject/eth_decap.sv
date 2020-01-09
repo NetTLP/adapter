@@ -1,15 +1,15 @@
 `default_nettype none
 `timescale 1ns / 1ps
 
-import utils_pkg::*;
-import endian_pkg::*;
-import ethernet_pkg::*;
-import ip_pkg::*;
-import udp_pkg::*;
-import pcie_tlp_pkg::*;
-import nettlp_pkg::*;
-
-module eth_decap #(
+module eth_decap
+	import utils_pkg::*;
+	import endian_pkg::*;
+	import ethernet_pkg::*;
+	import ip_pkg::*;
+	import udp_pkg::*;
+	import pcie_tlp_pkg::*;
+	import nettlp_pkg::*;
+#(
 	parameter eth_dst   = 48'h90_E2_BA_5D_91_D0,
 	parameter eth_src   = 48'h00_11_22_33_44_55,
 	parameter eth_proto = ETH_P_IP,
@@ -210,6 +210,11 @@ always_comb begin
 		rx_state_next = RX_HDRCHK0;
 	end
 end
+
+wire _unused_ok = &{
+	eth_tuser,
+	1'b0
+};
 
 endmodule
 

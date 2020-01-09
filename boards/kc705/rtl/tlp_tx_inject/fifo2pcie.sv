@@ -1,7 +1,10 @@
 `default_nettype none
 `timescale 1ns / 1ps
 
-module fifo2pcie #(
+module fifo2pcie
+	import pcie_tlp_pkg::*;
+	import nettlp_pkg::*;
+#(
 	parameter C_DATA_WIDTH        = 64, // RX/TX interface data width
 	parameter KEEP_WIDTH          = C_DATA_WIDTH / 8, // TSTRB width
 	parameter LINK_WIDTH          = C_DATA_WIDTH / 16 // PCIe Link Width
@@ -84,7 +87,7 @@ always_comb begin
 		if (tlp_pktcount != eth_pktcount) begin
 			pcie_tx_req = 1;
 
-			if (pcie_tx_ack) begin
+			if (pcie_tx_ack && !empty) begin  // TODO
 				state_next = READ;
 			end
 		end
@@ -108,6 +111,11 @@ always_comb begin
 	end
 	endcase
 end
+
+wire _unused_ok = &{
+	pcie_tready,
+	1'b0
+};
 
 endmodule
 

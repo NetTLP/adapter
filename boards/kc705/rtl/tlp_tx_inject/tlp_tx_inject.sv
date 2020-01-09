@@ -1,12 +1,12 @@
 `default_nettype none
 `timescale 1ns / 1ps
 
-import endian_pkg::*;
-import ethernet_pkg::*;
-import ip_pkg::*;
-import udp_pkg::*;
-
-module tlp_tx_inject #(
+module tlp_tx_inject
+	import endian_pkg::*;
+	import ethernet_pkg::*;
+	import ip_pkg::*;
+	import udp_pkg::*;
+#(
 	parameter PL_FAST_TRAIN       = "FALSE", // Simulation Speedup
 	parameter PCIE_EXT_CLK        = "TRUE",    // Use External Clocking Module
 	parameter PCIE_EXT_GT_COMMON  = "FALSE",

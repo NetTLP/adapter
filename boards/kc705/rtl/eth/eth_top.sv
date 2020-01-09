@@ -79,16 +79,16 @@ eth_mac_conf eth_mac_conf0(
 /*
  * Ethernet MAC
  */
-wire txusrclk, txusrclk2;
-wire gttxreset, gtrxreset;
-wire txuserrdy;
-wire areset_coreclk;
-wire reset_counter_done;
-wire qplllock, qplloutclk, qplloutrefclk;
-wire [447:0] pcs_pma_status_vector;
-wire [2:0] mac_status_vector;
-wire [7:0] pcspma_status;
-wire rx_statistics_valid, tx_statistics_valid;
+//wire txusrclk, txusrclk2;
+//wire gttxreset, gtrxreset;
+//wire txuserrdy;
+//wire areset_coreclk;
+//wire reset_counter_done;
+//wire qplllock, qplloutclk, qplloutrefclk;
+//wire [447:0] pcs_pma_status_vector;
+//wire [2:0] mac_status_vector;
+//wire [7:0] pcspma_status;
+//wire rx_statistics_valid, tx_statistics_valid;
 
 
 axi_10g_ethernet_0 u_axi_10g_ethernet_0 (
@@ -108,8 +108,8 @@ axi_10g_ethernet_0 u_axi_10g_ethernet_0 (
 	.rxrecclk_out                (),
 	.mac_tx_configuration_vector (mac_tx_configuration_vector),
 	.mac_rx_configuration_vector (mac_rx_configuration_vector),
-	.mac_status_vector           (mac_status_vector),
-	.pcs_pma_configuration_vector(pcs_pma_configuration_vector),
+	.mac_status_vector           (),
+	.pcs_pma_configuration_vector(pcspma_configuration_vector),
 	.pcs_pma_status_vector       (),
 	.areset_datapathclk_out      (),
 	.txusrclk_out                (),

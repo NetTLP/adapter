@@ -15,34 +15,40 @@ module testbench #(
 	input wire SFP_CLK_N
 );
 
-	// inout
-	wire I2C_FPGA_SCL = 'b0;
-	wire I2C_FPGA_SDA = 'b0;
+// output
+wire [LINK_WIDTH-1:0] pci_exp_rxp = 'b0;
+wire [LINK_WIDTH-1:0] pci_exp_rxn = 'b0;
+wire ETH0_TX_P = 'b0;
+wire ETH0_TX_N = 'b0;
 
-	// output
-	wire [LINK_WIDTH-1:0] pci_exp_rxp = 'b0;
-	wire [LINK_WIDTH-1:0] pci_exp_rxn = 'b0;
-	wire ETH0_RX_N = 'b0;
-	wire ETH0_RX_P = 'b0;
-	wire ETH0_TX_DISABLE = 'b0;
-	wire I2C_FPGA_RST_N = 'b0;
-	wire SI5324_RST_N = 'b0;
+// inout
+wire I2C_FPGA_SCL;
+wire I2C_FPGA_SDA;
 
-	// input
-	wire [LINK_WIDTH-1:0] pci_exp_txp;
-	wire [LINK_WIDTH-1:0] pci_exp_txn;
-	wire ETH0_TX_P;
-	wire ETH0_TX_N;
+// input
+wire [LINK_WIDTH-1:0] pci_exp_txp;
+wire [LINK_WIDTH-1:0] pci_exp_txn;
+wire I2C_FPGA_RST_N;
+wire SI5324_RST_N;
+wire ETH0_RX_P;
+wire ETH0_RX_N;
+wire ETH0_TX_DISABLE;
 
-	top top0(.*);
+top top0(.*);
 
-	wire _unused_ok = &{
-		pci_exp_txp,
-		pci_exp_txn,
-		ETH0_TX_P,
-		ETH0_TX_N,
-		1'b0
-	};
+wire _unused_ok = &{
+	I2C_FPGA_SCL,
+	I2C_FPGA_SDA,
+
+	pci_exp_txp,
+	pci_exp_txn,
+	I2C_FPGA_RST_N,
+	SI5324_RST_N,
+	ETH0_RX_P,
+	ETH0_RX_N,
+	ETH0_TX_DISABLE,
+	1'b0
+};
 
 endmodule
 

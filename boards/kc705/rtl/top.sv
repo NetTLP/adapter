@@ -61,18 +61,6 @@ IBUFDS IBUFDS_clk200 (
 	.O(clk200)
 );
 
-// sys_rst_200
-reg [13:0] cold_counter200 = 14'd0;
-reg sys_rst200;
-always @(posedge clk200) begin
-	if (cold_counter200 != COLD_RESET_INTVAL) begin
-		cold_counter200 <= cold_counter200 + 14'd1;
-		sys_rst200 <= 1'b1;
-	end else begin
-		sys_rst200 <= 1'b0;
-	end
-end
-
 // clk156
 wire clk156;
 
