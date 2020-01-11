@@ -20,6 +20,7 @@ PKG_SRC += $(cores_dir)/pkg/pcie_tlp_pkg.sv
 PKG_SRC += $(cores_dir)/pkg/pcie_tcap_pkg.sv
 PKG_SRC += $(cores_dir)/pkg/nettlp_pkg.sv
 
+RTL_SRC += $(cores_dir)/mybram/mybram.sv
 RTL_SRC += $(cores_dir)/clk_sync/clk_sync.sv
 RTL_SRC += $(cores_dir)/clk_sync/clk_sync_ashot.sv
 RTL_SRC += $(rtl_dir)/eth/eth_pcspma_conf.sv
@@ -32,7 +33,6 @@ RTL_SRC += $(rtl_dir)/tlp_tx_inject/eth_decap.sv
 RTL_SRC += $(rtl_dir)/tlp_tx_inject/fifo2pcie.sv
 RTL_SRC += $(rtl_dir)/tlp_tx_inject/tlp_tx_mux.sv
 RTL_SRC += $(rtl_dir)/tlp_tx_inject/tlp_tx_inject.sv
-RTL_SRC += $(rtl_dir)/pcie/mybram.v
 RTL_SRC += $(rtl_dir)/pcie/pcie_rx_filter.sv
 RTL_SRC += $(rtl_dir)/pcie/pcie_top.sv
 RTL_SRC += $(rtl_dir)/top.sv
