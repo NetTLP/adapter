@@ -97,7 +97,7 @@ module PIO #(
   input                         cfg_to_turnoff,
   output                        cfg_turnoff_ok,
 
-  input [15:0]                  cfg_completer_id,
+  input wire [15:0]  cfg_completer_id,
 
   output wire [31:0] adapter_reg_magic,
   output wire [47:0] adapter_reg_dstmac,

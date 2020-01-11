@@ -92,7 +92,7 @@ module PIO_EP #(
   output                        req_compl,
   output                        compl_done,
 
-  input   [15:0]                cfg_completer_id,
+  input wire [15:0] cfg_completer_id,
   
   output wire [31:0] adapter_reg_magic,
   output wire [47:0] adapter_reg_dstmac,
@@ -152,6 +152,8 @@ module PIO_EP #(
       .wr_data(wr_data),     // I [31:0]
       .wr_en(wr_en),         // I
       .wr_busy(wr_busy),     // O
+
+      .completer_id(cfg_completer_id),
 
       .adapter_reg_magic  (adapter_reg_magic),
       .adapter_reg_dstmac (adapter_reg_dstmac),

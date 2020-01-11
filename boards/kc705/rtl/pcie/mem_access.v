@@ -14,6 +14,8 @@ module mem_access (
 	input wire [31:0] wr_data,
 	output wire wr_busy,
 
+	input wire [15:0] completer_id,
+
 	output reg [31:0] adapter_reg_magic,
 	output reg [47:0] adapter_reg_dstmac,
 	output reg [47:0] adapter_reg_srcmac,
@@ -98,6 +100,8 @@ always @(posedge clk) begin
 					if (wr_be[0]) adapter_reg_srcport[ 7: 0] <= wr_data[31:24];
 					if (wr_be[1]) adapter_reg_srcport[15: 8] <= wr_data[23:16];
 				end
+				6'h10: begin  // completer_id
+				end
 				endcase
 			end
 		end else begin  // read
@@ -112,6 +116,8 @@ always @(posedge clk) begin
 				6'h06: read_data_bar0 <= { adapter_reg_srcip[7:0], adapter_reg_srcip[15:8], adapter_reg_srcip[23:16], adapter_reg_srcip[31:24] };
 				6'h07: read_data_bar0 <= { adapter_reg_dstport[7:0], adapter_reg_dstport[15:8], 8'h0, 8'h0 };
 				6'h08: read_data_bar0 <= { adapter_reg_srcport[7:0], adapter_reg_srcport[15:8], 8'h0, 8'h0 };
+
+				6'h10: read_data_bar0 <= { completer_id[7:0], completer_id[15:8], 8'h0, 8'h0 };
 				default:
 				read_data_bar0 <= 32'h0;
 				endcase
