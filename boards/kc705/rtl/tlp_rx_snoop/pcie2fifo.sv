@@ -84,8 +84,10 @@ localparam [11:0] TLP_4DW_HDR_LEN = 12'd16;
 
 logic [10:0] bytelen3DW;
 logic [10:0] bytelen4DW;
-always_comb {1'b0, bytelen3DW} = ({2'b0, pcie_tdata_nxt.clk0_mem.length} << 2) + TLP_3DW_HDR_LEN;
-always_comb {1'b0, bytelen4DW} = ({2'b0, pcie_tdata_nxt.clk0_mem.length} << 2) + TLP_4DW_HDR_LEN;
+logic a, b;
+always_comb {a, bytelen3DW} = ({2'b0, pcie_tdata_nxt.clk0_mem.length} << 2) + TLP_3DW_HDR_LEN;
+always_comb {b, bytelen4DW} = ({2'b0, pcie_tdata_nxt.clk0_mem.length} << 2) + TLP_4DW_HDR_LEN;
+wire _unused_ok = &{ a, b, 1'b0 };
 
 always_comb begin
 	state_next = state;
