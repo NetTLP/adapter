@@ -29,7 +29,7 @@ always_ff @(posedge clk) begin
 	if (rst) begin
 		state <= IDLE;
 
-		cfg_data <= 32'h0;
+		cfg_data <= '{default: '0};
 	end else begin
 		case (state)
 			IDLE: begin

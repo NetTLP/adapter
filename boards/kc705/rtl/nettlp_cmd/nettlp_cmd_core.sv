@@ -38,7 +38,7 @@ always_ff @(posedge clk) begin
 	if (rst) begin
 		state <= IDLE;
 
-		cmd_data <= 32'h0;
+		cmd_data <= '{default: 0};
 
 		adapter_reg_magic <= 32'h01_23_45_67;
 		adapter_reg_dstmac <= 48'hFF_FF_FF_FF_FF_FF;
@@ -69,31 +69,84 @@ always_ff @(posedge clk) begin
 
 			case (cmd_data.dwaddr)
 				ADAPTER_REG_MAGIC: begin
-					cmd_data.data <= { adapter_reg_magic[7:0], adapter_reg_magic[15:8], adapter_reg_magic[23:16], adapter_reg_magic[31:24] };
+					cmd_data.data <= {
+						adapter_reg_magic[ 7: 0],
+						adapter_reg_magic[15: 8],
+						adapter_reg_magic[23:16], 
+						adapter_reg_magic[31:24]
+					};
 				end
 				ADAPTER_REG_DSTMAC_LOW: begin
-					cmd_data.data <= { adapter_reg_dstmac[7:0], adapter_reg_dstmac[15:8], adapter_reg_dstmac[23:16], adapter_reg_dstmac[31:24] };
+					cmd_data.data <= {
+						adapter_reg_dstmac[ 7: 0],
+						adapter_reg_dstmac[15: 8],
+						adapter_reg_dstmac[23:16],
+						adapter_reg_dstmac[31:24]
+					};
 				end
 				ADAPTER_REG_DSTMAC_HIGH: begin
-					cmd_data.data <= { adapter_reg_dstmac[39:32], adapter_reg_dstmac[47:40], 8'h0, 8'h0 };
+					cmd_data.data <= {
+						adapter_reg_dstmac[39:32],
+						adapter_reg_dstmac[47:40],
+						8'h0,
+						8'h0
+					};
 				end
 				ADAPTER_REG_SRCMAC_LOW: begin
-					cmd_data.data <= { adapter_reg_srcmac[7:0], adapter_reg_srcmac[15:8], adapter_reg_srcmac[23:16], adapter_reg_srcmac[31:24] };
+					cmd_data.data <= {
+						adapter_reg_srcmac[ 7: 0],
+						adapter_reg_srcmac[15: 8],
+						adapter_reg_srcmac[23:16],
+						adapter_reg_srcmac[31:24]
+					};
 				end
 				ADAPTER_REG_SRCMAC_HIGH: begin
-					cmd_data.data <= { adapter_reg_srcmac[39:32], adapter_reg_srcmac[47:40], 8'h0, 8'h0 };
+					cmd_data.data <= {
+						adapter_reg_srcmac[39:32],
+						adapter_reg_srcmac[47:40],
+						8'h0,
+						8'h0
+					};
 				end
 				ADAPTER_REG_DSTIP: begin
-					cmd_data.data <= { adapter_reg_dstip[7:0], adapter_reg_dstip[15:8], adapter_reg_dstip[23:16], adapter_reg_dstip[31:24] };
+					cmd_data.data <= {
+						adapter_reg_dstip[ 7: 0],
+						adapter_reg_dstip[15: 8],
+						adapter_reg_dstip[23:16],
+						adapter_reg_dstip[31:24]
+					};
 				end
 				ADAPTER_REG_SRCIP: begin
-					cmd_data.data <= { adapter_reg_srcip[7:0], adapter_reg_srcip[15:8], adapter_reg_srcip[23:16], adapter_reg_srcip[31:24] };
+					cmd_data.data <= {
+						adapter_reg_srcip[ 7: 0],
+					       	adapter_reg_srcip[15: 8],
+						adapter_reg_srcip[23:16],
+						adapter_reg_srcip[31:24]
+					};
 				end
 				ADAPTER_REG_DSTPORT: begin
-					cmd_data.data <= { adapter_reg_dstport[7:0], adapter_reg_dstport[15:8], 8'h0, 8'h0 };
+					cmd_data.data <= {
+						adapter_reg_dstport[ 7: 0],
+						adapter_reg_dstport[15: 8],
+						8'h0,
+						8'h0
+					};
 				end
 				ADAPTER_REG_SRCPORT: begin
-					cmd_data.data <= { adapter_reg_srcport[7:0], adapter_reg_srcport[15:8], 8'h0, 8'h0 };
+					cmd_data.data <= {
+						adapter_reg_srcport[ 7: 0],
+						adapter_reg_srcport[15: 8],
+						8'h0,
+						8'h0
+					};
+				end
+				ADAPTER_REG_REQUESTER_ID: begin
+					cmd_data.data <= {
+						adapter_reg_srcport[ 7: 0],
+						adapter_reg_srcport[15: 8],
+						8'h0,
+						8'h0
+					};
 				end
 				default: begin
 					state <= IDLE;

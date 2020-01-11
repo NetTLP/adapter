@@ -5,55 +5,50 @@ module nettlp_cmd
 	input wire rst,
 
 	// data input
-	output logic fifo_cmd_i_rd_en,
-	input wire fifo_cmd_i_empty,
-	input wire fifo_cmd_i_dout,
+	input logic fifo_cmd_i_wr_en,
+	output wire fifo_cmd_i_full,
+	input FIFO_NETTLP_CMD_T fifo_cmd_i_din,
 
 	// data output
-	output logic fifo_cmd_o_wr_en,
-	input wire fifo_cmd_o_full,
-	output logic fifo_cmd_o_din
+	input logic fifo_cmd_o_rd_en,
+	output wire fifo_cmd_o_empty,
+	output FIFO_NETTLP_CMD_T fifo_cmd_o_dout
 );
 
-wire fifo_cmd_i_wr_en;
-wire fifo_cmd_i_full;
-FIFO_NETTLP_CMD_T fifo_cmd_i_din;
+wire fifo_cmd_i_rd_en;
+wire fifo_cmd_i_empty;
+FIFO_NETTLP_CMD_T fifo_cmd_i_dout;
 
-wire fifo_cmd_o_rd_en;
-wire fifo_cmd_o_empty;
-FIFO_NETTLP_CMD_T fifo_cmd_o_dout;
+wire fifo_cmd_o_wr_en;
+wire fifo_cmd_o_full;
+FIFO_NETTLP_CMD_T fifo_cmd_o_din;
 
 fifo_nettlp_cmd fifo_nettlp_cmd_in (
-	.rst(eth_rst),
-	.clk(eth_clk),
-
 	.wr_en(fifo_cmd_i_wr_en),
 	.full (fifo_cmd_i_full),
 	.din  (fifo_cmd_i_din),
 
 	.rd_en(fifo_cmd_i_rd_en),
 	.empty(fifo_cmd_i_empty),
-	.dout (fifo_cmd_i_dout)
-);
-
-nettlp_cmd_core nettlp_cmd_core0 (
-	.rst(eth_rst),
-	.clk(eth_clk),
+	.dout (fifo_cmd_i_dout),
 
 	.*
 );
 
-fifo_nettlp_cmd fifo_nettlp_cmd_out (
-	.rst(eth_rst),
-	.clk(eth_clk),
+nettlp_cmd_core nettlp_cmd_core0 (
+	.*
+);
 
+fifo_nettlp_cmd fifo_nettlp_cmd_out (
 	.wr_en(fifo_cmd_o_wr_en),
 	.full (fifo_cmd_o_full),
 	.din  (fifo_cmd_o_din),
 
 	.rd_en(fifo_cmd_o_rd_en),
 	.empty(fifo_cmd_o_empty),
-	.dout (fifo_cmd_o_dout)
+	.dout (fifo_cmd_o_dout),
+
+	.*
 );
 
 endmodule

@@ -21,7 +21,7 @@ package nettlp_cmd_pkg;
 	parameter ADAPTER_REG_DSTPORT      = 8'h07;
 	parameter ADAPTER_REG_SRCPORT      = 8'h08;
 
-	parameter ADAPTER_REG_SRCPORT      = 8'h10;
+	parameter ADAPTER_REG_REQUESTER_ID = 8'h10;
 
 	typedef bit [7:0] NETTLP_CMD_OPCODE_T;
 
