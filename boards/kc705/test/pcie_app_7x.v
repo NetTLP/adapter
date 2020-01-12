@@ -82,14 +82,15 @@ module  pcie_app_7x #(
   output [7:0]                  cfg_interrupt_di,
   output                        cfg_interrupt_stat,
   output  [4:0]                 cfg_pciecap_interrupt_msgnum,
-  
-  output logic [31:0]            adapter_reg_magic,
-  output logic [47:0]            adapter_reg_dstmac,
-  output logic [47:0]            adapter_reg_srcmac,
-  output logic [31:0]            adapter_reg_dstip,
-  output logic [31:0]            adapter_reg_srcip,
-  output logic [15:0]            adapter_reg_dstport,
-  output logic [15:0]            adapter_reg_srcport
+
+	// adapter registers
+	input wire [31:0] adapter_reg_magic,
+	input wire [47:0] adapter_reg_dstmac,
+	input wire [47:0] adapter_reg_srcmac,
+	input wire [31:0] adapter_reg_dstip,
+	input wire [31:0] adapter_reg_srcip,
+	input wire [15:0] adapter_reg_dstport,
+	input wire [15:0] adapter_reg_srcport
 );
 
 // input ports
@@ -108,6 +109,13 @@ wire _unused_ok = &{
 	m_axis_rx_tdata,
 	m_axis_rx_tkeep,
 	s_axis_tx_ack,
+	adapter_reg_magic,
+	adapter_reg_dstmac,
+	adapter_reg_srcmac,
+	adapter_reg_dstip,
+	adapter_reg_srcip,
+	adapter_reg_dstport,
+	adapter_reg_srcport,
 	1'b0
 };
 
@@ -166,13 +174,6 @@ always_comb cfg_err_tlp_cpl_header = 'b0;
 always_comb cfg_dsn = 'b0;
 always_comb cfg_interrupt_di = 'b0;
 always_comb s_axis_tx_req = 'b0;
-always_comb adapter_reg_dstport = 'b0;
-always_comb adapter_reg_srcport = 'b0;
-always_comb adapter_reg_dstip = 'b0;
-always_comb adapter_reg_magic = 'b0;
-always_comb adapter_reg_srcip = 'b0;
-always_comb adapter_reg_dstmac = 'b0;
-always_comb adapter_reg_srcmac = 'b0;
 
 endmodule
 `default_nettype wire

@@ -3,6 +3,7 @@ module tlp_rx_snoop
 	import ethernet_pkg::*;
 	import ip_pkg::*;
 	import udp_pkg::*;
+	import nettlp_cmd_pkg::*;
 	import nettlp_pkg::*;
 #(
 	parameter PL_FAST_TRAIN       = "FALSE", // Simulation Speedup
@@ -47,14 +48,18 @@ module tlp_rx_snoop
 	input wire                         pcie_rx_tlast,
 	input wire                         pcie_rx_tvalid,
 	input wire  [21:0]                 pcie_rx_tuser,
-	
+
 	input wire [31:0] adapter_reg_magic,
 	input wire [47:0] adapter_reg_dstmac,
 	input wire [47:0] adapter_reg_srcmac,
 	input wire [31:0] adapter_reg_dstip,
 	input wire [31:0] adapter_reg_srcip,
 	input wire [15:0] adapter_reg_dstport,
-	input wire [15:0] adapter_reg_srcport
+	input wire [15:0] adapter_reg_srcport,
+
+	output wire             fifo_cmd_o_rd_en,
+	input wire              fifo_cmd_o_empty,
+	input FIFO_NETTLP_CMD_T fifo_cmd_o_dout
 );
 
 /*
@@ -112,11 +117,6 @@ eth_encap eth_encap0 (
 	.eth_clk(eth_clk),
 	.eth_rst(sys_rst156),
 
-	// FIFO0 read
-	.rd_en(fifo0_rd_en),
-	.dout (fifo0_dout),
-	.empty(fifo0_empty),
-
 	// data out(encap)
 	.eth_tvalid(eth_tx_tvalid),
 	.eth_tready(eth_tx_tready),
@@ -124,58 +124,14 @@ eth_encap eth_encap0 (
 	.eth_tkeep (eth_tx_tkeep),
 	.eth_tlast (eth_tx_tlast),
 	.eth_tuser (eth_tx_tuser),
-	
-	.adapter_reg_magic  (adapter_reg_magic),
-	.adapter_reg_dstmac (adapter_reg_dstmac),
-	.adapter_reg_srcmac (adapter_reg_srcmac),
-	.adapter_reg_dstip  (adapter_reg_dstip),
-	.adapter_reg_srcip  (adapter_reg_srcip),
-	.adapter_reg_dstport(adapter_reg_dstport),
-	.adapter_reg_srcport(adapter_reg_srcport)
+
+	// FIFO0 read
+	.rd_en(fifo0_rd_en),
+	.dout (fifo0_dout),
+	.empty(fifo0_empty),
+
+	.*
 );
-
-
-`ifdef NO
-reg [63:0]    eth_tx_tdata_reg;
-reg [7:0]     eth_tx_tkeep_reg;
-reg           eth_tx_tlast_reg;
-reg           eth_tx_tvalid_reg;
-reg           eth_tx_tready_reg;
-reg           eth_tx_tuser_reg;
-always @(posedge eth_clk) begin
-	if(sys_rst156) begin
-		eth_tx_tdata_reg  <= 0;
-		eth_tx_tuser_reg  <= 0;
-		eth_tx_tlast_reg  <= 0;
-		eth_tx_tkeep_reg  <= 0;
-		eth_tx_tvalid_reg <= 0;
-		eth_tx_tready_reg <= 0;
-	end else begin
-		eth_tx_tdata_reg  <= eth_tx_tdata;
-		eth_tx_tuser_reg  <= eth_tx_tuser;
-		eth_tx_tlast_reg  <= eth_tx_tlast;
-		eth_tx_tkeep_reg  <= eth_tx_tkeep;
-		eth_tx_tvalid_reg <= eth_tx_tvalid;
-		eth_tx_tready_reg <= eth_tx_tready;
-	end
-end
-
-ila_0 ila_0_ins (
-	.clk(pcie_clk),
-	.probe0({
-//		pcie_rst,
-		fifo0_wr_en,
-		fifo0_rd_en,
-		fifo0_empty,
-		fifo0_full,
-
-//		sys_rst156,
-		pcie_rx_tready,
-		pcie_rx_tlast,
-		pcie_rx_tvalid
-	})
-);
-`endif
 
 endmodule :tlp_rx_snoop
 

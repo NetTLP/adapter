@@ -13,17 +13,17 @@ module nettlp_cmd_core
 	// data output
 	output logic fifo_cmd_o_wr_en,
 	input wire fifo_cmd_o_full,
-	output FIFO_NETTLP_CMD_T fifo_cmd_o_din
-);
+	output FIFO_NETTLP_CMD_T fifo_cmd_o_din,
 
-// adapter registers
-logic [31:0] adapter_reg_magic;
-logic [47:0] adapter_reg_dstmac;
-logic [47:0] adapter_reg_srcmac;
-logic [31:0] adapter_reg_dstip;
-logic [31:0] adapter_reg_srcip;
-logic [15:0] adapter_reg_dstport;
-logic [15:0] adapter_reg_srcport;
+	// adapter registers
+	output logic [31:0] adapter_reg_magic,
+	output logic [47:0] adapter_reg_dstmac,
+	output logic [47:0] adapter_reg_srcmac,
+	output logic [31:0] adapter_reg_dstip,
+	output logic [31:0] adapter_reg_srcip,
+	output logic [15:0] adapter_reg_dstport,
+	output logic [15:0] adapter_reg_srcport
+);
 
 enum logic [1:0] {
 	IDLE,
@@ -223,5 +223,17 @@ always_ff @(posedge clk) begin
 		endcase
 	end
 end
+
+`ifdef zero
+ila_0 ila_00 (
+	.clk(clk),
+	.probe0(fifo_cmd_i_rd_en),
+	.probe1(fifo_cmd_i_empty),
+	.probe2(fifo_cmd_o_wr_en),
+	.probe3(fifo_cmd_o_full),
+	.probe4(state)
+);
+`endif
+
 endmodule
 

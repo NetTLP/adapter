@@ -8,6 +8,7 @@ module eth_encap
 	import ip_pkg::*;
 	import udp_pkg::*;
 	import pcie_tlp_pkg::*;
+	import nettlp_cmd_pkg::*;
 	import nettlp_pkg::*;
 #(
 	//parameter eth_dst   = 48'h90_E2_BA_5D_91_D0,
@@ -44,7 +45,11 @@ module eth_encap
 	input wire [31:0] adapter_reg_dstip,
 	input wire [31:0] adapter_reg_srcip,
 	input wire [15:0] adapter_reg_dstport,
-	input wire [15:0] adapter_reg_srcport
+	input wire [15:0] adapter_reg_srcport,
+
+	output logic            fifo_cmd_o_rd_en,
+	input wire              fifo_cmd_o_empty,
+	input FIFO_NETTLP_CMD_T fifo_cmd_o_dout
 );
 
 /* function: ipcheck_gen() */
@@ -72,15 +77,43 @@ function [15:0] ipcheck_gen (
 endfunction :ipcheck_gen
 
 // state
-enum logic [1:0] {
+enum logic [2:0] {
 	TX_IDLE,
 	TX_READY,
 	TX_HDR,
+	TX_DATA_TLP,
+	TX_DATA_PCIECFG,
+	TX_DATA_CMD,
 	TX_DATA
 } tx_state = TX_IDLE, tx_state_next;
 
 always_ff @(posedge eth_clk)
 	tx_state <= tx_state_next;
+
+logic [4:0] tx_count;
+logic [15:0] tlp_sequence_count;
+logic [31:0] tlp_timestamp_count;
+always_ff @(posedge eth_clk) begin
+	if (eth_rst) begin
+		tx_count <= '0;
+		tlp_sequence_count <= '0;
+		tlp_timestamp_count <= '0;
+	end else begin
+		tlp_timestamp_count <= tlp_timestamp_count + 32'd1;
+
+		if (tx_state == TX_IDLE) begin
+			tx_count <= 0;
+		end else if (tx_state == TX_HDR) begin
+			if (eth_tready) begin
+				tx_count <= tx_count + 1;
+			end
+		end else if (tx_state == TX_DATA) begin
+			if (eth_tready && dout.tlast) begin
+				tlp_sequence_count <= tlp_sequence_count + 16'd1;
+			end
+		end
+	end
+end
 
 
 // build packet header
@@ -90,9 +123,6 @@ PACKET_QWORD2 tx_hdr2;
 PACKET_QWORD3 tx_hdr3;
 PACKET_QWORD4 tx_hdr4;
 PACKET_QWORD5 tx_hdr5;
-
-logic [4:0] tx_count;
-
 always_ff @(posedge eth_clk) begin
 	if (eth_rst) begin
 		tx_hdr0 <= '{default: '0};
@@ -101,8 +131,6 @@ always_ff @(posedge eth_clk) begin
 		tx_hdr3 <= '{default: '0};
 		tx_hdr4 <= '{default: '0};
 		tx_hdr5 <= '{default: '0};
-
-		tx_count <= 0;
 	end else begin
 		// immutable values
 		tx_hdr0.eth.h_dest <= adapter_reg_dstmac;
@@ -120,11 +148,10 @@ always_ff @(posedge eth_clk) begin
 
 		tx_hdr4.ip.daddr1 <= adapter_reg_dstip[15:0];
 
-		// free running counter for performance measurement
-		tx_hdr5.tcap.tstamp <= tx_hdr5.tcap.tstamp + 1;
+		tx_hdr5.nthdr.seq <= tlp_sequence_count;
+		tx_hdr5.nthdr.tstamp <= tlp_timestamp_count;
 
-		case(tx_state)
-		TX_IDLE: begin
+		if (tx_state == TX_IDLE) begin
 			// mutable values
 			tx_hdr2.ip.tot_len <= {
 				{5'h0, dout.tlp_len} +
@@ -141,24 +168,8 @@ always_ff @(posedge eth_clk) begin
 			};
 
 			tx_hdr4.udp.source <= udp_sport + {12'b0, dout.tlp_tag[3:0]};
-
 			tx_hdr4.udp.dest <= udp_dport + {12'b0, dout.tlp_tag[3:0]};
-
-			tx_count <= 0;
 		end
-		TX_HDR: begin
-			if (eth_tready) begin
-				tx_count <= tx_count + 1;
-			end
-		end
-		TX_DATA: begin
-			if (eth_tready && dout.tlast) begin
-				tx_hdr5.tcap.pktseq <= tx_hdr5.tcap.pktseq + 1;
-			end
-		end
-		default: begin
-		end
-		endcase
 	end
 end
 
@@ -173,11 +184,15 @@ always_comb begin
 	eth_tuser = 0;
 
 	rd_en = 0;
+//	fifo_pciecfg_o_rd_en = 1'b0;
+	fifo_cmd_o_rd_en = 1'b0;
 
 	case(tx_state)
 	TX_IDLE: begin
-		if (eth_tready && ~empty) begin
-			tx_state_next = TX_READY;
+		if (eth_tready) begin
+			if (!empty || !fifo_cmd_o_empty) begin
+				tx_state_next = TX_READY;
+			end
 		end
 	end
 	TX_READY: begin
@@ -185,7 +200,6 @@ always_comb begin
 	end
 	TX_HDR: begin
 		eth_tvalid = 1'b1;
-
 		eth_tkeep = 8'b1111_1111;
 
 		case (tx_count)
@@ -194,17 +208,58 @@ always_comb begin
 		5'h2: eth_tdata = endian_conv64(tx_hdr2);
 		5'h3: eth_tdata = endian_conv64(tx_hdr3);
 		5'h4: eth_tdata = endian_conv64(tx_hdr4);
-		5'h5: eth_tdata = endian_conv64(tx_hdr5);
 		default: eth_tdata = 64'b0;
 		endcase
 
 		if (eth_tready) begin
-			if (tx_count == 5) begin
-				tx_state_next = TX_DATA;
+			if (tx_count == 4) begin
+				// TLP > CMD > PCIECFG
+				if (!empty) begin
+					tx_state_next = TX_DATA_TLP;
+				end else if (!fifo_cmd_o_empty) begin
+					tx_state_next = TX_DATA_CMD;
+//				end else if (!fifo_pciecfg_o_empty) begin
+//					tx_state_next = TX_DATA_PCIECFG;
+				end
 			end
 
 		end
 	end
+	TX_DATA_TLP: begin
+		if (eth_tready) begin
+			tx_state_next = TX_DATA;
+		end
+
+		eth_tvalid = 1'b1;
+		eth_tkeep = 8'b1111_1111;
+		eth_tdata = endian_conv64(tx_hdr5);
+	end
+	TX_DATA_CMD: begin
+		if (eth_tready) begin
+			tx_state_next = TX_IDLE;
+
+			fifo_cmd_o_rd_en = 1'b1;  // next data
+		end
+
+		eth_tvalid = 1'b1;
+		eth_tlast  = 1'b1;
+		eth_tkeep  = 8'b1111_1111;
+		eth_tdata  = endian_conv64(fifo_cmd_o_dout);
+	end
+`ifdef zero
+	TX_DATA_PCIECFG: begin
+		if (eth_tready) begin
+			tx_state_next = TX_IDLE;
+
+			fifo_pciecfg_o_rd_en = 1'b1;
+		end
+
+		eth_tvalid = 1'b1;
+		eth_tlast  = 1'b1;
+		eth_tkeep  = 8'b1111_1111;
+		eth_tdata  = endian_conv64(fifo_pciecfg_o_dout);
+	end
+`endif
 	TX_DATA: begin
 		eth_tvalid = dout.tvalid;
 		eth_tlast  = dout.tlast;
@@ -213,7 +268,6 @@ always_comb begin
 			dout.tdata.oct[4], dout.tdata.oct[5], dout.tdata.oct[6], dout.tdata.oct[7],
 			dout.tdata.oct[0], dout.tdata.oct[1], dout.tdata.oct[2], dout.tdata.oct[3]
 		};
-		eth_tuser  = 1'b0;
 
 		if (eth_tready) begin
 			rd_en = 1;

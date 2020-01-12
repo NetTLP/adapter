@@ -47,13 +47,14 @@ module pcie_top #(
 	output wire [C_DATA_WIDTH-1:0]  pcie_rx_tdata,
 	output wire [21:0]              pcie_rx_tuser,
 
-	output wire [31:0] adapter_reg_magic,
-	output wire [47:0] adapter_reg_dstmac,
-	output wire [47:0] adapter_reg_srcmac,
-	output wire [31:0] adapter_reg_dstip,
-	output wire [31:0] adapter_reg_srcip,
-	output wire [15:0] adapter_reg_dstport,
-	output wire [15:0] adapter_reg_srcport
+	// adapter registers
+	input wire [31:0] adapter_reg_magic,
+	input wire [47:0] adapter_reg_dstmac,
+	input wire [47:0] adapter_reg_srcmac,
+	input wire [31:0] adapter_reg_dstip,
+	input wire [31:0] adapter_reg_srcip,
+	input wire [15:0] adapter_reg_dstport,
+	input wire [15:0] adapter_reg_srcport
 );
 
 wire user_reset_out;

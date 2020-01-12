@@ -93,14 +93,15 @@ module PIO_EP #(
   output                        compl_done,
 
   input wire [15:0] cfg_completer_id,
-  
-  output wire [31:0] adapter_reg_magic,
-  output wire [47:0] adapter_reg_dstmac,
-  output wire [47:0] adapter_reg_srcmac,
-  output wire [31:0] adapter_reg_dstip,
-  output wire [31:0] adapter_reg_srcip,
-  output wire [15:0] adapter_reg_dstport,
-  output wire [15:0] adapter_reg_srcport
+
+	// adapter registers
+	input wire [31:0] adapter_reg_magic,
+	input wire [47:0] adapter_reg_dstmac,
+	input wire [47:0] adapter_reg_srcmac,
+	input wire [31:0] adapter_reg_dstip,
+	input wire [31:0] adapter_reg_srcip,
+	input wire [15:0] adapter_reg_dstport,
+	input wire [15:0] adapter_reg_srcport
 );
 
     // Local wires
@@ -153,15 +154,16 @@ module PIO_EP #(
       .wr_en(wr_en),         // I
       .wr_busy(wr_busy),     // O
 
-      .completer_id(cfg_completer_id),
+	.completer_id(cfg_completer_id),
 
-      .adapter_reg_magic  (adapter_reg_magic),
-      .adapter_reg_dstmac (adapter_reg_dstmac),
-      .adapter_reg_srcmac (adapter_reg_srcmac),
-      .adapter_reg_dstip  (adapter_reg_dstip),
-      .adapter_reg_srcip  (adapter_reg_srcip),
-      .adapter_reg_dstport(adapter_reg_dstport),
-      .adapter_reg_srcport(adapter_reg_srcport)
+	// adapter registers
+	.adapter_reg_magic    (adapter_reg_magic   ),
+	.adapter_reg_dstmac   (adapter_reg_dstmac  ),
+	.adapter_reg_srcmac   (adapter_reg_srcmac  ),
+	.adapter_reg_dstip    (adapter_reg_dstip   ),
+	.adapter_reg_srcip    (adapter_reg_srcip   ),
+	.adapter_reg_dstport  (adapter_reg_dstport ),
+	.adapter_reg_srcport  (adapter_reg_srcport )
       );
 
     //

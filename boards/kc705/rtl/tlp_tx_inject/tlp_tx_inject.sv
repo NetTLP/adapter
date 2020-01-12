@@ -6,6 +6,8 @@ module tlp_tx_inject
 	import ethernet_pkg::*;
 	import ip_pkg::*;
 	import udp_pkg::*;
+	//import pciecfg_pkg::*;
+	import nettlp_cmd_pkg::*;
 #(
 	parameter PL_FAST_TRAIN       = "FALSE", // Simulation Speedup
 	parameter PCIE_EXT_CLK        = "TRUE",    // Use External Clocking Module
@@ -45,7 +47,17 @@ module tlp_tx_inject
 	input  wire        eth_rx_tlast,
 	input  wire [ 7:0] eth_rx_tkeep,
 	input  wire [63:0] eth_rx_tdata,
-	input  wire        eth_rx_tuser
+	input  wire        eth_rx_tuser,
+
+	// to pcie configuration space fifo
+	//output logic          fifo_pciecfg_i_wr_en,
+	//output FIFO_PCIECFG_T fifo_pciecfg_i_din,
+	//input wire            fifo_pciecfg_i_full,
+	
+	// to nettlp command fifo
+	output wire              fifo_cmd_i_wr_en,
+	output FIFO_NETTLP_CMD_T fifo_cmd_i_din,
+	input wire               fifo_cmd_i_full
 );
 
 /*
@@ -74,7 +86,9 @@ eth_decap eth_decap0 (
 	.din  (fifo0_din),
 	.full(fifo0_full),
 	
-	.fifo_read_req(fifo_read_req_eth)
+	.fifo_read_req(fifo_read_req_eth),
+
+	.*
 );
 
 /*

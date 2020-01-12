@@ -97,15 +97,17 @@ module PIO #(
   input                         cfg_to_turnoff,
   output                        cfg_turnoff_ok,
 
-  input wire [15:0]  cfg_completer_id,
+  input wire [15:0] cfg_completer_id,
 
-  output wire [31:0] adapter_reg_magic,
-  output wire [47:0] adapter_reg_dstmac,
-  output wire [47:0] adapter_reg_srcmac,
-  output wire [31:0] adapter_reg_dstip,
-  output wire [31:0] adapter_reg_srcip,
-  output wire [15:0] adapter_reg_dstport,
-  output wire [15:0] adapter_reg_srcport
+	// adapter registers
+	input wire [31:0] adapter_reg_magic,
+	input wire [47:0] adapter_reg_dstmac,
+	input wire [47:0] adapter_reg_srcmac,
+	input wire [31:0] adapter_reg_dstip,
+	input wire [31:0] adapter_reg_srcip,
+	input wire [15:0] adapter_reg_dstport,
+	input wire [15:0] adapter_reg_srcport
+
 ); // synthesis syn_hier = "hard"
 
 
@@ -154,15 +156,16 @@ module PIO #(
     .req_compl(req_compl),                        // O
     .compl_done(compl_done),                      // O
 
-    .cfg_completer_id ( cfg_completer_id ),        // I [15:0]
-    
-    .adapter_reg_magic  (adapter_reg_magic),
-    .adapter_reg_dstmac (adapter_reg_dstmac),
-    .adapter_reg_srcmac (adapter_reg_srcmac),
-    .adapter_reg_dstip  (adapter_reg_dstip),
-    .adapter_reg_srcip  (adapter_reg_srcip),
-    .adapter_reg_dstport(adapter_reg_dstport),
-    .adapter_reg_srcport(adapter_reg_srcport)
+    .cfg_completer_id ( cfg_completer_id ),       // I [15:0]
+
+	// adapter registers
+	.adapter_reg_magic    (adapter_reg_magic   ),
+	.adapter_reg_dstmac   (adapter_reg_dstmac  ),
+	.adapter_reg_srcmac   (adapter_reg_srcmac  ),
+	.adapter_reg_dstip    (adapter_reg_dstip   ),
+	.adapter_reg_srcip    (adapter_reg_srcip   ),
+	.adapter_reg_dstport  (adapter_reg_dstport ),
+	.adapter_reg_srcport  (adapter_reg_srcport )
   );
 
 

@@ -3,7 +3,7 @@
 module fifo_nettlp_cmd
 	import nettlp_cmd_pkg::*;
 (
-	input  wire rst,
+	input  wire srst,
 	input  wire clk,
 	input  wire rd_en,
 	input  wire wr_en,
@@ -18,6 +18,7 @@ asfifo #(
 	.DATA_WIDTH($bits(FIFO_NETTLP_CMD_T)),
 	.ADDRESS_WIDTH(7)
 ) asfifo0 (
+	.rst(srst),
 	.rd_clk(clk),
 	.wr_clk(clk),
 	.*

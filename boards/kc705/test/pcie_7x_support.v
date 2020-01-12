@@ -259,6 +259,8 @@ module pcie_7x_support #(
 	input wire                                       sys_rst_n
 );
 
+assign user_clk_out = sys_clk;
+
 // input ports
 wire _unused_ok = &{
 	cfg_err_acs,
@@ -396,7 +398,6 @@ always_comb pipe_userclk2_out = 'b0;
 always_comb tx_cfg_req = 'b0;
 always_comb tx_err_drop = 'b0;
 always_comb user_app_rdy = 'b0;
-always_comb user_clk_out = 'b0;
 always_comb user_lnk_up = 'b0;
 always_comb user_reset_out = 'b0;
 always_comb cfg_msg_data = 'b0;

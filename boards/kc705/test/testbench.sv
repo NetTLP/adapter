@@ -2,7 +2,7 @@ module testbench #(
 	parameter C_DATA_WIDTH        = 64,
 	parameter KEEP_WIDTH          = C_DATA_WIDTH / 8,
 	parameter LINK_WIDTH          = C_DATA_WIDTH / 16,
-	parameter COLD_RESET_INTVAL   = 14'hfff
+	parameter COLD_RESET_INTVAL   = 14'hf
 )(
 	input wire clk200_p,
 	input wire clk200_n,
@@ -34,7 +34,9 @@ wire ETH0_RX_P;
 wire ETH0_RX_N;
 wire ETH0_TX_DISABLE;
 
-top top0(.*);
+top #(
+	.COLD_RESET_INTVAL(COLD_RESET_INTVAL)
+) top0(.*);
 
 wire _unused_ok = &{
 	I2C_FPGA_SCL,

@@ -59,7 +59,7 @@ package nettlp_pkg;
 	parameter NETTLP_HDR_LEN = 11'd6;
 
 	typedef struct packed {
-		bit [15:0] pktseq;
+		bit [15:0] seq;
 		bit [31:0] tstamp;
 	} nettlp_hdr;
 
@@ -154,7 +154,7 @@ package nettlp_pkg;
 		struct packed {
 			bit [15:0] check;
 		} udp;
-		nettlp_hdr tcap;
+		nettlp_hdr nthdr;
 	} PACKET_QWORD5;
 
 

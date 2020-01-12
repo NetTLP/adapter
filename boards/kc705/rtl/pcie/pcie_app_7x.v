@@ -146,14 +146,15 @@ module  pcie_app_7x#(
   output [7:0]                  cfg_interrupt_di,
   output                        cfg_interrupt_stat,
   output  [4:0]                 cfg_pciecap_interrupt_msgnum,
-  
-  output wire [31:0] adapter_reg_magic,
-  output wire [47:0] adapter_reg_dstmac,
-  output wire [47:0] adapter_reg_srcmac,
-  output wire [31:0] adapter_reg_dstip,
-  output wire [31:0] adapter_reg_srcip,
-  output wire [15:0] adapter_reg_dstport,
-  output wire [15:0] adapter_reg_srcport
+
+	// adapter registers
+	input wire [31:0] adapter_reg_magic,
+	input wire [47:0] adapter_reg_dstmac,
+	input wire [47:0] adapter_reg_srcmac,
+	input wire [31:0] adapter_reg_dstip,
+	input wire [31:0] adapter_reg_srcip,
+	input wire [15:0] adapter_reg_dstport,
+	input wire [15:0] adapter_reg_srcport
 );
   //----------------------------------------------------------------------------------------------------------------//
   // PCIe Block EP Tieoffs - Example PIO doesn't support the following inputs                                       //
@@ -262,14 +263,15 @@ module  pcie_app_7x#(
     .m_axis_rx_tvalid( m_axis_rx_tvalid ),          // I
     .m_axis_rx_tready( m_axis_rx_tready ),          // O
     .m_axis_rx_tuser ( m_axis_rx_tuser ),           // I
-    
-    .adapter_reg_magic  (adapter_reg_magic),
-    .adapter_reg_dstmac (adapter_reg_dstmac),
-    .adapter_reg_srcmac (adapter_reg_srcmac),
-    .adapter_reg_dstip  (adapter_reg_dstip),
-    .adapter_reg_srcip  (adapter_reg_srcip),
-    .adapter_reg_dstport(adapter_reg_dstport),
-    .adapter_reg_srcport(adapter_reg_srcport)
+
+	// adapter registers
+	.adapter_reg_magic    (adapter_reg_magic   ),
+	.adapter_reg_dstmac   (adapter_reg_dstmac  ),
+	.adapter_reg_srcmac   (adapter_reg_srcmac  ),
+	.adapter_reg_dstip    (adapter_reg_dstip   ),
+	.adapter_reg_srcip    (adapter_reg_srcip   ),
+	.adapter_reg_dstport  (adapter_reg_dstport ),
+	.adapter_reg_srcport  (adapter_reg_srcport )
   );
 
 endmodule // pcie_app

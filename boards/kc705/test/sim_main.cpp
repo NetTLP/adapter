@@ -1,20 +1,22 @@
+#include <verilated.h>
+#include <verilated_vcd_c.h>
 #include "Vtestbench.h"
-#include "verilated.h"
+//#include "verilated.h"
 
-#define QSFP28_CLK            (32/2)        // 3.2 ns (about 322 MHz)
-#define SYS_CLK               (34/2)        // 3.4 ns (300 MHz)
-#define PCIE_REF_CLK          (40/2)        // 4 ns (250 MHz)
+#define SFP_CLK               (64/2)        // 6.4 ns (156.25 MHz)
+#define SYS_CLK               (50/2)        // 200 MHz
+#define PCIE_REF_CLK          (100/2)       // 100 MHz
 
 #define WAVE_FILE_NAME        "wave.vcd"
 #define SIM_TIME_RESOLUTION   "100 ps"
-#define SIM_TIME              1000000       // 100 us
+#define SIM_TIME              100000       // 10 us
 
 static uint64_t t = 0;
 
-static inline void tick(Vtestbench *sim, VerilatedVcdC *tfp)
+static inline void tick(Vtestbench *top, VerilatedVcdC *tfp)
 {
 	++t;
-	sim->eval();
+	top->eval();
 	tfp->dump(t);
 }
 
@@ -31,40 +33,44 @@ int main(int argc, char **argv)
 	top->trace(tfp, 99);
 	tfp->open(WAVE_FILE_NAME);
 
-	top->QSFP0_CLOCK_P = 0;
-	top->QSFP0_CLOCK_N = 1;
+	top->clk200_p = 0;
+	top->clk200_n = 1;
 
-	top->SYSCLK0_300_P = 0;
-	top->SYSCLK0_300_N = 1;
+	top->sys_clk_p = 0;
+	top->sys_clk_n = 1;
+	top->sys_rst_n = 1;
 
-	top->PCIE_CLK_P = 0;
-	top->PCIE_CLK_N = 1;
-	top->PCIE_RESET_N = 1;
+	top->SFP_CLK_P = 0;
+	top->SFP_CLK_N = 1;
 
 	while(!Verilated::gotFinish()) {
-		// QSFP28
-		if ((t % QSFP28_CLK) == 0) {
-			sim->QSFP0_CLOCK_P = ~sim->QSFP0_CLOCK_P;
-			sim->QSFP0_CLOCK_N = ~sim->QSFP0_CLOCK_N;
+		// SFP
+		if ((t % SFP_CLK) == 0) {
+			top->SFP_CLK_P = ~top->SFP_CLK_P;
+			top->SFP_CLK_N = ~top->SFP_CLK_N;
 		}
 
-		// SYSCLK
+		// sys_clk
 		if ((t % SYS_CLK) == 0) {
-			sim->SYSCLK0_300_P = ~sim->SYSCLK0_300_P;
-			sim->SYSCLK0_300_N = ~sim->SYSCLK0_300_N;
+			top->sys_clk_p = ~top->sys_clk_p;
+			top->sys_clk_n = ~top->sys_clk_n;
 		}
 
-		// PCIE_REF_CLK
+		//clk200
 		if ((t % PCIE_REF_CLK) == 0) {
-			sim->PCIE_CLK_P = ~sim->PCIE_CLK_P;
-			sim->PCIE_CLK_N = ~sim->PCIE_CLK_N;
+			top->clk200_p = ~top->clk200_p;
+			top->clk200_n = ~top->clk200_n;
 		}
+
+		if (t > 10)
+			top->sys_rst_n = 0;
 
 		if (t > SIM_TIME)
 			break;
 
-		tick(sim, tfp);
+		tick(top, tfp);
 	}
+
 	delete top;
 	exit(0);
 }

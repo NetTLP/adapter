@@ -18,11 +18,14 @@ PKG_SRC += $(cores_dir)/pkg/ip_pkg.sv
 PKG_SRC += $(cores_dir)/pkg/udp_pkg.sv
 PKG_SRC += $(cores_dir)/pkg/pcie_tlp_pkg.sv
 PKG_SRC += $(cores_dir)/pkg/pcie_tcap_pkg.sv
+PKG_SRC += $(cores_dir)/pkg/nettlp_cmd_pkg.sv
 PKG_SRC += $(cores_dir)/pkg/nettlp_pkg.sv
 
 RTL_SRC += $(cores_dir)/mybram/mybram.sv
 RTL_SRC += $(cores_dir)/clk_sync/clk_sync.sv
 RTL_SRC += $(cores_dir)/clk_sync/clk_sync_ashot.sv
+RTL_SRC += $(rtl_dir)/nettlp_cmd/nettlp_cmd_core.sv
+RTL_SRC += $(rtl_dir)/nettlp_cmd/nettlp_cmd.sv
 RTL_SRC += $(rtl_dir)/eth/eth_pcspma_conf.sv
 RTL_SRC += $(rtl_dir)/eth/eth_mac_conf.sv
 RTL_SRC += $(rtl_dir)/eth/eth_top.sv
@@ -62,6 +65,7 @@ TCL_SRC += $(tcl_dir)/vivado_bitstream.tcl
 IP_SRC += $(ip_dir)/ila_0/ila_0.tcl
 IP_SRC += $(ip_dir)/pcie_afifo/pcie_afifo.tcl
 IP_SRC += $(ip_dir)/eth_afifo/eth_afifo.tcl
+IP_SRC += $(ip_dir)/fifo_nettlp_cmd/fifo_nettlp_cmd.tcl
 IP_SRC += $(ip_dir)/axi_10g_ethernet_0/axi_10g_ethernet_0.tcl
 IP_SRC += $(ip_dir)/pcie_7x/pcie_7x.tcl
 
@@ -69,6 +73,7 @@ SIM_SRC += $(test_dir)/graycounter.v
 SIM_SRC += $(test_dir)/asfifo.v
 SIM_SRC += $(test_dir)/pcie_afifo.sv
 SIM_SRC += $(test_dir)/eth_afifo.sv
+SIM_SRC += $(test_dir)/fifo_nettlp_cmd.sv
 SIM_SRC += $(test_dir)/BUFG.sv
 SIM_SRC += $(test_dir)/IBUF.sv
 SIM_SRC += $(test_dir)/IBUFDS.sv
@@ -97,6 +102,11 @@ $(build_dir)/%.xci: %.tcl
 
 lint:
 	verilator -Wall --lint-only -Wno-PINCONNECTEMPTY --top-module testbench -sv $(PKG_SRC) test/testbench.sv $(SIM_SRC) $(RTL_SRC)
+
+sim:
+	verilator -Wall -Wno-PINCONNECTEMPTY --cc --trace --exe test/sim_main.cpp --top-module testbench -sv $(PKG_SRC) test/testbench.sv $(SIM_SRC) $(RTL_SRC)
+	make -j -C obj_dir -f Vtestbench.mk Vtestbench
+	obj_dir/Vtestbench
 
 lint2:
 	 verilator -Wall --lint-only -Wno-PINCONNECTEMPTY --top-module pciecfg -sv ../../cores/pkg/pciecfg_pkg.sv test/graycounter.v test/asfifo.v test/fifo_pciecfg.sv rtl/pciecfg/pciecfg.sv rtl/pciecfg/pciecfg_core.sv
