@@ -68,7 +68,7 @@ PACKET_QWORD1 rx_hdr1;
 PACKET_QWORD2 rx_hdr2;
 PACKET_QWORD3 rx_hdr3;
 PACKET_QWORD4 rx_hdr4;
-//PACKET_QWORD5 rx_hdr5;
+PACKET_QWORD5 rx_hdr5;
 
 
 ETH_TDATA64 eth_tdata_conv;
@@ -81,27 +81,24 @@ always_ff @(posedge eth_clk) begin
 		rx_hdr2 <= '{default: '0};
 		rx_hdr3 <= '{default: '0};
 		rx_hdr4 <= '{default: '0};
-		//rx_hdr5 <= '{default: '0};
+		rx_hdr5 <= '{default: '0};
 	end else begin
-		if (eth_tvalid) begin
-			case (rx_state)
+		case (rx_state)
 			//RX_HDRCHK0: rx_hdr0 <= eth_tdata_conv;
 			RX_HDRCHK1: rx_hdr1 <= eth_tdata_conv;
 			RX_HDRCHK2: rx_hdr2 <= eth_tdata_conv;
 			RX_HDRCHK3: rx_hdr3 <= eth_tdata_conv;
 			RX_HDRCHK4: rx_hdr4 <= eth_tdata_conv;
-			//RX_HDRCHK5: rx_hdr5 <= eth_tdata_conv;
-			default begin
-			end
-			endcase
-		end else begin
+			RX_HDRCHK5: rx_hdr5 <= eth_tdata_conv;
+		default begin
 			//rx_hdr0 <= '{default: '0};
 			rx_hdr1 <= '{default: '0};
 			rx_hdr2 <= '{default: '0};
 			rx_hdr3 <= '{default: '0};
 			rx_hdr4 <= '{default: '0};
-			//rx_hdr5 <= '{default: '0};
+			rx_hdr5 <= '{default: '0};
 		end
+		endcase
 	end
 end
 
@@ -140,8 +137,16 @@ wire is_correct_packet4_cmd = (
 //	rx_hdr4.udp.dest == 16'h4001        // dest port: 0x4001
 //);
 
+logic d0, d1, d2, d3, d4, d5;
 always_comb begin
 	rx_state_next = rx_state;
+
+	d0 = '0;
+	d1 = '0;
+	d2 = '0;
+	d3 = '0;
+	d4 = '0;
+	d5 = '0;
 
 	wr_en = '0;
 	din.tvalid = '0;
@@ -155,115 +160,121 @@ always_comb begin
 	fifo_cmd_i_wr_en = '0;
 	fifo_cmd_i_din = '{default: '0};
 
-	if (eth_tvalid) begin
-		case (rx_state)
-		RX_HDRCHK0: begin
+	case (rx_state)
+	RX_HDRCHK0: begin
+		if (eth_tvalid == 1'b1) begin
 			rx_state_next = RX_HDRCHK1;
 		end
-		RX_HDRCHK1: begin
-			rx_state_next = RX_HDRCHK2;
+	end
+	RX_HDRCHK1: begin
+		rx_state_next = RX_HDRCHK2;
+	end
+	RX_HDRCHK2: begin
+		if (is_correct_packet1) begin
+			rx_state_next = RX_HDRCHK3;
+		end else begin
+			rx_state_next = RX_ERR_NOTLP;
 		end
-		RX_HDRCHK2: begin
-			if (is_correct_packet1) begin
-				rx_state_next = RX_HDRCHK3;
-			end else begin
-				rx_state_next = RX_ERR_NOTLP;
-			end
+	end
+	RX_HDRCHK3: begin
+		if (is_correct_packet2) begin
+			rx_state_next = RX_HDRCHK4;
+		end else begin
+			rx_state_next = RX_ERR_NOTLP;
 		end
-		RX_HDRCHK3: begin
-			if (is_correct_packet2) begin
-				rx_state_next = RX_HDRCHK4;
-			end else begin
-				rx_state_next = RX_ERR_NOTLP;
-			end
+	end
+	RX_HDRCHK4: begin
+		if (is_correct_packet3) begin
+			rx_state_next = RX_HDRCHK5;
+		end else begin
+			rx_state_next = RX_ERR_NOTLP;
 		end
-		RX_HDRCHK4: begin
-			if (is_correct_packet3) begin
-				rx_state_next = RX_HDRCHK5;
-			end else begin
-				rx_state_next = RX_ERR_NOTLP;
-			end
+	end
+	RX_HDRCHK5: begin
+		d0 = '1;
+		if (is_correct_packet4_tlp) begin
+			d1 = '1;
+			rx_state_next = RX_PAYLOAD_TLP;
+		end else if (is_correct_packet4_cmd) begin
+			d2 = '1;
+			rx_state_next = RX_PAYLOAD_CMD;
+		end else begin
+			rx_state_next = RX_ERR_NOTLP;
 		end
-		RX_HDRCHK5: begin
-			if (is_correct_packet4_tlp) begin
-				rx_state_next = RX_PAYLOAD_TLP;
-			end else if (is_correct_packet4_cmd) begin
-				rx_state_next = RX_PAYLOAD_TLP;
-			end else begin
-				rx_state_next = RX_ERR_NOTLP;
-			end
-		end
-		RX_PAYLOAD_TLP: begin
-			if (!full) begin
-				if (eth_tlast) begin
-					rx_state_next = RX_HDRCHK0;
-
-					fifo_read_req = '1;
-				end
-
-				wr_en = '1;
-
-				din.tvalid = eth_tvalid;
-				din.tlast = eth_tlast;
-				din.tkeep = eth_tkeep;
-				din.tdata = {
-					eth_tdata_conv.oct[3], eth_tdata_conv.oct[2],
-					eth_tdata_conv.oct[1], eth_tdata_conv.oct[0],
-					eth_tdata_conv.oct[7], eth_tdata_conv.oct[6],
-					eth_tdata_conv.oct[5], eth_tdata_conv.oct[4] 
-				};
-				//din.tuser = eth_tuser;
-				din.tuser = '0;
-			end else begin
-				rx_state_next = RX_ERR_FIFOFULL;
-			end
-		end
-		RX_PAYLOAD_CMD: begin
-			if (!fifo_cmd_i_full) begin
-				if (eth_tlast) begin
-					rx_state_next = RX_HDRCHK0;
-				end
-
-				fifo_cmd_i_wr_en = '1;
-				fifo_cmd_i_din = {
-					eth_tdata_conv.oct[3], eth_tdata_conv.oct[2],
-					eth_tdata_conv.oct[1], eth_tdata_conv.oct[0],
-					eth_tdata_conv.oct[7], eth_tdata_conv.oct[6],
-					eth_tdata_conv.oct[5], eth_tdata_conv.oct[4] 
-				};
-			end else begin
-				rx_state_next = RX_HDRCHK0; // TODO
-			end
-		end
-		RX_ERR_FIFOFULL: begin
-			// wait a full space and force insert tlast
-			if (!full) begin
+	end
+	RX_PAYLOAD_TLP: begin
+		d3 = '1;
+		if (!full) begin
+			if (eth_tlast) begin
 				rx_state_next = RX_HDRCHK0;
-
-				wr_en = '1;
-
-				din.tlast = '1;
 
 				fifo_read_req = '1;
 			end
+
+			wr_en = '1;
+
+			din.tvalid = eth_tvalid;
+			din.tlast = eth_tlast;
+			din.tkeep = eth_tkeep;
+			din.tdata = {
+				eth_tdata_conv.oct[3], eth_tdata_conv.oct[2],
+				eth_tdata_conv.oct[1], eth_tdata_conv.oct[0],
+				eth_tdata_conv.oct[7], eth_tdata_conv.oct[6],
+				eth_tdata_conv.oct[5], eth_tdata_conv.oct[4] 
+			};
+			//din.tuser = eth_tuser;
+			din.tuser = '0;
+		end else begin
+			rx_state_next = RX_ERR_FIFOFULL;
 		end
-		RX_ERR_NOTLP: begin
-			// wait packet tail
-			if (eth_tlast)
-				rx_state_next = RX_HDRCHK0;
-		end
-		default begin
-		rx_state_next = RX_HDRCHK0;
-		end
-		endcase
 	end
+	RX_PAYLOAD_CMD: begin
+		d4 = '1;
+		if (!fifo_cmd_i_full) begin
+			d5 = '1;
+			rx_state_next = RX_HDRCHK0;
+
+			fifo_cmd_i_wr_en = '1;
+			fifo_cmd_i_din = rx_hdr5;
+		end else begin
+			rx_state_next = RX_HDRCHK0; // TODO
+		end
+	end
+	RX_ERR_FIFOFULL: begin
+		// wait a full space and force insert tlast
+		if (!full) begin
+			rx_state_next = RX_HDRCHK0;
+
+			wr_en = '1;
+
+			din.tlast = '1;
+
+			fifo_read_req = '1;
+		end
+	end
+	RX_ERR_NOTLP: begin
+		// wait packet tail
+		if (eth_tlast)
+			rx_state_next = RX_HDRCHK0;
+	end
+	default begin
+	rx_state_next = RX_HDRCHK0;
+	end
+	endcase
 end
 
 wire _unused_ok = &{
 	eth_tuser,
+	d0,
+	d1,
+	d2,
+	d3,
+	d4,
+	d5,
 	1'b0
 };
 
+`ifdef zero
 ila_0 ila_00 (
 	.clk(eth_clk),
 	.probe0(rx_state),
@@ -274,13 +285,14 @@ ila_0 ila_00 (
 	.probe5(din.tvalid),
 	.probe6(din.tlast),
 	.probe7(is_correct_packet1),
-    .probe8(is_correct_packet2),
-    .probe9(is_correct_packet3),
-    .probe10(is_correct_packet4_tlp),
-    .probe11(is_correct_packet4_cmd),
-    .probe12(eth_tvalid),
-    .probe13(eth_tlast)
+	.probe8(is_correct_packet2),
+	.probe9(is_correct_packet3),
+	.probe10(is_correct_packet4_tlp),
+	.probe11(is_correct_packet4_cmd),
+	.probe12(eth_tvalid),
+	.probe13(eth_tlast)
 );
+`endif
 
 endmodule
 

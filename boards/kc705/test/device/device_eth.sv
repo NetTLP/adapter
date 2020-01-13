@@ -32,7 +32,7 @@ always_ff @(posedge eth_clk) begin
 		end
 		RX: begin
 			count <= count + 1;
-			if (count == 30) begin
+			if (count == 50) begin
 				state <= IDLE;
 			end
 		end
@@ -67,6 +67,7 @@ logic [7:0] eth_rx_tkeep_tmp;
 // 0000 0000 0000 0000
 // 0000 0000          
 
+// cmd_wr
 // 00112233_4455a036
 // 9f28ae9c_08004500
 // 0022f1d3_0000ff11
@@ -74,6 +75,13 @@ logic [7:0] eth_rx_tkeep_tmp;
 // 0a014002_4002000e
 // 00001107_33330000
 
+// cmd_rd
+// 00112233_4455a036
+// 9f28ae9c_08004500
+// 002244b3_0000ff11
+// e1c2c0a8_0a03c0a8
+// 0a014002_4002000e
+// 00001007_00000000
 
 // cc
 always_comb begin
@@ -85,7 +93,8 @@ always_comb begin
 		8'h06: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b0, 8'b1111_1111, 64'h0022f1d3_0000ff11, 1'b0};
 		8'h07: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b0, 8'b1111_1111, 64'h34a2c0a8_0a03c0a8, 1'b0};
 		8'h08: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b0, 8'b1111_1111, 64'h0a014002_4002000e, 1'b0};
-		8'h09: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b1, 8'b1111_1111, 64'h00001107_33330000, 1'b0};
+		//8'h09: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b1, 8'b1111_1111, 64'h00001107_33330000, 1'b0};
+		8'h09: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b1, 8'b1111_1111, 64'h00001007_00000000, 1'b0};
 
 		8'h14: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b0, 8'b1111_1111, 64'h90e2ba5d_8dc90011, 1'b0};
 		8'h15: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b0, 8'b1111_1111, 64'h22334455_08004600, 1'b0};    // 45 -> 46
@@ -100,7 +109,7 @@ always_comb begin
 		8'h25: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b0, 8'b1111_1111, 64'h22334455_08004500, 1'b0};
 		8'h26: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b0, 8'b1111_1111, 64'h002e0000_00004011, 1'b0};
 		8'h27: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b0, 8'b1111_1111, 64'he36ac0a8_0a03c0a8, 1'b0};
-		8'h28: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b0, 8'b1111_1111, 64'h0a013776_3776001a, 1'b0};
+		8'h28: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b0, 8'b1111_1111, 64'h0a013011_3011001a, 1'b0};
 		8'h29: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b0, 8'b1111_1111, 64'h0000001a_5249c267, 1'b0};
 		8'h2a: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b0, 8'b1111_1111, 64'h00000001_00000003, 1'b0};
 		8'h2b: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b1, 8'b1111_0000, 64'hc0004000_00000000, 1'b0};

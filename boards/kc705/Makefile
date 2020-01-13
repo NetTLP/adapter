@@ -85,6 +85,7 @@ SIM_SRC += $(test_dir)/axi_10g_ethernet_0.sv
 SIM_SRC += $(test_dir)/clock_control.sv
 SIM_SRC += $(test_dir)/pcie_7x_support.v
 SIM_SRC += $(test_dir)/pcie_app_7x.v
+SIM_SRC += $(test_dir)/ila_0.sv
 
 TARGET := $(build_dir)/$(project_name)
 

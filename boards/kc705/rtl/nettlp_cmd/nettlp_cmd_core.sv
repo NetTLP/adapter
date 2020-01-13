@@ -38,6 +38,8 @@ always_ff @(posedge clk) begin
 	if (rst) begin
 		state <= IDLE;
 
+		fifo_cmd_i_rd_en <= 1'b0;
+		fifo_cmd_o_wr_en <= 1'b0;
 		cmd_data <= '{default: 0};
 
 		adapter_reg_magic <= 32'h01_23_45_67;
@@ -48,6 +50,9 @@ always_ff @(posedge clk) begin
 		adapter_reg_dstport <= 16'h3776;
 		adapter_reg_srcport <= 16'h3776;
 	end else begin
+		fifo_cmd_i_rd_en <= 1'b0;
+		fifo_cmd_o_wr_en <= 1'b0;
+
 		case (state)
 		IDLE: begin
 			if (!fifo_cmd_i_empty) begin
@@ -210,9 +215,9 @@ always_ff @(posedge clk) begin
 			endcase
 		end
 		SEND: begin
-			if (!fifo_cmd_o_full) begin
-				state <= IDLE;
+			state <= IDLE;
 
+			if (!fifo_cmd_o_full) begin
 				fifo_cmd_o_wr_en <= 1'b1;
 				fifo_cmd_o_din <= cmd_data;
 			end
@@ -224,7 +229,6 @@ always_ff @(posedge clk) begin
 	end
 end
 
-`ifdef zero
 ila_0 ila_00 (
 	.clk(clk),
 	.probe0(fifo_cmd_i_rd_en),
@@ -233,7 +237,7 @@ ila_0 ila_00 (
 	.probe3(fifo_cmd_o_full),
 	.probe4(state)
 );
-`endif
+
 
 endmodule
 

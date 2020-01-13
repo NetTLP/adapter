@@ -1,6 +1,7 @@
 `timescale 1ns / 1ps
 
 package nettlp_cmd_pkg;
+	parameter  udp_nettlp_cmd_port = 16'h4002;
 
 	// opcode
 	parameter NETTLP_OPC_REG_RD  = 8'b0001_0000;

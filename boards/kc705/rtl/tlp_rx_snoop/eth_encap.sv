@@ -167,8 +167,17 @@ always_ff @(posedge eth_clk) begin
 		      		UDP_HDR_LEN
 			};
 
-			tx_hdr4.udp.source <= udp_sport + {12'b0, dout.tlp_tag[3:0]};
-			tx_hdr4.udp.dest <= udp_dport + {12'b0, dout.tlp_tag[3:0]};
+			if (!empty) begin
+				tx_hdr4.udp.source <= udp_sport + {12'b0, dout.tlp_tag[3:0]};
+				tx_hdr4.udp.dest <= udp_dport + {12'b0, dout.tlp_tag[3:0]};
+			end else if (!fifo_cmd_o_empty) begin
+				tx_hdr4.udp.source <= udp_nettlp_cmd_port;
+				tx_hdr4.udp.dest <= udp_nettlp_cmd_port;
+			end else begin
+				tx_hdr4.udp.source <= udp_sport;
+				tx_hdr4.udp.dest <= udp_dport;
+			end
+			
 		end
 	end
 end
@@ -229,7 +238,6 @@ always_comb begin
 		if (eth_tready) begin
 			tx_state_next = TX_DATA;
 		end
-
 		eth_tvalid = 1'b1;
 		eth_tkeep = 8'b1111_1111;
 		eth_tdata = endian_conv64(tx_hdr5);
@@ -288,6 +296,21 @@ wire _unused_ok = &{
 	adapter_reg_srcport,
 	1'b0
 };
+
+`ifdef zero
+ila_0 ila_00 (
+	.clk(eth_clk),
+	.probe0(tx_state),
+	.probe1(rd_en),
+	.probe2(empty),
+	.probe3(eth_tready),
+	.probe4(eth_tvalid),
+	.probe5(eth_tlast),
+	.probe6(fifo_cmd_o_rd_en),
+	.probe7(fifo_cmd_o_empty),
+	.probe8(tx_state_next)
+);
+`endif
 
 endmodule
 
