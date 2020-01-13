@@ -71,11 +71,11 @@ module  pcie_app_7x #(
   output                        pl_directed_link_speed,
   output                        pl_directed_link_auton,
   output                        pl_upstream_prefer_deemph,
-  output [31:0]                 cfg_mgmt_di,
-  output  [3:0]                 cfg_mgmt_byte_en,
-  output  [9:0]                 cfg_mgmt_dwaddr,
-  output                        cfg_mgmt_wr_en,
-  output                        cfg_mgmt_rd_en,
+//  output [31:0]                 cfg_mgmt_di,
+//  output  [3:0]                 cfg_mgmt_byte_en,
+//  output  [9:0]                 cfg_mgmt_dwaddr,
+//  output                        cfg_mgmt_wr_en,
+//  output                        cfg_mgmt_rd_en,
   output                        cfg_mgmt_wr_readonly, 
   output                        cfg_interrupt,
   output                        cfg_interrupt_assert,
@@ -139,8 +139,8 @@ always_comb cfg_err_ur = 'b0;
 always_comb cfg_interrupt = 'b0;
 always_comb cfg_interrupt_assert = 'b0;
 always_comb cfg_interrupt_stat = 'b0;
-always_comb cfg_mgmt_rd_en = 'b0;
-always_comb cfg_mgmt_wr_en = 'b0;
+//always_comb cfg_mgmt_rd_en = 'b0;
+//always_comb cfg_mgmt_wr_en = 'b0;
 always_comb cfg_mgmt_wr_readonly = 'b0; 
 always_comb cfg_pm_force_state_en = 'b0;
 always_comb cfg_pm_halt_aspm_l0s = 'b0;
@@ -160,16 +160,16 @@ always_comb tx_cfg_gnt = 'b0;
 always_comb cfg_aer_interrupt_msgnum = 'b0;
 always_comb pl_directed_link_change = 'b0;
 always_comb pl_directed_link_width = 'b0;
-always_comb cfg_mgmt_byte_en = 'b0;
+//always_comb cfg_mgmt_byte_en = 'b0;
 always_comb s_axis_tx_tuser = 'b0;
 always_comb cfg_pciecap_interrupt_msgnum = 'b0;
-always_comb cfg_mgmt_dwaddr = 'b0;
+//always_comb cfg_mgmt_dwaddr = 'b0;
 always_comb s_axis_tx_tdata = 'b0;
 always_comb s_axis_tx_tkeep = 'b0;
 always_comb cfg_err_aer_headerlog = 'b0;
 always_comb cfg_pm_force_state = 'b0;
 always_comb fc_sel = 'b0;
-always_comb cfg_mgmt_di = 'b0;
+//always_comb cfg_mgmt_di = 'b0;
 always_comb cfg_err_tlp_cpl_header = 'b0;
 always_comb cfg_dsn = 'b0;
 always_comb cfg_interrupt_di = 'b0;

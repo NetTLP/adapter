@@ -1,6 +1,7 @@
 `timescale 1ns / 1ps
 
 package pciecfg_pkg;
+	parameter  udp_pciecfg_port = 16'h4001;
 
 	// opcode
 	parameter PCIECFG_OPC_RD = 2'b00;

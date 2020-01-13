@@ -54,7 +54,16 @@ module pcie_top #(
 	input wire [31:0] adapter_reg_dstip,
 	input wire [31:0] adapter_reg_srcip,
 	input wire [15:0] adapter_reg_dstport,
-	input wire [15:0] adapter_reg_srcport
+	input wire [15:0] adapter_reg_srcport,
+
+	// pcie configration interface
+	input wire [9:0]   cfg_mgmt_dwaddr,
+	input wire         cfg_mgmt_rd_en,
+	output wire [31:0] cfg_mgmt_do,
+	input wire         cfg_mgmt_wr_en,
+	input wire [3:0]   cfg_mgmt_byte_en,
+	input wire [31:0]  cfg_mgmt_di,
+	output wire        cfg_mgmt_rd_wr_done
 );
 
 wire user_reset_out;
@@ -75,6 +84,8 @@ always_comb pcie_rst = (~user_lnk_up_q | user_reset_q);
  * pcie_7x_support
  * ****************************
  */
+wire cfg_mgmt_wr_readonly;
+
 wire tx_cfg_gnt;
 wire rx_np_ok;
 wire rx_np_req;
@@ -112,13 +123,6 @@ wire cfg_to_turnoff;
 wire [7:0] cfg_bus_number;
 wire [4:0] cfg_device_number;
 wire [2:0] cfg_function_number;
-
-wire [31:0] cfg_mgmt_di;
-wire [3:0] cfg_mgmt_byte_en;
-wire [9:0] cfg_mgmt_dwaddr;
-wire cfg_mgmt_wr_en;
-wire cfg_mgmt_rd_en;
-wire cfg_mgmt_wr_readonly;
 
 wire pl_directed_link_auton;
 wire [1:0] pl_directed_link_change;
@@ -196,8 +200,6 @@ pcie_7x_support #(
 	.fc_ph                                     (),
 
 	// mgmt
-	.cfg_mgmt_do                               (),
-	.cfg_mgmt_rd_wr_done                       (),
 	.cfg_mgmt_wr_rw1c_as_rw                    (1'b0),
 
 	// Error Report

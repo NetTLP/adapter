@@ -4,6 +4,7 @@ module tlp_rx_snoop
 	import ip_pkg::*;
 	import udp_pkg::*;
 	import nettlp_cmd_pkg::*;
+	import pciecfg_pkg::*;
 	import nettlp_pkg::*;
 #(
 	parameter PL_FAST_TRAIN       = "FALSE", // Simulation Speedup
@@ -57,9 +58,15 @@ module tlp_rx_snoop
 	input wire [15:0] adapter_reg_dstport,
 	input wire [15:0] adapter_reg_srcport,
 
+	// cmd
 	output wire             fifo_cmd_o_rd_en,
 	input wire              fifo_cmd_o_empty,
-	input FIFO_NETTLP_CMD_T fifo_cmd_o_dout
+	input FIFO_NETTLP_CMD_T fifo_cmd_o_dout,
+
+	// pciecfg
+	output wire          fifo_pciecfg_o_rd_en,
+	input wire           fifo_pciecfg_o_empty,
+	input FIFO_PCIECFG_T fifo_pciecfg_o_dout
 );
 
 /*

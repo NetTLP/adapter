@@ -9,6 +9,7 @@ module eth_encap
 	import udp_pkg::*;
 	import pcie_tlp_pkg::*;
 	import nettlp_cmd_pkg::*;
+	import pciecfg_pkg::*;
 	import nettlp_pkg::*;
 #(
 	//parameter eth_dst   = 48'h90_E2_BA_5D_91_D0,
@@ -47,9 +48,15 @@ module eth_encap
 	input wire [15:0] adapter_reg_dstport,
 	input wire [15:0] adapter_reg_srcport,
 
+	// cmd
 	output logic            fifo_cmd_o_rd_en,
 	input wire              fifo_cmd_o_empty,
-	input FIFO_NETTLP_CMD_T fifo_cmd_o_dout
+	input FIFO_NETTLP_CMD_T fifo_cmd_o_dout,
+
+	// pciecfg
+	output logic         fifo_pciecfg_o_rd_en,
+	input wire           fifo_pciecfg_o_empty,
+	input FIFO_PCIECFG_T fifo_pciecfg_o_dout
 );
 
 /* function: ipcheck_gen() */
@@ -82,8 +89,8 @@ enum logic [2:0] {
 	TX_READY,
 	TX_HDR,
 	TX_DATA_TLP,
-	TX_DATA_PCIECFG,
 	TX_DATA_CMD,
+	TX_DATA_PCIECFG,
 	TX_DATA
 } tx_state = TX_IDLE, tx_state_next;
 
@@ -123,6 +130,12 @@ PACKET_QWORD2 tx_hdr2;
 PACKET_QWORD3 tx_hdr3;
 PACKET_QWORD4 tx_hdr4;
 PACKET_QWORD5 tx_hdr5;
+enum logic [2:0] {
+	MODE_NONE,
+	MODE_TLP,
+	MODE_NETTLP_CMD,
+	MODE_PCIECFG
+} tx_mode = MODE_NONE;
 always_ff @(posedge eth_clk) begin
 	if (eth_rst) begin
 		tx_hdr0 <= '{default: '0};
@@ -131,6 +144,8 @@ always_ff @(posedge eth_clk) begin
 		tx_hdr3 <= '{default: '0};
 		tx_hdr4 <= '{default: '0};
 		tx_hdr5 <= '{default: '0};
+
+		tx_mode <= MODE_NONE;
 	end else begin
 		// immutable values
 		tx_hdr0.eth.h_dest <= adapter_reg_dstmac;
@@ -170,12 +185,19 @@ always_ff @(posedge eth_clk) begin
 			if (!empty) begin
 				tx_hdr4.udp.source <= udp_sport + {12'b0, dout.tlp_tag[3:0]};
 				tx_hdr4.udp.dest <= udp_dport + {12'b0, dout.tlp_tag[3:0]};
+				tx_mode <= MODE_TLP;
 			end else if (!fifo_cmd_o_empty) begin
 				tx_hdr4.udp.source <= udp_nettlp_cmd_port;
 				tx_hdr4.udp.dest <= udp_nettlp_cmd_port;
+				tx_mode <= MODE_NETTLP_CMD;
+			end else if (!fifo_pciecfg_o_empty) begin
+				tx_hdr4.udp.source <= udp_pciecfg_port;
+				tx_hdr4.udp.dest <= udp_pciecfg_port;
+				tx_mode <= MODE_PCIECFG;
 			end else begin
 				tx_hdr4.udp.source <= udp_sport;
 				tx_hdr4.udp.dest <= udp_dport;
+				tx_mode <= MODE_NONE;
 			end
 			
 		end
@@ -193,13 +215,13 @@ always_comb begin
 	eth_tuser = 0;
 
 	rd_en = 0;
-//	fifo_pciecfg_o_rd_en = 1'b0;
 	fifo_cmd_o_rd_en = 1'b0;
+	fifo_pciecfg_o_rd_en = 1'b0;
 
 	case(tx_state)
 	TX_IDLE: begin
 		if (eth_tready) begin
-			if (!empty || !fifo_cmd_o_empty) begin
+			if (!empty || !fifo_cmd_o_empty || !fifo_pciecfg_o_empty) begin
 				tx_state_next = TX_READY;
 			end
 		end
@@ -222,13 +244,13 @@ always_comb begin
 
 		if (eth_tready) begin
 			if (tx_count == 4) begin
-				// TLP > CMD > PCIECFG
-				if (!empty) begin
+				// priority TLP > CMD > PCIECFG
+				if (tx_mode == MODE_TLP) begin
 					tx_state_next = TX_DATA_TLP;
-				end else if (!fifo_cmd_o_empty) begin
+				end else if (tx_mode == MODE_NETTLP_CMD) begin
 					tx_state_next = TX_DATA_CMD;
-//				end else if (!fifo_pciecfg_o_empty) begin
-//					tx_state_next = TX_DATA_PCIECFG;
+				end else if (tx_mode == MODE_PCIECFG) begin
+					tx_state_next = TX_DATA_PCIECFG;
 				end
 			end
 
@@ -246,7 +268,7 @@ always_comb begin
 		if (eth_tready) begin
 			tx_state_next = TX_IDLE;
 
-			fifo_cmd_o_rd_en = 1'b1;  // next data
+			fifo_cmd_o_rd_en = 1'b1;
 		end
 
 		eth_tvalid = 1'b1;
@@ -254,7 +276,6 @@ always_comb begin
 		eth_tkeep  = 8'b1111_1111;
 		eth_tdata  = endian_conv64(fifo_cmd_o_dout);
 	end
-`ifdef zero
 	TX_DATA_PCIECFG: begin
 		if (eth_tready) begin
 			tx_state_next = TX_IDLE;
@@ -267,7 +288,6 @@ always_comb begin
 		eth_tkeep  = 8'b1111_1111;
 		eth_tdata  = endian_conv64(fifo_pciecfg_o_dout);
 	end
-`endif
 	TX_DATA: begin
 		eth_tvalid = dout.tvalid;
 		eth_tlast  = dout.tlast;

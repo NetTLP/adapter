@@ -6,7 +6,7 @@ module tlp_tx_inject
 	import ethernet_pkg::*;
 	import ip_pkg::*;
 	import udp_pkg::*;
-	//import pciecfg_pkg::*;
+	import pciecfg_pkg::*;
 	import nettlp_cmd_pkg::*;
 #(
 	parameter PL_FAST_TRAIN       = "FALSE", // Simulation Speedup
@@ -50,9 +50,9 @@ module tlp_tx_inject
 	input  wire        eth_rx_tuser,
 
 	// to pcie configuration space fifo
-	//output logic          fifo_pciecfg_i_wr_en,
-	//output FIFO_PCIECFG_T fifo_pciecfg_i_din,
-	//input wire            fifo_pciecfg_i_full,
+	output logic          fifo_pciecfg_i_wr_en,
+	output FIFO_PCIECFG_T fifo_pciecfg_i_din,
+	input wire            fifo_pciecfg_i_full,
 	
 	// to nettlp command fifo
 	output wire              fifo_cmd_i_wr_en,

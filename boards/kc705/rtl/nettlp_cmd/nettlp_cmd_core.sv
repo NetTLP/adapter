@@ -229,6 +229,7 @@ always_ff @(posedge clk) begin
 	end
 end
 
+`ifdef zero
 ila_0 ila_00 (
 	.clk(clk),
 	.probe0(fifo_cmd_i_rd_en),
@@ -237,7 +238,7 @@ ila_0 ila_00 (
 	.probe3(fifo_cmd_o_full),
 	.probe4(state)
 );
-
+`endif
 
 endmodule
 

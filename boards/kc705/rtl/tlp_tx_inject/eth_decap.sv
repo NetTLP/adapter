@@ -9,6 +9,7 @@ module eth_decap
 	import udp_pkg::*;
 	import pcie_tlp_pkg::*;
 	import nettlp_cmd_pkg::*;
+	import pciecfg_pkg::*;
 	import nettlp_pkg::*;
 #(
 	parameter eth_proto = ETH_P_IP,
@@ -38,7 +39,12 @@ module eth_decap
 	// to nettlp command fifo
 	output logic             fifo_cmd_i_wr_en,
 	output FIFO_NETTLP_CMD_T fifo_cmd_i_din,
-	input wire               fifo_cmd_i_full
+	input wire               fifo_cmd_i_full,
+
+	// to pciecfg fifo
+	output logic          fifo_pciecfg_i_wr_en,
+	output FIFO_PCIECFG_T fifo_pciecfg_i_din,
+	input wire            fifo_pciecfg_i_full
 );
 
 /* state */
@@ -52,7 +58,7 @@ enum logic [3:0] {
 	RX_PAYLOAD_TLP,
 	RX_PAYLOAD_CMD,
 	//RX_PAYLOAD_ARP,
-	//RX_PAYLOAD_PCIECFG,
+	RX_PAYLOAD_PCIECFG,
 	RX_ERR_FIFOFULL,
 	RX_ERR_NOTLP
 } rx_state = RX_HDRCHK0, rx_state_next;
@@ -123,18 +129,19 @@ wire is_correct_packet4_tlp = (
 
 wire is_correct_packet4_cmd = (
 	{rx_hdr3.ip.daddr0, rx_hdr4.ip.daddr1} == ip_saddr &&
-	rx_hdr4.udp.dest == 16'h4002        // dest port: 0x4002
+	rx_hdr4.udp.dest == udp_nettlp_cmd_port     // dest port: 0x4002
 );
+
+wire is_correct_packet4_pciecfg = (
+	{rx_hdr3.ip.daddr0, rx_hdr4.ip.daddr1} == ip_saddr &&
+	rx_hdr4.udp.dest == udp_pciecfg_port        // dest port: 0x4001
+);
+
 
 // TODO
 //wire is_correct_packet4_arp = (
 //	{rx_hdr3.ip.daddr0, rx_hdr4.ip.daddr1} == ip_saddr
 ////	rx_hdr4.udp.dest == 16'h4002        // dest port: 0x4002
-//);
-
-//wire is_correct_packet4_pciecfg = (
-//	{rx_hdr3.ip.daddr0, rx_hdr4.ip.daddr1} == ip_saddr &&
-//	rx_hdr4.udp.dest == 16'h4001        // dest port: 0x4001
 //);
 
 logic d0, d1, d2, d3, d4, d5;
@@ -159,6 +166,9 @@ always_comb begin
 
 	fifo_cmd_i_wr_en = '0;
 	fifo_cmd_i_din = '{default: '0};
+
+	fifo_pciecfg_i_wr_en = '0;
+	fifo_pciecfg_i_din = '{default: '0};
 
 	case (rx_state)
 	RX_HDRCHK0: begin
@@ -196,8 +206,10 @@ always_comb begin
 			d1 = '1;
 			rx_state_next = RX_PAYLOAD_TLP;
 		end else if (is_correct_packet4_cmd) begin
-			d2 = '1;
 			rx_state_next = RX_PAYLOAD_CMD;
+		end else if (is_correct_packet4_pciecfg) begin
+			d2 = '1;
+			rx_state_next = RX_PAYLOAD_PCIECFG;
 		end else begin
 			rx_state_next = RX_ERR_NOTLP;
 		end
@@ -229,13 +241,23 @@ always_comb begin
 		end
 	end
 	RX_PAYLOAD_CMD: begin
-		d4 = '1;
 		if (!fifo_cmd_i_full) begin
-			d5 = '1;
 			rx_state_next = RX_HDRCHK0;
 
 			fifo_cmd_i_wr_en = '1;
 			fifo_cmd_i_din = rx_hdr5;
+		end else begin
+			rx_state_next = RX_HDRCHK0; // TODO
+		end
+	end
+	RX_PAYLOAD_PCIECFG: begin
+		d4 = '1;
+		if (!fifo_pciecfg_i_full) begin
+			d5 = '1;
+			rx_state_next = RX_HDRCHK0;
+
+			fifo_pciecfg_i_wr_en = '1;
+			fifo_pciecfg_i_din = rx_hdr5;
 		end else begin
 			rx_state_next = RX_HDRCHK0; // TODO
 		end
@@ -277,20 +299,22 @@ wire _unused_ok = &{
 `ifdef zero
 ila_0 ila_00 (
 	.clk(eth_clk),
-	.probe0(rx_state),
+	.probe0(rx_state),  // 4
 	.probe1(wr_en),
 	.probe2(full),
 	.probe3(fifo_cmd_i_wr_en),
 	.probe4(fifo_cmd_i_full),
-	.probe5(din.tvalid),
-	.probe6(din.tlast),
-	.probe7(is_correct_packet1),
-	.probe8(is_correct_packet2),
-	.probe9(is_correct_packet3),
-	.probe10(is_correct_packet4_tlp),
-	.probe11(is_correct_packet4_cmd),
-	.probe12(eth_tvalid),
-	.probe13(eth_tlast)
+	.probe5(fifo_pciecfg_i_wr_en),
+	.probe6(fifo_pciecfg_i_full),
+	.probe7(din.tvalid),
+	.probe8(din.tlast),
+	.probe9(is_correct_packet1),
+	.probe10(is_correct_packet2),
+	.probe11(is_correct_packet3),
+	.probe12(is_correct_packet4_tlp),
+	.probe13(is_correct_packet4_cmd),
+	.probe14(eth_tvalid),
+	.probe15(eth_tlast)
 );
 `endif
 

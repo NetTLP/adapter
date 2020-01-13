@@ -135,11 +135,11 @@ module  pcie_app_7x#(
   output                        pl_directed_link_speed,
   output                        pl_directed_link_auton,
   output                        pl_upstream_prefer_deemph,
-  output [31:0]                 cfg_mgmt_di,
-  output  [3:0]                 cfg_mgmt_byte_en,
-  output  [9:0]                 cfg_mgmt_dwaddr,
-  output                        cfg_mgmt_wr_en,
-  output                        cfg_mgmt_rd_en,
+//  output [31:0]                 cfg_mgmt_di,
+//  output  [3:0]                 cfg_mgmt_byte_en,
+//  output  [9:0]                 cfg_mgmt_dwaddr,
+//  output                        cfg_mgmt_wr_en,
+//  output                        cfg_mgmt_rd_en,
   output                        cfg_mgmt_wr_readonly, 
   output                        cfg_interrupt,
   output                        cfg_interrupt_assert,
@@ -207,11 +207,11 @@ module  pcie_app_7x#(
   assign pl_directed_link_auton = 1'b0;            // Zero out link autonomous input
   assign pl_upstream_prefer_deemph = 1'b1;         // Zero out preferred de-emphasis of upstream port
 
-  assign cfg_mgmt_di = 32'h0;                      // Zero out CFG MGMT input data bus
-  assign cfg_mgmt_byte_en = 4'h0;                  // Zero out CFG MGMT byte enables
-  assign cfg_mgmt_dwaddr = 10'h0;                  // Zero out CFG MGMT 10-bit address port
-  assign cfg_mgmt_wr_en = 1'b0;                    // Do not write CFG space
-  assign cfg_mgmt_rd_en = 1'b0;                    // Do not read CFG space
+//  assign cfg_mgmt_di = 32'h0;                      // Zero out CFG MGMT input data bus
+//  assign cfg_mgmt_byte_en = 4'h0;                  // Zero out CFG MGMT byte enables
+//  assign cfg_mgmt_dwaddr = 10'h0;                  // Zero out CFG MGMT 10-bit address port
+//  assign cfg_mgmt_wr_en = 1'b0;                    // Do not write CFG space
+//  assign cfg_mgmt_rd_en = 1'b0;                    // Do not read CFG space
   assign cfg_mgmt_wr_readonly = 1'b0;              // Never treat RO bit as RW
   //----------------------------------------------------------------------------------------------------------------//
   // Programmable I/O Module                                                                                        //

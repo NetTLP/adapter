@@ -261,6 +261,33 @@ module pcie_7x_support #(
 
 assign user_clk_out = sys_clk;
 
+reg [1:0] state;
+always @(posedge sys_clk) begin
+	if (sys_rst_n) begin
+		state <= 2'b0;
+		cfg_mgmt_rd_wr_done <= 1'b0;
+	end else begin
+		cfg_mgmt_rd_wr_done <= 1'b0;
+
+		case (state)
+		2'b00: begin
+			if (cfg_mgmt_rd_en || cfg_mgmt_wr_en) begin
+				state <= 2'b01;
+			end
+		end
+		2'b01: begin
+			state <= 2'b10;
+			cfg_mgmt_rd_wr_done <= 1'b1;
+		end
+		2'b10: begin
+			state <= 2'b00;
+		end
+		2'b11: begin
+		end
+		endcase
+	end
+end
+
 // input ports
 wire _unused_ok = &{
 	cfg_err_acs,
@@ -346,7 +373,7 @@ always_comb cfg_interrupt_msienable = 'b0;
 always_comb cfg_interrupt_msixenable = 'b0;
 always_comb cfg_interrupt_msixfm = 'b0;
 always_comb cfg_interrupt_rdy = 'b0;
-always_comb cfg_mgmt_rd_wr_done = 'b0;
+//always_comb cfg_mgmt_rd_wr_done = 'b0;
 always_comb cfg_msg_received = 'b0;
 always_comb cfg_msg_received_assert_int_a = 'b0;
 always_comb cfg_msg_received_assert_int_b = 'b0;

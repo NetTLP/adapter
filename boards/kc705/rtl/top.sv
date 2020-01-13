@@ -3,7 +3,7 @@
 
 module top
 	import nettlp_cmd_pkg::*;
-//	import pciecfg_pkg::*;
+	import pciecfg_pkg::*;
 #(
 	parameter C_DATA_WIDTH        = 64,
 	parameter KEEP_WIDTH          = C_DATA_WIDTH / 8,
@@ -111,6 +111,7 @@ wire [KEEP_WIDTH-1:0]    pcie_tx1_tkeep;
 wire [C_DATA_WIDTH-1:0]  pcie_tx1_tdata;
 wire [3:0]               pcie_tx1_tuser;
 
+// adapter register
 wire [31:0] adapter_reg_magic;
 wire [47:0] adapter_reg_dstmac;
 wire [47:0] adapter_reg_srcmac;
@@ -119,6 +120,14 @@ wire [31:0] adapter_reg_srcip;
 wire [15:0] adapter_reg_dstport;
 wire [15:0] adapter_reg_srcport;
 
+// pcie configration interface
+wire [9:0]  cfg_mgmt_dwaddr;
+wire        cfg_mgmt_rd_en;
+wire [31:0] cfg_mgmt_do;
+wire        cfg_mgmt_wr_en;
+wire [3:0]  cfg_mgmt_byte_en;
+wire [31:0] cfg_mgmt_di;
+wire        cfg_mgmt_rd_wr_done;
 pcie_top pcie_top0 (
 	.sys_rst_n(sys_rst_n_c),
 	.*
@@ -175,25 +184,24 @@ nettlp_cmd nettlp_cmd0 (
 	.*
 );
 
-`ifdef zero
 /*
  * ****************************
  * pciecfg
  * ****************************
  */
-wire fifo_pciecfg_i_rd_en;
-wire fifo_pciecfg_i_empty;
-FIFO_PCIECFG_T fifo_pciecfg_i_dout;
+wire fifo_pciecfg_i_wr_en;
+wire fifo_pciecfg_i_full;
+FIFO_PCIECFG_T fifo_pciecfg_i_din;
 
-wire fifo_pciecfg_o_wr_en;
-wire fifo_pciecfg_o_full;
-FIFO_PCIECFG_T fifo_pciecfg_o_din;
+wire fifo_pciecfg_o_rd_en;
+wire fifo_pciecfg_o_empty;
+FIFO_PCIECFG_T fifo_pciecfg_o_dout;
 pciecfg pciecfg0 (
-	clk(clk156),
-	rst(sys_rst156),
+	.eth_clk(clk156),
+	.pcie_clk(pcie_clk),
+	.rst(sys_rst156),
 	.*
 );
-`endif
 
 
 /*
