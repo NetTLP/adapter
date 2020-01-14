@@ -111,7 +111,7 @@ always_ff @(posedge clk) begin
 	end
 end
 
-//`ifdef zero
+`ifdef zero
 ila_0 ila_00 (
 	.clk(clk),
 	.probe0(fifo_pciecfg_i_rd_en),
@@ -127,7 +127,7 @@ ila_0 ila_00 (
 	.probe10(cfg_mgmt_di),  // 32
 	.probe11(cfg_mgmt_rd_wr_done)
 );
-//`endif
+`endif
 
 endmodule
 
