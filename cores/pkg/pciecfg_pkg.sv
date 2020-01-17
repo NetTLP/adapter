@@ -42,11 +42,14 @@ package pciecfg_pkg;
 
 	/* nettlp pcie configuration fifo */
 	typedef struct packed {
-		bit [15:0] udp_check;
-		PCIECFG_OPCODE_T opcode;
-		PCIECFG_BYTE_MASK_T byte_mask;
-		PCIECFG_DWADDR_T dwaddr;
-		PCIECFG_DATA_T data;
+		bit data_valid;
+		struct packed {
+			bit [15:0] udp_check;
+			PCIECFG_OPCODE_T opcode;
+			PCIECFG_BYTE_MASK_T byte_mask;
+			PCIECFG_DWADDR_T dwaddr;
+			PCIECFG_DATA_T data;
+		} pkt;
 	} FIFO_PCIECFG_T;
 
 endpackage :pciecfg_pkg

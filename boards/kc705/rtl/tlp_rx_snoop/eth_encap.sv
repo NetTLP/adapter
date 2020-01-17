@@ -147,57 +147,62 @@ always_ff @(posedge eth_clk) begin
 
 		tx_mode <= MODE_NONE;
 	end else begin
-		// immutable values
-		tx_hdr0.eth.h_dest <= adapter_reg_dstmac;
-		{tx_hdr0.eth.h_source0, tx_hdr1.eth.h_source1} <= adapter_reg_srcmac;
-
-		tx_hdr1.eth.h_proto <= eth_proto;
-		tx_hdr1.ip.version <= IPVERSION;
-		tx_hdr1.ip.ihl <= 4'd5;
-
-		tx_hdr2.ip.ttl <= IPDEFTTL;
-		tx_hdr2.ip.protocol <= IP4_PROTO_UDP;
-
-		tx_hdr3.ip.saddr <= adapter_reg_srcip;
-		tx_hdr3.ip.daddr0 <= adapter_reg_dstip[31:16];
-
-		tx_hdr4.ip.daddr1 <= adapter_reg_dstip[15:0];
-
-		tx_hdr5.nthdr.seq <= tlp_sequence_count;
-		tx_hdr5.nthdr.tstamp <= tlp_timestamp_count;
-
 		if (tx_state == TX_IDLE) begin
-			// mutable values
-			tx_hdr2.ip.tot_len <= {
-				{5'h0, dout.tlp_len} +
-				{5'h0, PACKET_HDR_LEN} -
-				ETH_HDR_LEN
-			};
+			tx_hdr0.eth.h_dest <= adapter_reg_dstmac;
+			{tx_hdr0.eth.h_source0, tx_hdr1.eth.h_source1} <= adapter_reg_srcmac;
 
-			tx_hdr3.ip.check <= ipcheck_gen(dout.tlp_len, adapter_reg_srcip, adapter_reg_dstip);
+			tx_hdr1.eth.h_proto <= eth_proto;
+			tx_hdr1.ip.version <= IPVERSION;
+			tx_hdr1.ip.ihl <= 4'd5;
 
-			tx_hdr4.udp.len <= {
-				{5'h0, dout.tlp_len} +
-		      		{5'h0, NETTLP_HDR_LEN} +
-		      		UDP_HDR_LEN
-			};
+			tx_hdr2.ip.ttl <= IPDEFTTL;
+			tx_hdr2.ip.protocol <= IP4_PROTO_UDP;
+
+			tx_hdr3.ip.saddr <= adapter_reg_srcip;
+			tx_hdr3.ip.daddr0 <= adapter_reg_dstip[31:16];
+
+			tx_hdr4.ip.daddr1 <= adapter_reg_dstip[15:0];
+
+			tx_hdr5.udp.check <= 16'h0;
+			tx_hdr5.nthdr.seq <= tlp_sequence_count;
+			tx_hdr5.nthdr.tstamp <= tlp_timestamp_count;
 
 			if (!empty) begin
+				tx_mode <= MODE_TLP;
+
+				tx_hdr2.ip.tot_len <= { {5'h0, dout.tlp_len} + {5'h0, PACKET_HDR_LEN} - ETH_HDR_LEN };
+				tx_hdr3.ip.check <= ipcheck_gen(dout.tlp_len, adapter_reg_srcip, adapter_reg_dstip);
+				tx_hdr4.udp.len <= { {5'h0, dout.tlp_len} + {5'h0, NETTLP_HDR_LEN} + UDP_HDR_LEN };
 				tx_hdr4.udp.source <= udp_sport + {12'b0, dout.tlp_tag[3:0]};
 				tx_hdr4.udp.dest <= udp_dport + {12'b0, dout.tlp_tag[3:0]};
-				tx_mode <= MODE_TLP;
 			end else if (!fifo_cmd_o_empty) begin
+				if (fifo_cmd_o_dout.data_valid) begin
+					tx_mode <= MODE_NETTLP_CMD;
+				end
+
+				tx_hdr2.ip.tot_len <= { 16'd12 + {5'h0, PACKET_HDR_LEN} - ETH_HDR_LEN };
+				tx_hdr3.ip.check <= ipcheck_gen(11'd12, adapter_reg_srcip, adapter_reg_dstip);
+				tx_hdr4.udp.len <= { 16'd12 + {5'h0, NETTLP_HDR_LEN} + UDP_HDR_LEN };
 				tx_hdr4.udp.source <= udp_nettlp_cmd_port;
 				tx_hdr4.udp.dest <= udp_nettlp_cmd_port;
-				tx_mode <= MODE_NETTLP_CMD;
 			end else if (!fifo_pciecfg_o_empty) begin
+				if (fifo_pciecfg_o_dout.data_valid) begin
+					tx_mode <= MODE_PCIECFG;
+				end
+
+				tx_hdr2.ip.tot_len <= { 16'd12 + {5'h0, PACKET_HDR_LEN} - ETH_HDR_LEN };
+				tx_hdr3.ip.check <= ipcheck_gen(11'd12, adapter_reg_srcip, adapter_reg_dstip);
+				tx_hdr4.udp.len <= { 16'd12 + {5'h0, NETTLP_HDR_LEN} + UDP_HDR_LEN };
 				tx_hdr4.udp.source <= udp_pciecfg_port;
 				tx_hdr4.udp.dest <= udp_pciecfg_port;
-				tx_mode <= MODE_PCIECFG;
 			end else begin
+				tx_mode <= MODE_NONE;
+
+				tx_hdr2.ip.tot_len <= '0;
+				tx_hdr3.ip.check <= '0;
+				tx_hdr4.udp.len <= '0;
 				tx_hdr4.udp.source <= udp_sport;
 				tx_hdr4.udp.dest <= udp_dport;
-				tx_mode <= MODE_NONE;
 			end
 			
 		end
@@ -220,8 +225,18 @@ always_comb begin
 
 	case(tx_state)
 	TX_IDLE: begin
+		if (!fifo_cmd_o_empty  && !fifo_cmd_o_dout.data_valid) begin
+			fifo_cmd_o_rd_en = 1'b1;
+		end
+
+		if (!fifo_pciecfg_o_empty && !fifo_pciecfg_o_dout.data_valid) begin
+			fifo_pciecfg_o_rd_en = 1'b1;
+		end
+
 		if (eth_tready) begin
-			if (!empty || !fifo_cmd_o_empty || !fifo_pciecfg_o_empty) begin
+			if (!empty ||
+				(!fifo_cmd_o_empty && fifo_cmd_o_dout.data_valid) ||
+				(!fifo_pciecfg_o_empty && fifo_pciecfg_o_dout.data_valid)) begin
 				tx_state_next = TX_READY;
 			end
 		end
@@ -274,7 +289,7 @@ always_comb begin
 		eth_tvalid = 1'b1;
 		eth_tlast  = 1'b1;
 		eth_tkeep  = 8'b1111_1111;
-		eth_tdata  = endian_conv64(fifo_cmd_o_dout);
+		eth_tdata  = endian_conv64(fifo_cmd_o_dout.pkt);
 	end
 	TX_DATA_PCIECFG: begin
 		if (eth_tready) begin
@@ -286,7 +301,7 @@ always_comb begin
 		eth_tvalid = 1'b1;
 		eth_tlast  = 1'b1;
 		eth_tkeep  = 8'b1111_1111;
-		eth_tdata  = endian_conv64(fifo_pciecfg_o_dout);
+		eth_tdata  = endian_conv64(fifo_pciecfg_o_dout.pkt);
 	end
 	TX_DATA: begin
 		eth_tvalid = dout.tvalid;

@@ -42,10 +42,13 @@ package nettlp_cmd_pkg;
 
 	/* nettlp command fifo */
 	typedef struct packed {
-		bit [15:0] udp_check;
-		NETTLP_CMD_OPCODE_T opcode;
-		NETTLP_CMD_DWADDR_T dwaddr;
-		NETTLP_CMD_DATA_T data;
+		bit data_valid;
+		struct packed {
+			bit [15:0] udp_check;
+			NETTLP_CMD_OPCODE_T opcode;
+			NETTLP_CMD_DWADDR_T dwaddr;
+			NETTLP_CMD_DATA_T data;
+		} pkt;
 	} FIFO_NETTLP_CMD_T;
 
 endpackage :nettlp_cmd_pkg

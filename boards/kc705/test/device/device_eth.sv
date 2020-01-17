@@ -104,7 +104,7 @@ always_comb begin
 		// //8'h09: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b1, 8'b1111_1111, 64'h00001107_33330000, 1'b0};
 		// 8'h09: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b1, 8'b1111_1111, 64'h00001007_00000000, 1'b0};
 		8'h08: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b0, 8'b1111_1111, 64'h0a014001_4001000e, 1'b0};
-		8'h09: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b1, 8'b1111_1111, 64'h00007c01_22220000, 1'b0};
+		8'h09: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b1, 8'b1111_1111, 64'h00003d00_22220000, 1'b0};
 
 		8'h14: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b0, 8'b1111_1111, 64'h90e2ba5d_8dc90011, 1'b0};
 		8'h15: {eth_rx_tvalid, eth_rx_tlast, eth_rx_tkeep_tmp, eth_rx_tdata_tmp, eth_rx_tuser} = {1'b1, 1'b0, 8'b1111_1111, 64'h22334455_08004600, 1'b0};    // 45 -> 46

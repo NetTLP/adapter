@@ -57,8 +57,10 @@ enum logic [3:0] {
 	RX_HDRCHK5,
 	RX_PAYLOAD_TLP,
 	RX_PAYLOAD_CMD,
+	RX_PAYLOAD_CMD_BUBBLE,
 	//RX_PAYLOAD_ARP,
 	RX_PAYLOAD_PCIECFG,
+	RX_PAYLOAD_PCIECFG_BUBBLE,
 	RX_ERR_FIFOFULL,
 	RX_ERR_NOTLP
 } rx_state = RX_HDRCHK0, rx_state_next;
@@ -76,10 +78,10 @@ PACKET_QWORD3 rx_hdr3;
 PACKET_QWORD4 rx_hdr4;
 PACKET_QWORD5 rx_hdr5;
 
-
 ETH_TDATA64 eth_tdata_conv;
 always_comb eth_tdata_conv = endian_conv64(eth_tdata);
-
+logic [2:0] cmd_bubble_count;
+logic [2:0] pciecfg_bubble_count;
 always_ff @(posedge eth_clk) begin
 	if (eth_rst) begin
 		//rx_hdr0 <= '{default: '0};
@@ -88,7 +90,13 @@ always_ff @(posedge eth_clk) begin
 		rx_hdr3 <= '{default: '0};
 		rx_hdr4 <= '{default: '0};
 		rx_hdr5 <= '{default: '0};
+
+		cmd_bubble_count <= 3'b0;
+		pciecfg_bubble_count <= 3'b0;
 	end else begin
+		cmd_bubble_count <= 3'b0;
+		pciecfg_bubble_count <= 3'b0;
+
 		case (rx_state)
 			//RX_HDRCHK0: rx_hdr0 <= eth_tdata_conv;
 			RX_HDRCHK1: rx_hdr1 <= eth_tdata_conv;
@@ -96,14 +104,24 @@ always_ff @(posedge eth_clk) begin
 			RX_HDRCHK3: rx_hdr3 <= eth_tdata_conv;
 			RX_HDRCHK4: rx_hdr4 <= eth_tdata_conv;
 			RX_HDRCHK5: rx_hdr5 <= eth_tdata_conv;
-		default begin
-			//rx_hdr0 <= '{default: '0};
-			rx_hdr1 <= '{default: '0};
-			rx_hdr2 <= '{default: '0};
-			rx_hdr3 <= '{default: '0};
-			rx_hdr4 <= '{default: '0};
-			rx_hdr5 <= '{default: '0};
-		end
+			RX_PAYLOAD_CMD_BUBBLE: begin
+				if (!fifo_cmd_i_full) begin
+					cmd_bubble_count <= cmd_bubble_count + 3'd1;
+				end
+			end
+			RX_PAYLOAD_PCIECFG_BUBBLE: begin
+				if (!fifo_pciecfg_i_full) begin
+					pciecfg_bubble_count <= pciecfg_bubble_count + 3'd1;
+				end
+			end
+			default begin
+				//rx_hdr0 <= '{default: '0};
+				rx_hdr1 <= '{default: '0};
+				rx_hdr2 <= '{default: '0};
+				rx_hdr3 <= '{default: '0};
+				rx_hdr4 <= '{default: '0};
+				rx_hdr5 <= '{default: '0};
+			end
 		endcase
 	end
 end
@@ -144,16 +162,8 @@ wire is_correct_packet4_pciecfg = (
 ////	rx_hdr4.udp.dest == 16'h4002        // dest port: 0x4002
 //);
 
-logic d0, d1, d2, d3, d4, d5;
 always_comb begin
 	rx_state_next = rx_state;
-
-	d0 = '0;
-	d1 = '0;
-	d2 = '0;
-	d3 = '0;
-	d4 = '0;
-	d5 = '0;
 
 	wr_en = '0;
 	din.tvalid = '0;
@@ -201,29 +211,25 @@ always_comb begin
 		end
 	end
 	RX_HDRCHK5: begin
-		d0 = '1;
 		if (is_correct_packet4_tlp) begin
-			d1 = '1;
 			rx_state_next = RX_PAYLOAD_TLP;
 		end else if (is_correct_packet4_cmd) begin
 			rx_state_next = RX_PAYLOAD_CMD;
 		end else if (is_correct_packet4_pciecfg) begin
-			d2 = '1;
 			rx_state_next = RX_PAYLOAD_PCIECFG;
 		end else begin
 			rx_state_next = RX_ERR_NOTLP;
 		end
 	end
 	RX_PAYLOAD_TLP: begin
-		d3 = '1;
 		if (!full) begin
 			if (eth_tlast) begin
 				rx_state_next = RX_HDRCHK0;
 
-				fifo_read_req = '1;
+				fifo_read_req = 1'b1;
 			end
 
-			wr_en = '1;
+			wr_en = 1'b1;
 
 			din.tvalid = eth_tvalid;
 			din.tlast = eth_tlast;
@@ -242,36 +248,59 @@ always_comb begin
 	end
 	RX_PAYLOAD_CMD: begin
 		if (!fifo_cmd_i_full) begin
-			rx_state_next = RX_HDRCHK0;
+			rx_state_next = RX_PAYLOAD_CMD_BUBBLE;
 
-			fifo_cmd_i_wr_en = '1;
-			fifo_cmd_i_din = rx_hdr5;
+			fifo_cmd_i_wr_en = 1'b1;
+			fifo_cmd_i_din.data_valid = 1'b1;
+			fifo_cmd_i_din.pkt = rx_hdr5;
 		end else begin
 			rx_state_next = RX_HDRCHK0; // TODO
 		end
 	end
-	RX_PAYLOAD_PCIECFG: begin
-		d4 = '1;
-		if (!fifo_pciecfg_i_full) begin
-			d5 = '1;
+	RX_PAYLOAD_CMD_BUBBLE: begin
+		if (!cmd_bubble_count[2]) begin
+			if (!fifo_cmd_i_full) begin
+				fifo_cmd_i_wr_en = 1'b1;
+				fifo_cmd_i_din.data_valid = 1'b0;
+				fifo_cmd_i_din.pkt = rx_hdr5;
+			end
+		end else begin
 			rx_state_next = RX_HDRCHK0;
+		end
+	end
+	RX_PAYLOAD_PCIECFG: begin
+		if (!fifo_pciecfg_i_full) begin
+			rx_state_next = RX_PAYLOAD_PCIECFG_BUBBLE;
 
-			fifo_pciecfg_i_wr_en = '1;
-			fifo_pciecfg_i_din = rx_hdr5;
+			fifo_pciecfg_i_wr_en = 1'b1;
+			fifo_pciecfg_i_din.data_valid = 1'b1;
+			fifo_pciecfg_i_din.pkt = rx_hdr5;
+		end else begin
+			rx_state_next = RX_HDRCHK0; // TODO
+		end
+	end
+	RX_PAYLOAD_PCIECFG_BUBBLE: begin
+		if (!pciecfg_bubble_count[2]) begin
+			if (!fifo_pciecfg_i_full) begin
+				fifo_pciecfg_i_wr_en = 1'b1;
+				fifo_pciecfg_i_din.data_valid = 1'b0;
+				fifo_pciecfg_i_din.pkt = rx_hdr5;
+			end
 		end else begin
 			rx_state_next = RX_HDRCHK0; // TODO
 		end
 	end
 	RX_ERR_FIFOFULL: begin
-		// wait a full space and force insert tlast
+		// wait a full space and force insert tlast TODO
+		// should use alomost_full
 		if (!full) begin
 			rx_state_next = RX_HDRCHK0;
 
-			wr_en = '1;
+			wr_en = 1'b1;
 
-			din.tlast = '1;
+			din.tlast = 1'b1;
 
-			fifo_read_req = '1;
+			fifo_read_req = 1'b1;
 		end
 	end
 	RX_ERR_NOTLP: begin
@@ -280,19 +309,13 @@ always_comb begin
 			rx_state_next = RX_HDRCHK0;
 	end
 	default begin
-	rx_state_next = RX_HDRCHK0;
+		rx_state_next = RX_HDRCHK0;
 	end
 	endcase
 end
 
 wire _unused_ok = &{
 	eth_tuser,
-	d0,
-	d1,
-	d2,
-	d3,
-	d4,
-	d5,
 	1'b0
 };
 
