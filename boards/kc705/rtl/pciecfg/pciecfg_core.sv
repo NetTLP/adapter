@@ -64,13 +64,14 @@ always_ff @(posedge clk) begin
 
 		case (state)
 		IDLE: begin
-			if (!fifo_pciecfg_i_empty) begin
+			fifo_pciecfg_i_rd_en <= ~fifo_pciecfg_i_empty;  // wait a clock
+			if (fifo_pciecfg_i_rd_en) begin
 				if (fifo_pciecfg_i_dout.data_valid) begin
 					state <= MODE_SELECT;
-				end else begin
-					fifo_pciecfg_i_rd_en <= 1'b1;
 				end
 			end
+
+			bubble_count <= 3'h0;
 		end
 		MODE_SELECT: begin
 			if (!fifo_pciecfg_i_empty) begin
@@ -83,8 +84,6 @@ always_ff @(posedge clk) begin
 				fifo_pciecfg_i_rd_en <= 1'b1;
 
 				cfg_data <= fifo_pciecfg_i_dout;
-
-				bubble_count <= 3'h0;
 			end
 		end
 		OPC_READ: begin

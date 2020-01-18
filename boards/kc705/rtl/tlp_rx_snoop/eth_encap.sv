@@ -225,10 +225,12 @@ always_comb begin
 
 	case(tx_state)
 	TX_IDLE: begin
-		if (!fifo_cmd_o_empty  && !fifo_cmd_o_dout.data_valid) begin
+		// TODO rd_en of afifo should be active on the next clock after the empty
+		if (!fifo_cmd_o_empty && !fifo_cmd_o_dout.data_valid) begin
 			fifo_cmd_o_rd_en = 1'b1;
 		end
 
+		// TODO
 		if (!fifo_pciecfg_o_empty && !fifo_pciecfg_o_dout.data_valid) begin
 			fifo_pciecfg_o_rd_en = 1'b1;
 		end
