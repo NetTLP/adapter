@@ -3,9 +3,13 @@ NetTLP adapter
 
 * Please see our web page for more details on how to use the NetTLP adapter.
   * URL: [https://haeena.dev/nettlp/](https://haeena.dev/nettlp/)
-* Xilinx vivado 19.2
-* Xilinx KC705 Eval board (EK-K7-KC705-G)
+  
+### Supported platforms
 
+* Xilinx KC705 Eval board (EK-K7-KC705-G)
+  - Xilinx vivado 19.2
+  - Additional license: 10 Gigabit Ethernet Media Access Controller (10GEMAC)
+  
 ### Install NetTLP Adapter
 
 The bit file can be found at the [release page](https://github.com/NetTLP/adapter/releases).
