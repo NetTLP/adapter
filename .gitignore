@@ -103,5 +103,6 @@
 !*.conf
 !*.mk
 !*.patch
+!.gitkeep
 *.srcs
 build
