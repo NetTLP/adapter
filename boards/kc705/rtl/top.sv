@@ -206,10 +206,10 @@ pciecfg pciecfg0 (
 
 /*
  * ****************************
- * PCIe-Ethernet bridge (tlp_rx_snoop) top instance
+ * PCIe-Ethernet bridge (eth_encap) top instance
  * ****************************
  */
-tlp_rx_snoop tlp_rx_snoop0 (
+eth_encap eth_encap0 (
 	.sys_rst156       (sys_rst156),
 	.pcie_rst         (pcie_rst),
 
@@ -222,10 +222,10 @@ tlp_rx_snoop tlp_rx_snoop0 (
 
 /*
  * ****************************
- * Ethernet-PCIe bridge (tlp_tx_inject) top instance
+ * Ethernet-PCIe bridge (eth_decap) top instance
  * ****************************
  */
-tlp_tx_inject tlp_tx_inject0 (
+eth_decap eth_decap0 (
 	.pcie_clk (pcie_clk),
 	.pcie_rst (pcie_rst),
 

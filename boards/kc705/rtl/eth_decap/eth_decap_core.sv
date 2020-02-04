@@ -1,7 +1,7 @@
 `default_nettype none
 `timescale 1ns / 1ps
 
-module eth_decap
+module eth_decap_core
 	import utils_pkg::*;
 	import endian_pkg::*;
 	import ethernet_pkg::*;

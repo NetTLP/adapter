@@ -1,7 +1,7 @@
 `default_nettype none
 `timescale 1ns / 1ps
 
-module tlp_tx_inject
+module eth_decap
 	import endian_pkg::*;
 	import ethernet_pkg::*;
 	import ip_pkg::*;
@@ -62,7 +62,7 @@ module tlp_tx_inject
 
 /*
  * ****************************
- * input: eth_decap0 (decap to fifo)
+ * input: eth_decap_core0 (decap to fifo)
  * ****************************
  */
 wire fifo0_wr_en, fifo0_rd_en;
@@ -70,7 +70,7 @@ wire fifo0_full, fifo0_empty;
 wire [77:0] fifo0_din, fifo0_dout;
 
 wire fifo_read_req_eth, fifo_read_req_pcie;
-eth_decap eth_decap0 (
+eth_decap_core eth_decap_core0 (
 	.eth_clk(eth_clk),
 	.eth_rst(eth_rst),
 

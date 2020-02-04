@@ -1,4 +1,4 @@
-module tlp_rx_snoop
+module eth_encap
 	import endian_pkg::*;
 	import ethernet_pkg::*;
 	import ip_pkg::*;
@@ -117,10 +117,10 @@ pcie_afifo pciefifo_rx (
 
 /*
  * ****************************
- * eth_encap0 (FIFO to eth_encap)
+ * eth_encap_core0 (FIFO to eth_encap)
  * ****************************
  */
-eth_encap eth_encap0 (
+eth_encap_core eth_encap_core0 (
 	.eth_clk(eth_clk),
 	.eth_rst(sys_rst156),
 

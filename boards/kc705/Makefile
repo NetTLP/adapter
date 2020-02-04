@@ -7,8 +7,8 @@ build_dir := build
 rtl_dir := rtl
 test_dir := test
 ip_dir := ip
-tcl_dir := scripts
-xdc_dir := constraints
+tcl_dir := build-scripts
+xdc_dir := xdc
 cores_dir := ../../cores
 
 PKG_SRC += $(cores_dir)/pkg/endian_pkg.sv
@@ -32,13 +32,13 @@ RTL_SRC += $(rtl_dir)/pciecfg/pciecfg.sv
 RTL_SRC += $(rtl_dir)/eth/eth_pcspma_conf.sv
 RTL_SRC += $(rtl_dir)/eth/eth_mac_conf.sv
 RTL_SRC += $(rtl_dir)/eth/eth_top.sv
-RTL_SRC += $(rtl_dir)/tlp_rx_snoop/tlp_rx_snoop.sv
-RTL_SRC += $(rtl_dir)/tlp_rx_snoop/pcie2fifo.sv
-RTL_SRC += $(rtl_dir)/tlp_rx_snoop/eth_encap.sv
-RTL_SRC += $(rtl_dir)/tlp_tx_inject/eth_decap.sv
-RTL_SRC += $(rtl_dir)/tlp_tx_inject/fifo2pcie.sv
-RTL_SRC += $(rtl_dir)/tlp_tx_inject/tlp_tx_mux.sv
-RTL_SRC += $(rtl_dir)/tlp_tx_inject/tlp_tx_inject.sv
+RTL_SRC += $(rtl_dir)/eth_encap/eth_encap_core.sv
+RTL_SRC += $(rtl_dir)/eth_encap/pcie2fifo.sv
+RTL_SRC += $(rtl_dir)/eth_encap/eth_encap.sv
+RTL_SRC += $(rtl_dir)/eth_decap/eth_decap_core.sv
+RTL_SRC += $(rtl_dir)/eth_decap/fifo2pcie.sv
+RTL_SRC += $(rtl_dir)/eth_decap/tlp_tx_mux.sv
+RTL_SRC += $(rtl_dir)/eth_decap/eth_decap.sv
 RTL_SRC += $(rtl_dir)/pcie/pcie_rx_filter.sv
 RTL_SRC += $(rtl_dir)/pcie/pcie_top.sv
 RTL_SRC += $(rtl_dir)/top.sv
@@ -126,15 +126,15 @@ $(build_dir)/post_syn.dcp:
 
 place: $(build_dir)/post_place.dcp
 $(build_dir)/post_place.dcp: $(build_dir)/post_syn.dcp
-	vivado -mode batch -source scripts/vivado_place.tcl -log $(build_dir)/place_log.txt -nojournal -tempDir $(build_dir) -tclargs $(project_name) $(build_dir)
+	vivado -mode batch -source $(tcl_dir)/vivado_place.tcl -log $(build_dir)/place_log.txt -nojournal -tempDir $(build_dir) -tclargs $(project_name) $(build_dir)
 
 route: $(build_dir)/post_route.dcp
 $(build_dir)/post_route.dcp: $(build_dir)/post_place.dcp
-	vivado -mode batch -source scripts/vivado_route.tcl -log $(build_dir)/route_log.txt -nojournal -tempDir $(build_dir) -tclargs $(project_name) $(build_dir)
+	vivado -mode batch -source $(tcl_dir)/vivado_route.tcl -log $(build_dir)/route_log.txt -nojournal -tempDir $(build_dir) -tclargs $(project_name) $(build_dir)
 
 bitstream: $(build_dir)/$(proj).bit
 $(build_dir)/$(proj).bit: $(build_dir)/post_route.dcp
-	vivado -mode batch -source scripts/vivado_bitstream.tcl -log $(build_dir)/bitstream_log.txt -nojournal -tempDir $(build_dir) -tclargs $(project_name) $(build_dir)
+	vivado -mode batch -source $(tcl_dir)/vivado_bitstream.tcl -log $(build_dir)/bitstream_log.txt -nojournal -tempDir $(build_dir) -tclargs $(project_name) $(build_dir)
 
 .PHONY: clean
 clean:
