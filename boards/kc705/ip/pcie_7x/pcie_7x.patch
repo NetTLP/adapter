@@ -1,0 +1,644 @@
+diff -uprN a/PIO.v b/PIO.v
+--- a/PIO.v	2020-02-04 22:04:09.664147920 +0900
++++ b/PIO.v	2020-02-04 22:04:21.699538008 +0900
+@@ -75,6 +75,9 @@ module PIO #(
+   input                         user_lnk_up,
+ 
+   // AXIS
++  output  wire                  s_axis_tx_req,
++  input   wire                  s_axis_tx_ack,
++
+   input                         s_axis_tx_tready,
+   output  [C_DATA_WIDTH-1:0]    s_axis_tx_tdata,
+   output  [KEEP_WIDTH-1:0]      s_axis_tx_tkeep,
+@@ -94,7 +97,16 @@ module PIO #(
+   input                         cfg_to_turnoff,
+   output                        cfg_turnoff_ok,
+ 
+-  input [15:0]                  cfg_completer_id
++  input wire [15:0] cfg_completer_id,
++
++	// adapter registers
++	input wire [31:0] adapter_reg_magic,
++	input wire [47:0] adapter_reg_dstmac,
++	input wire [47:0] adapter_reg_srcmac,
++	input wire [31:0] adapter_reg_dstip,
++	input wire [31:0] adapter_reg_srcip,
++	input wire [15:0] adapter_reg_dstport,
++	input wire [15:0] adapter_reg_srcport
+ 
+ ); // synthesis syn_hier = "hard"
+ 
+@@ -121,10 +133,12 @@ module PIO #(
+     .KEEP_WIDTH( KEEP_WIDTH ),
+     .TCQ( TCQ )
+   ) PIO_EP_inst (
+-
+     .clk( user_clk ),                             // I
+     .rst_n( pio_reset_n ),                        // I
+ 
++    .s_axis_tx_req(s_axis_tx_req),
++    .s_axis_tx_ack(s_axis_tx_ack),
++
+     .s_axis_tx_tready( s_axis_tx_tready ),        // I
+     .s_axis_tx_tdata( s_axis_tx_tdata ),          // O
+     .s_axis_tx_tkeep( s_axis_tx_tkeep ),          // O
+@@ -142,7 +156,16 @@ module PIO #(
+     .req_compl(req_compl),                        // O
+     .compl_done(compl_done),                      // O
+ 
+-    .cfg_completer_id ( cfg_completer_id )        // I [15:0]
++    .cfg_completer_id ( cfg_completer_id ),       // I [15:0]
++
++	// adapter registers
++	.adapter_reg_magic    (adapter_reg_magic   ),
++	.adapter_reg_dstmac   (adapter_reg_dstmac  ),
++	.adapter_reg_srcmac   (adapter_reg_srcmac  ),
++	.adapter_reg_dstip    (adapter_reg_dstip   ),
++	.adapter_reg_srcip    (adapter_reg_srcip   ),
++	.adapter_reg_dstport  (adapter_reg_dstport ),
++	.adapter_reg_srcport  (adapter_reg_srcport )
+   );
+ 
+ 
+diff -uprN a/PIO_EP.v b/PIO_EP.v
+--- a/PIO_EP.v	2020-02-04 22:04:09.664147920 +0900
++++ b/PIO_EP.v	2020-02-04 22:04:21.699538008 +0900
+@@ -71,6 +71,9 @@ module PIO_EP #(
+   input                         rst_n,
+ 
+   // AXIS TX
++  output wire                   s_axis_tx_req,
++  input  wire                   s_axis_tx_ack,
++
+   input                         s_axis_tx_tready,
+   output  [C_DATA_WIDTH-1:0]    s_axis_tx_tdata,
+   output  [KEEP_WIDTH-1:0]      s_axis_tx_tkeep,
+@@ -89,16 +92,25 @@ module PIO_EP #(
+   output                        req_compl,
+   output                        compl_done,
+ 
+-  input   [15:0]                cfg_completer_id
++  input wire [15:0] cfg_completer_id,
++
++	// adapter registers
++	input wire [31:0] adapter_reg_magic,
++	input wire [47:0] adapter_reg_dstmac,
++	input wire [47:0] adapter_reg_srcmac,
++	input wire [31:0] adapter_reg_dstip,
++	input wire [31:0] adapter_reg_srcip,
++	input wire [15:0] adapter_reg_dstport,
++	input wire [15:0] adapter_reg_srcport
+ );
+ 
+     // Local wires
+ 
+-    wire  [10:0]      rd_addr;
++    wire  [13:0]      rd_addr;
+     wire  [3:0]       rd_be;
+     wire  [31:0]      rd_data;
+ 
+-    wire  [10:0]      wr_addr;
++    wire  [13:0]      wr_addr;
+     wire  [7:0]       wr_be;
+     wire  [31:0]      wr_data;
+     wire              wr_en;
+@@ -116,34 +128,42 @@ module PIO_EP #(
+     wire  [15:0]      req_rid;
+     wire  [7:0]       req_tag;
+     wire  [7:0]       req_be;
+-    wire  [12:0]      req_addr;
++    wire  [15:0]      req_addr;
+ 
+ 
+     //
+     // ENDPOINT MEMORY : 8KB memory aperture implemented in FPGA BlockRAM(*)
+     //
+ 
+-    PIO_EP_MEM_ACCESS  #(
+-       .TCQ( TCQ )
+-       ) EP_MEM_inst (
++    pcie_mem_access pcie_mem_access_inst (
+       
+       .clk(clk),               // I
+       .rst_n(rst_n),           // I
+       
+       // Read Port
+       
+-      .rd_addr(rd_addr),     // I [10:0]
++      .rd_addr(rd_addr),     // I [13:0]
+       .rd_be(rd_be),         // I [3:0]
+       .rd_data(rd_data),     // O [31:0]
+       
+       // Write Port
+       
+-      .wr_addr(wr_addr),     // I [10:0]
++      .wr_addr(wr_addr),     // I [13:0]
+       .wr_be(wr_be),         // I [7:0]
+       .wr_data(wr_data),     // I [31:0]
+       .wr_en(wr_en),         // I
+-      .wr_busy(wr_busy)      // O
+-      
++      .wr_busy(wr_busy),     // O
++
++	.completer_id(cfg_completer_id),
++
++	// adapter registers
++	.adapter_reg_magic    (adapter_reg_magic   ),
++	.adapter_reg_dstmac   (adapter_reg_dstmac  ),
++	.adapter_reg_srcmac   (adapter_reg_srcmac  ),
++	.adapter_reg_dstip    (adapter_reg_dstip   ),
++	.adapter_reg_srcip    (adapter_reg_srcip   ),
++	.adapter_reg_dstport  (adapter_reg_dstport ),
++	.adapter_reg_srcport  (adapter_reg_srcport )
+       );
+ 
+     //
+@@ -181,10 +201,10 @@ module PIO_EP #(
+     .req_rid(req_rid),                      // O [15:0]
+     .req_tag(req_tag),                      // O [7:0]
+     .req_be(req_be),                        // O [7:0]
+-    .req_addr(req_addr),                    // O [12:0]
++    .req_addr(req_addr),                    // O [15:0]
+                                             
+     // Memory Write Port                    
+-    .wr_addr(wr_addr),                      // O [10:0]
++    .wr_addr(wr_addr),                      // O [13:0]
+     .wr_be(wr_be),                          // O [7:0]
+     .wr_data(wr_data),                      // O [31:0]
+     .wr_en(wr_en),                          // O
+@@ -205,6 +225,9 @@ module PIO_EP #(
+     .clk(clk),                                  // I
+     .rst_n(rst_n),                              // I
+ 
++    .s_axis_tx_req(s_axis_tx_req),
++    .s_axis_tx_ack(s_axis_tx_ack),
++
+     // AXIS Tx
+     .s_axis_tx_tready( s_axis_tx_tready ),      // I
+     .s_axis_tx_tdata( s_axis_tx_tdata ),        // O
+@@ -226,11 +249,11 @@ module PIO_EP #(
+     .req_rid(req_rid),                        // I [15:0]
+     .req_tag(req_tag),                        // I [7:0]
+     .req_be(req_be),                          // I [7:0]
+-    .req_addr(req_addr),                      // I [12:0]
++    .req_addr(req_addr),                      // I [15:0]
+ 
+     // Read Port
+ 
+-    .rd_addr(rd_addr),                        // O [10:0]
++    .rd_addr(rd_addr),                        // O [13:0]
+     .rd_be(rd_be),                            // O [3:0]
+     .rd_data(rd_data),                        // I [31:0]
+ 
+diff -uprN a/PIO_RX_ENGINE.v b/PIO_RX_ENGINE.v
+--- a/PIO_RX_ENGINE.v	2020-02-04 22:04:09.664147920 +0900
++++ b/PIO_RX_ENGINE.v	2020-02-04 22:04:21.699538008 +0900
+@@ -96,7 +96,7 @@ module PIO_RX_ENGINE  #(
+   output reg [15:0]  req_rid,                       // Memory Read Requestor ID
+   output reg [7:0]   req_tag,                       // Memory Read Tag
+   output reg [7:0]   req_be,                        // Memory Read Byte Enables
+-  output reg [12:0]  req_addr,                      // Memory Read Address
++  output reg [15:0]  req_addr,                      // Memory Read Address
+ 
+ 
+   // Memory interface used to save 1 DW data received
+@@ -107,7 +107,7 @@ module PIO_RX_ENGINE  #(
+   // processing written information.
+ 
+ 
+-  output reg [10:0]  wr_addr,                       // Memory Write Address
++  output reg [13:0]  wr_addr,                       // Memory Write Address
+   output reg [7:0]   wr_be,                         // Memory Write Byte Enable
+   output reg [31:0]  wr_data,                       // Memory Write Data
+   output reg         wr_en,                         // Memory Write Enable
+@@ -183,10 +183,10 @@ module PIO_RX_ENGINE  #(
+           req_rid      <= #TCQ 16'b0;
+           req_tag      <= #TCQ 8'b0;
+           req_be       <= #TCQ 8'b0;
+-          req_addr     <= #TCQ 13'b0;
++          req_addr     <= #TCQ 16'b0;
+ 
+           wr_be        <= #TCQ 8'b0;
+-          wr_addr      <= #TCQ 11'b0;
++          wr_addr      <= #TCQ 14'b0;
+           wr_data      <= #TCQ 32'b0;
+           wr_en        <= #TCQ 1'b0;
+ 
+@@ -220,7 +220,8 @@ module PIO_RX_ENGINE  #(
+                     m_axis_rx_tready <= #TCQ 1'b0;
+ 
+ 
+-                    if (m_axis_rx_tdata[9:0] == 10'b1)
++//                    if (m_axis_rx_tdata[9:0] == 10'b1)
++                    if (m_axis_rx_tdata[9:0] != 10'b0)
+                     begin
+ 
+                       req_tc     <= #TCQ m_axis_rx_tdata[22:20];
+@@ -271,7 +272,8 @@ module PIO_RX_ENGINE  #(
+                     req_len      <= #TCQ m_axis_rx_tdata[9:0];
+                     m_axis_rx_tready <= #TCQ 1'b0;
+ 
+-                    if (m_axis_rx_tdata[9:0] == 10'b1)
++//                    if (m_axis_rx_tdata[9:0] == 10'b1)
++                    if (m_axis_rx_tdata[9:0] != 10'b0)
+                     begin
+ 
+                       req_tc     <= #TCQ m_axis_rx_tdata[22:20];
+@@ -396,7 +398,7 @@ module PIO_RX_ENGINE  #(
+               begin
+ 
+                 m_axis_rx_tready <= #TCQ 1'b0;
+-                req_addr     <= #TCQ {region_select[1:0],m_axis_rx_tdata[10:2], 2'b00};
++                req_addr     <= #TCQ {region_select[1:0],m_axis_rx_tdata[13:2], 2'b00};
+                 req_compl    <= #TCQ 1'b1;
+                 req_compl_wd <= #TCQ 1'b1;
+                 state        <= #TCQ PIO_RX_WAIT_STATE;
+@@ -416,7 +418,7 @@ module PIO_RX_ENGINE  #(
+                 wr_data      <= #TCQ m_axis_rx_tdata[63:32];
+                 wr_en        <= #TCQ 1'b1;
+                 m_axis_rx_tready <= #TCQ 1'b0;
+-                wr_addr      <= #TCQ {region_select[1:0],m_axis_rx_tdata[10:2]};
++                wr_addr      <= #TCQ {region_select[1:0],m_axis_rx_tdata[13:2]};
+                 state        <= #TCQ  PIO_RX_WAIT_STATE;
+ 
+               end // if (m_axis_rx_tvalid)
+@@ -431,7 +433,7 @@ module PIO_RX_ENGINE  #(
+               if (m_axis_rx_tvalid)
+               begin
+ 
+-                req_addr     <= #TCQ {region_select[1:0],m_axis_rx_tdata[42:34], 2'b00};
++                req_addr     <= #TCQ {region_select[1:0],m_axis_rx_tdata[45:34], 2'b00};
+                 req_compl    <= #TCQ 1'b1;
+                 req_compl_wd <= #TCQ 1'b1;
+                 m_axis_rx_tready <= #TCQ 1'b0;
+@@ -450,7 +452,7 @@ module PIO_RX_ENGINE  #(
+               begin
+ 
+                 m_axis_rx_tready <= #TCQ 1'b0;
+-                wr_addr        <= #TCQ {region_select[1:0],m_axis_rx_tdata[42:34]};
++                wr_addr        <= #TCQ {region_select[1:0],m_axis_rx_tdata[45:34]};
+                 state          <= #TCQ  PIO_RX_MEM_WR64_DW3;
+ 
+               end // if (m_axis_rx_tvalid)
+@@ -485,7 +487,7 @@ module PIO_RX_ENGINE  #(
+                 wr_data         <= #TCQ m_axis_rx_tdata[63:32];
+                 wr_en           <= #TCQ 1'b1;
+                 m_axis_rx_tready  <= #TCQ 1'b0;
+-                wr_addr         <= #TCQ {region_select[1:0],m_axis_rx_tdata[10:2]};
++                wr_addr         <= #TCQ {region_select[1:0],m_axis_rx_tdata[13:2]};
+                 req_compl       <= #TCQ 1'b1;
+                 req_compl_wd    <= #TCQ 1'b0;
+                 state             <= #TCQ  PIO_RX_WAIT_STATE;
+@@ -584,9 +586,9 @@ module PIO_RX_ENGINE  #(
+           req_rid      <= #TCQ 16'b0;
+           req_tag      <= #TCQ 8'b0;
+           req_be       <= #TCQ 8'b0;
+-          req_addr     <= #TCQ 13'b0;
++          req_addr     <= #TCQ 16'b0;
+           wr_be        <= #TCQ 8'b0;
+-          wr_addr      <= #TCQ 11'b0;
++          wr_addr      <= #TCQ 14'b0;
+           wr_data      <= #TCQ 32'b0;
+           wr_en        <= #TCQ 1'b0;
+ 
+@@ -620,7 +622,8 @@ module PIO_RX_ENGINE  #(
+                   case (m_axis_rx_tdata[94:88])
+ 
+                     PIO_RX_MEM_RD32_FMT_TYPE : begin
+-                      if (m_axis_rx_tdata[73:64] == 10'b1)
++//                      if (m_axis_rx_tdata[73:64] == 10'b1)
++                      if (m_axis_rx_tdata[73:64] != 10'b0)
+                       begin
+                         req_tc       <= #TCQ m_axis_rx_tdata[86:84];
+                         req_td       <= #TCQ m_axis_rx_tdata[79];
+@@ -651,7 +654,8 @@ module PIO_RX_ENGINE  #(
+                     end // PIO_RX_MEM_WR32_FMT_TYPE
+ 
+                     PIO_RX_MEM_RD64_FMT_TYPE : begin
+-                      if (m_axis_rx_tdata[73:64] == 10'b1)
++//                      if (m_axis_rx_tdata[73:64] == 10'b1)
++                      if (m_axis_rx_tdata[73:64] != 10'b0)
+                       begin
+                         req_tc       <= #TCQ m_axis_rx_tdata[86:84];
+                         req_td       <= #TCQ m_axis_rx_tdata[79];
+@@ -750,8 +754,7 @@ module PIO_RX_ENGINE  #(
+                         req_be       <= #TCQ m_axis_rx_tdata[39:32];
+ 
+                         //lower qw
+-                        req_addr     <= #TCQ {region_select[1:0],
+-                                                 m_axis_rx_tdata[74:66],2'b00};
++                        req_addr     <= #TCQ {region_select[1:0], m_axis_rx_tdata[77:66],2'b00};
+                         req_compl    <= #TCQ 1'b1;
+                         req_compl_wd <= #TCQ 1'b1;
+                         state        <= #TCQ PIO_RX_WAIT_STATE;
+@@ -770,7 +773,7 @@ module PIO_RX_ENGINE  #(
+                         //lower qw
+                         wr_data      <= #TCQ m_axis_rx_tdata[127:96];
+                         wr_en        <= #TCQ 1'b1;
+-                        wr_addr      <= #TCQ {region_select[1:0], m_axis_rx_tdata[74:66]};
++                        wr_addr      <= #TCQ {region_select[1:0], m_axis_rx_tdata[77:66]};
+                         wr_en        <= #TCQ 1'b1;
+                         state        <= #TCQ PIO_RX_WAIT_STATE;
+                       end // if (m_axis_rx_tdata[9:0] == 10'b1)
+@@ -797,7 +800,7 @@ module PIO_RX_ENGINE  #(
+                         // Upper 32-bits of 64-bit address not used, but would be captured
+                         // in this state if used.  Upper 32 address bits are on
+                         //m_axis_rx_tdata[127:96]
+-                        req_addr     <= #TCQ {region_select[1:0], m_axis_rx_tdata[74:66],2'b00};
++                        req_addr     <= #TCQ {region_select[1:0], m_axis_rx_tdata[77:66],2'b00};
+                         req_compl    <= #TCQ 1'b1;
+                         req_compl_wd <= #TCQ 1'b1;
+                         state        <= #TCQ PIO_RX_WAIT_STATE;
+@@ -814,7 +817,7 @@ module PIO_RX_ENGINE  #(
+                         wr_be        <= #TCQ m_axis_rx_tdata[39:32];
+ 
+                         // lower qw
+-                        wr_addr      <= #TCQ {region_select[1:0], m_axis_rx_tdata[74:66]};
++                        wr_addr      <= #TCQ {region_select[1:0], m_axis_rx_tdata[77:66]};
+                         state        <= #TCQ PIO_RX_MEM_WR64_DW3;
+                       end // if (m_axis_rx_tdata[9:0] == 10'b1)
+                       else
+@@ -837,7 +840,7 @@ module PIO_RX_ENGINE  #(
+                         req_be       <= #TCQ m_axis_rx_tdata[39:32];
+ 
+                         //lower qw
+-                        req_addr     <= #TCQ {region_select[1:0], m_axis_rx_tdata[74:66],2'b00};
++                        req_addr     <= #TCQ {region_select[1:0], m_axis_rx_tdata[77:66],2'b00};
+                         req_compl    <= #TCQ 1'b1;
+                         req_compl_wd <= #TCQ 1'b1;
+                         state        <= #TCQ PIO_RX_WAIT_STATE;
+@@ -865,7 +868,7 @@ module PIO_RX_ENGINE  #(
+ 
+                         wr_data      <= #TCQ m_axis_rx_tdata[127:96];
+                         wr_en        <= #TCQ 1'b1;
+-                        wr_addr      <= #TCQ {region_select[1:0], m_axis_rx_tdata[74:66]};
++                        wr_addr      <= #TCQ {region_select[1:0], m_axis_rx_tdata[77:66]};
+                         wr_en        <= #TCQ 1'b1;
+                         req_compl    <= #TCQ 1'b1;
+                         req_compl_wd <= #TCQ 1'b0;
+@@ -902,7 +905,7 @@ module PIO_RX_ENGINE  #(
+               if (m_axis_rx_tvalid)
+               begin
+                 m_axis_rx_tready  <= #TCQ 1'b0;
+-                req_addr          <= #TCQ {region_select[1:0], m_axis_rx_tdata[10:2], 2'b00};
++                req_addr          <= #TCQ {region_select[1:0], m_axis_rx_tdata[13:2], 2'b00};
+                 req_compl         <= #TCQ 1'b1;
+                 req_compl_wd      <= #TCQ 1'b1;
+                 state             <= #TCQ PIO_RX_WAIT_STATE;
+@@ -920,7 +923,7 @@ module PIO_RX_ENGINE  #(
+                 wr_data           <= #TCQ m_axis_rx_tdata[63:32];
+                 wr_en             <= #TCQ 1'b1;
+                 m_axis_rx_tready  <= #TCQ 1'b0;
+-                wr_addr           <= #TCQ {region_select[1:0], m_axis_rx_tdata[10:2]};
++                wr_addr           <= #TCQ {region_select[1:0], m_axis_rx_tdata[13:2]};
+                 state             <= #TCQ  PIO_RX_WAIT_STATE;
+               end // if (m_axis_rx_tvalid)
+               else
+@@ -936,7 +939,7 @@ module PIO_RX_ENGINE  #(
+                 wr_data           <= #TCQ m_axis_rx_tdata[63:32];
+                 wr_en             <= #TCQ 1'b1;
+                 m_axis_rx_tready  <= #TCQ 1'b0;
+-                wr_addr           <= #TCQ {region_select[1:0], m_axis_rx_tdata[10:2]};
++                wr_addr           <= #TCQ {region_select[1:0], m_axis_rx_tdata[13:2]};
+                 req_compl         <= #TCQ 1'b1;
+                 req_compl_wd      <= #TCQ 1'b0;
+                 state             <= #TCQ  PIO_RX_WAIT_STATE;
+@@ -951,7 +954,7 @@ module PIO_RX_ENGINE  #(
+             PIO_RX_MEM_RD64_DW1DW2 : begin
+               if (m_axis_rx_tvalid)
+               begin
+-                req_addr         <= #TCQ {region_select[1:0], m_axis_rx_tdata[10:2], 2'b00};
++                req_addr         <= #TCQ {region_select[1:0], m_axis_rx_tdata[13:2], 2'b00};
+                 req_compl        <= #TCQ 1'b1;
+                 req_compl_wd     <= #TCQ 1'b1;
+                 m_axis_rx_tready <= #TCQ 1'b0;
+@@ -968,7 +971,7 @@ module PIO_RX_ENGINE  #(
+               if (m_axis_rx_tvalid)
+               begin
+                 m_axis_rx_tready  <= #TCQ 1'b0;
+-                wr_addr           <= #TCQ {region_select[1:0], m_axis_rx_tdata[10:2]};
++                wr_addr           <= #TCQ {region_select[1:0], m_axis_rx_tdata[13:2]};
+                 // lower QW
+                 wr_data           <= #TCQ m_axis_rx_tdata[95:64];
+                 wr_en             <= #TCQ 1'b1;
+@@ -1046,10 +1049,10 @@ module PIO_RX_ENGINE  #(
+     end // pio_rx_sm_128
+   endgenerate
+ 
+-assign    mem64_bar_hit_n = ~(m_axis_rx_tuser[4]);
+-assign    io_bar_hit_n = ~(m_axis_rx_tuser[7]);
+-assign    mem32_bar_hit_n = ~(m_axis_rx_tuser[2]);
+-assign    erom_bar_hit_n  = ~(m_axis_rx_tuser[8]);
++assign    mem64_bar_hit_n = ~(m_axis_rx_tuser[4]);  // bar2
++assign    io_bar_hit_n = 1'b1;
++assign    mem32_bar_hit_n = ~(m_axis_rx_tuser[2]);  // bar0
++assign    erom_bar_hit_n  = ~(m_axis_rx_tuser[8]);  // erom
+ 
+ 
+   always @*
+@@ -1061,11 +1064,11 @@ assign    erom_bar_hit_n  = ~(m_axis_rx_
+       end // 4'b0111
+ 
+       4'b1011 : begin
+-        region_select <= #TCQ 2'b01;    // Select Mem32 region
++        region_select <= #TCQ 2'b01;    // Select Mem32 region (bar0)
+       end // 4'b1011
+ 
+       4'b1101 : begin
+-        region_select <= #TCQ 2'b10;    // Select Mem64 region
++        region_select <= #TCQ 2'b10;    // Select Mem64 region (bar2)
+       end // 4'b1101
+ 
+       4'b1110 : begin
+@@ -1101,4 +1104,3 @@ assign    erom_bar_hit_n  = ~(m_axis_rx_
+   // synthesis translate_on
+ 
+ endmodule // PIO_RX_ENGINE
+-
+diff -uprN a/PIO_TX_ENGINE.v b/PIO_TX_ENGINE.v
+--- a/PIO_TX_ENGINE.v	2020-02-04 22:04:09.664147920 +0900
++++ b/PIO_TX_ENGINE.v	2020-02-04 22:04:21.699538008 +0900
+@@ -67,6 +67,8 @@ module PIO_TX_ENGINE    #(
+   input             rst_n,
+ 
+   // AXIS
++  output  reg                     s_axis_tx_req = 1'b0,
++  input   wire                    s_axis_tx_ack,
+   input                           s_axis_tx_tready,
+   output  reg [C_DATA_WIDTH-1:0]  s_axis_tx_tdata,
+   output  reg [KEEP_WIDTH-1:0]    s_axis_tx_tkeep,
+@@ -86,9 +88,9 @@ module PIO_TX_ENGINE    #(
+   input [15:0]                    req_rid,
+   input [7:0]                     req_tag,
+   input [7:0]                     req_be,
+-  input [12:0]                    req_addr,
++  input [15:0]                    req_addr,
+ 
+-  output [10:0]                   rd_addr,
++  output [13:0]                   rd_addr,
+   output reg [3:0]                rd_be,
+   input  [31:0]                   rd_data,
+   input [15:0]                    completer_id
+@@ -121,7 +123,7 @@ localparam PIO_TX_CPLD_QW1        = 2'b1
+ 
+   // Present address and byte enable to memory module
+ 
+-  assign rd_addr = req_addr[12:2];
++  assign rd_addr = req_addr[15:2];
+  
+   always @(posedge clk) begin
+     if (!rst_n)
+@@ -190,6 +192,7 @@ localparam PIO_TX_CPLD_QW1        = 2'b1
+           s_axis_tx_tvalid  <= #TCQ 1'b0;
+           s_axis_tx_tdata   <= #TCQ {C_DATA_WIDTH{1'b0}};
+           s_axis_tx_tkeep   <= #TCQ {KEEP_WIDTH{1'b0}};
++          s_axis_tx_req     <= #TCQ 1'b0;
+          
+           compl_done        <= #TCQ 1'b0;
+           compl_busy_i      <= #TCQ 1'b0;
+@@ -207,11 +210,12 @@ localparam PIO_TX_CPLD_QW1        = 2'b1
+               if (compl_busy_i) 
+               begin
+                 
++                s_axis_tx_req     <= #TCQ 1'b1;
+                 s_axis_tx_tdata   <= #TCQ {C_DATA_WIDTH{1'b0}};
+                 s_axis_tx_tkeep   <= #TCQ 8'hFF;
+                 s_axis_tx_tlast   <= #TCQ 1'b0;
+                 s_axis_tx_tvalid  <= #TCQ 1'b0;
+-                  if (s_axis_tx_tready)
++                  if (s_axis_tx_tready && s_axis_tx_ack)
+                     state             <= #TCQ PIO_TX_CPLD_QW1_FIRST;
+                   else
+                   state             <= #TCQ PIO_TX_RST_STATE;
+@@ -219,6 +223,7 @@ localparam PIO_TX_CPLD_QW1        = 2'b1
+               else
+               begin
+ 
++                s_axis_tx_req     <= #TCQ 1'b0;
+                 s_axis_tx_tlast   <= #TCQ 1'b0;
+                 s_axis_tx_tvalid  <= #TCQ 1'b0;
+                 s_axis_tx_tdata   <= #TCQ 64'b0;
+@@ -339,6 +344,7 @@ localparam PIO_TX_CPLD_QW1        = 2'b1
+           s_axis_tx_tvalid  <= #TCQ 1'b0;
+           s_axis_tx_tdata   <= #TCQ {C_DATA_WIDTH{1'b0}};
+           s_axis_tx_tkeep   <= #TCQ {KEEP_WIDTH{1'b0}};
++          s_axis_tx_req     <= #TCQ 1'b0;
+           compl_done        <= #TCQ 1'b0;
+           hold_state        <= #TCQ 1'b0;
+         end // if !rst_n
+@@ -347,7 +353,7 @@ localparam PIO_TX_CPLD_QW1        = 2'b1
+   
+           if (req_compl_q2 | hold_state)
+           begin
+-            if (s_axis_tx_tready) 
++            if (s_axis_tx_tready & s_axis_tx_ack) 
+             begin
+   
+               s_axis_tx_tlast   <= #TCQ 1'b1;
+@@ -387,10 +393,13 @@ localparam PIO_TX_CPLD_QW1        = 2'b1
+   
+               compl_done        <= #TCQ 1'b1;
+               hold_state        <= #TCQ 1'b0;
++              s_axis_tx_req     <= #TCQ 1'b0;
+   
+             end // if (s_axis_tx_tready) 
+-            else
++            else begin
+               hold_state        <= #TCQ 1'b1;
++              s_axis_tx_req     <= #TCQ 1'b1;
++            end
+   
+           end // if (req_compl_q2 | hold_state)
+           else
+diff -uprN a/pcie_app_7x.v b/pcie_app_7x.v
+--- a/pcie_app_7x.v	2020-02-04 22:04:09.664147920 +0900
++++ b/pcie_app_7x.v	2020-02-04 22:04:21.699538008 +0900
+@@ -75,6 +75,9 @@ module  pcie_app_7x#(
+   input                         user_lnk_up,
+ 
+   // Tx
++  output wire                   s_axis_tx_req,
++  input  wire                   s_axis_tx_ack,
++
+   input                         s_axis_tx_tready,
+   output  [C_DATA_WIDTH-1:0]    s_axis_tx_tdata,
+   output  [KEEP_WIDTH-1:0]      s_axis_tx_tkeep,
+@@ -132,17 +135,26 @@ module  pcie_app_7x#(
+   output                        pl_directed_link_speed,
+   output                        pl_directed_link_auton,
+   output                        pl_upstream_prefer_deemph,
+-  output [31:0]                 cfg_mgmt_di,
+-  output  [3:0]                 cfg_mgmt_byte_en,
+-  output  [9:0]                 cfg_mgmt_dwaddr,
+-  output                        cfg_mgmt_wr_en,
+-  output                        cfg_mgmt_rd_en,
++//  output [31:0]                 cfg_mgmt_di,
++//  output  [3:0]                 cfg_mgmt_byte_en,
++//  output  [9:0]                 cfg_mgmt_dwaddr,
++//  output                        cfg_mgmt_wr_en,
++//  output                        cfg_mgmt_rd_en,
+   output                        cfg_mgmt_wr_readonly, 
+   output                        cfg_interrupt,
+   output                        cfg_interrupt_assert,
+   output [7:0]                  cfg_interrupt_di,
+   output                        cfg_interrupt_stat,
+-  output  [4:0]                 cfg_pciecap_interrupt_msgnum
++  output  [4:0]                 cfg_pciecap_interrupt_msgnum,
++
++	// adapter registers
++	input wire [31:0] adapter_reg_magic,
++	input wire [47:0] adapter_reg_dstmac,
++	input wire [47:0] adapter_reg_srcmac,
++	input wire [31:0] adapter_reg_dstip,
++	input wire [31:0] adapter_reg_srcip,
++	input wire [15:0] adapter_reg_dstport,
++	input wire [15:0] adapter_reg_srcport
+ );
+   //----------------------------------------------------------------------------------------------------------------//
+   // PCIe Block EP Tieoffs - Example PIO doesn't support the following inputs                                       //
+@@ -195,11 +207,11 @@ module  pcie_app_7x#(
+   assign pl_directed_link_auton = 1'b0;            // Zero out link autonomous input
+   assign pl_upstream_prefer_deemph = 1'b1;         // Zero out preferred de-emphasis of upstream port
+ 
+-  assign cfg_mgmt_di = 32'h0;                      // Zero out CFG MGMT input data bus
+-  assign cfg_mgmt_byte_en = 4'h0;                  // Zero out CFG MGMT byte enables
+-  assign cfg_mgmt_dwaddr = 10'h0;                  // Zero out CFG MGMT 10-bit address port
+-  assign cfg_mgmt_wr_en = 1'b0;                    // Do not write CFG space
+-  assign cfg_mgmt_rd_en = 1'b0;                    // Do not read CFG space
++//  assign cfg_mgmt_di = 32'h0;                      // Zero out CFG MGMT input data bus
++//  assign cfg_mgmt_byte_en = 4'h0;                  // Zero out CFG MGMT byte enables
++//  assign cfg_mgmt_dwaddr = 10'h0;                  // Zero out CFG MGMT 10-bit address port
++//  assign cfg_mgmt_wr_en = 1'b0;                    // Do not write CFG space
++//  assign cfg_mgmt_rd_en = 1'b0;                    // Do not read CFG space
+   assign cfg_mgmt_wr_readonly = 1'b0;              // Never treat RO bit as RW
+   //----------------------------------------------------------------------------------------------------------------//
+   // Programmable I/O Module                                                                                        //
+@@ -235,6 +247,9 @@ module  pcie_app_7x#(
+     .cfg_completer_id ( cfg_completer_id ),         // I [15:0]
+     .cfg_turnoff_ok ( cfg_turnoff_ok ),             // O
+ 
++    .s_axis_tx_req(s_axis_tx_req),
++    .s_axis_tx_ack(s_axis_tx_ack),
++
+     .s_axis_tx_tready ( s_axis_tx_tready_i ),       // I
+     .s_axis_tx_tdata  ( s_axis_tx_tdata ),          // O
+     .s_axis_tx_tkeep  ( s_axis_tx_tkeep ),          // O
+@@ -247,8 +262,16 @@ module  pcie_app_7x#(
+     .m_axis_rx_tlast ( m_axis_rx_tlast ),           // I
+     .m_axis_rx_tvalid( m_axis_rx_tvalid ),          // I
+     .m_axis_rx_tready( m_axis_rx_tready ),          // O
+-    .m_axis_rx_tuser ( m_axis_rx_tuser )            // I
++    .m_axis_rx_tuser ( m_axis_rx_tuser ),           // I
+ 
++	// adapter registers
++	.adapter_reg_magic    (adapter_reg_magic   ),
++	.adapter_reg_dstmac   (adapter_reg_dstmac  ),
++	.adapter_reg_srcmac   (adapter_reg_srcmac  ),
++	.adapter_reg_dstip    (adapter_reg_dstip   ),
++	.adapter_reg_srcip    (adapter_reg_srcip   ),
++	.adapter_reg_dstport  (adapter_reg_dstport ),
++	.adapter_reg_srcport  (adapter_reg_srcport )
+   );
+ 
+ endmodule // pcie_app

@@ -52,5 +52,5 @@ set_property -dict [list                       \
 
 generate_target {instantiation_template} [get_ips $module_name]
 
-#open_example_project -force -dir ${ip_name}_example_design [get_ips $module_name]
+open_example_project -force -dir ${ip_name}_example_design [get_ips $module_name]
 
