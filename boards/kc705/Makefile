@@ -104,9 +104,9 @@ $(TARGET): $(XCIS) bitstream
 	@echo "Done."
 
 $(build_dir)/%.xci: %.tcl
-	@if [ ! -e $(dir $@) ]; then mkdir -p $(dir $@); fi
-	make -C $(dir $<)
-	@cp $(patsubst %.tcl,%.xci,$<) $@
+	@if [ ! -e $(build_dir)/$(ip_dir) ]; then mkdir -p $(build_dir)/$(ip_dir); fi
+	@if [ ! -e $(dir $@) ]; then cp -r $(dir $<) $(dir $@); fi
+	make -C $(dir $@)
 
 lint:
 	verilator -Wall --lint-only -Wno-PINCONNECTEMPTY --top-module testbench -sv $(PKG_SRC) test/testbench.sv $(SIM_SRC) $(RTL_SRC)
