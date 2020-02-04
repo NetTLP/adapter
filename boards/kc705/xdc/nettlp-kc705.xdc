@@ -135,7 +135,7 @@ set_property LOC IBUFDS_GTE2_X0Y1 [get_cells refclk_ibuf]
 
 
 # false_path
-#set_false_path -from [get_pins tlp_tx_inject0/eth2pcie_sync_ashot/buf0_reg/C] -to [get_pins tlp_tx_inject0/eth2pcie_sync_ashot/buf1_reg/D]
+#set_false_path -from [get_pins eth_decap0/eth2pcie_sync_ashot/buf0_reg/C] -to [get_pins eth_decap0/eth2pcie_sync_ashot/buf1_reg/D]
 
 set_false_path -from [get_clocks SFP_CLK_P] -to [get_clocks userclk1]
 set_false_path -from [get_clocks userclk1] -to [get_clocks SFP_CLK_P]

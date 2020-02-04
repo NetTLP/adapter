@@ -140,5 +140,5 @@ eth_encap_core eth_encap_core0 (
 	.*
 );
 
-endmodule :tlp_rx_snoop
+endmodule :eth_encap
 

@@ -39,7 +39,7 @@ module pcie_top #(
 	input wire [C_DATA_WIDTH-1:0]   pcie_tx1_tdata,
 	input wire [3:0]                pcie_tx1_tuser,
 
-	// to snoop
+	// to eth_encap
 	output wire                     pcie_rx_tready,
 	output wire                     pcie_rx_tvalid,
 	output wire                     pcie_rx_tlast,
@@ -324,7 +324,7 @@ pcie_rx_filter #(
 ) pcie_rx_filter (
 	// input from pcie_7x_support
 	// output to pcie_app (hardware PIO engine)
-	// PCIe output to tlp_rx_snoop (ethernet)
+	// PCIe output to eth_encap (ethernet)
 	.*
 );
 
