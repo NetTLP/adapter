@@ -116,12 +116,6 @@ sim:
 	make -j -C obj_dir -f Vtestbench.mk Vtestbench
 	obj_dir/Vtestbench
 
-lint2:
-	 verilator -Wall --lint-only -Wno-PINCONNECTEMPTY --top-module pciecfg -sv ../../cores/pkg/pciecfg_pkg.sv test/graycounter.v test/asfifo.v test/fifo_pciecfg.sv rtl/pciecfg/pciecfg.sv rtl/pciecfg/pciecfg_core.sv
-
-lint3:
-	verilator -Wall --lint-only -Wno-PINCONNECTEMPTY --top-module nettlp_cmd -sv ../../cores/pkg/nettlp_cmd_pkg.sv test/graycounter.v test/asfifo.v test/fifo_nettlp_cmd.sv rtl/nettlp_cmd/nettlp_cmd.sv rtl/nettlp_cmd/nettlp_cmd_core.sv
-
 prj: $(project_name).xpr
 $(project_name).xpr: $(XCIS)
 	vivado -mode batch -source $(tcl_dir)/vivado_createprj.tcl -log $(build_dir)/createprj_log.txt -nojournal -tempDir $(build_dir) -tclargs $(project_name) $(build_dir) $(device_name) "$(PKG_SRC) $(RTL_SRC) $(RTL_SRC_NOSIM)" "$(XCIS)" "$(XDC_SRC)"
