@@ -39,22 +39,22 @@ RTL_SRC += $(rtl_dir)/eth_decap/eth_decap_core.sv
 RTL_SRC += $(rtl_dir)/eth_decap/fifo2pcie.sv
 RTL_SRC += $(rtl_dir)/eth_decap/tlp_tx_mux.sv
 RTL_SRC += $(rtl_dir)/eth_decap/eth_decap.sv
-RTL_SRC += $(rtl_dir)/pcie/pcie_rx_filter.sv
-RTL_SRC += $(rtl_dir)/pcie/pcie_top.sv
+RTL_SRC += $(rtl_dir)/pcie_pio_app/pcie_rx_filter.sv
+RTL_SRC += $(rtl_dir)/pcie_pio_app/pcie_top.sv
 RTL_SRC += $(rtl_dir)/top.sv
 
 RTL_SRC_NOSIM += $(rtl_dir)/clock_control/clock_control.v
 RTL_SRC_NOSIM += $(rtl_dir)/clock_control/clock_control_program.v
 RTL_SRC_NOSIM += $(rtl_dir)/clock_control/kcpsm6.v
-RTL_SRC_NOSIM += $(rtl_dir)/pcie/PIO.v
-RTL_SRC_NOSIM += $(rtl_dir)/pcie/PIO_EP.v
-RTL_SRC_NOSIM += $(rtl_dir)/pcie/mem_access.v
-RTL_SRC_NOSIM += $(rtl_dir)/pcie/PIO_RX_ENGINE.v
-RTL_SRC_NOSIM += $(rtl_dir)/pcie/PIO_TO_CTRL.v
-RTL_SRC_NOSIM += $(rtl_dir)/pcie/PIO_TX_ENGINE.v
-RTL_SRC_NOSIM += $(rtl_dir)/pcie/pcie_app_7x.v
-RTL_SRC_NOSIM += $(rtl_dir)/pcie/pcie_7x_pipe_clock.v
-RTL_SRC_NOSIM += $(rtl_dir)/pcie/pcie_7x_support.v
+RTL_SRC_NOSIM += $(rtl_dir)/pcie_pio/PIO.v
+RTL_SRC_NOSIM += $(rtl_dir)/pcie_pio/PIO_EP.v
+RTL_SRC_NOSIM += $(rtl_dir)/pcie_pio_app/pcie_mem_access.sv
+RTL_SRC_NOSIM += $(rtl_dir)/pcie_pio/PIO_RX_ENGINE.v
+RTL_SRC_NOSIM += $(rtl_dir)/pcie_pio/PIO_TO_CTRL.v
+RTL_SRC_NOSIM += $(rtl_dir)/pcie_pio/PIO_TX_ENGINE.v
+RTL_SRC_NOSIM += $(rtl_dir)/pcie_pio/pcie_app_7x.v
+RTL_SRC_NOSIM += $(rtl_dir)/pcie_pio/pcie_7x_pipe_clock.v
+RTL_SRC_NOSIM += $(rtl_dir)/pcie_pio/pcie_7x_support.v
 
 
 XDC_SRC += $(xdc_dir)/nettlp-kc705.xdc

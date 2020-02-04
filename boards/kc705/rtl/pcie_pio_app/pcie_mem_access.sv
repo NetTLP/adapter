@@ -1,4 +1,4 @@
-module mem_access (
+module pcie_mem_access (
 	input wire clk,
 	input wire rst_n,
 

@@ -135,7 +135,7 @@ module PIO_EP #(
     // ENDPOINT MEMORY : 8KB memory aperture implemented in FPGA BlockRAM(*)
     //
 
-    mem_access mem_access_inst (
+    pcie_mem_access pcie_mem_access_inst (
       
       .clk(clk),               // I
       .rst_n(rst_n),           // I
