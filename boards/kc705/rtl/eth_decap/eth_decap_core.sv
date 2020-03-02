@@ -56,6 +56,7 @@ enum logic [3:0] {
 	RX_HDRCHK4,
 	RX_HDRCHK5,
 	RX_PAYLOAD_TLP,
+	RX_PAYLOAD_TLP_BUBBLE,
 	RX_PAYLOAD_CMD,
 	RX_PAYLOAD_CMD_BUBBLE,
 	//RX_PAYLOAD_ARP,
@@ -166,11 +167,14 @@ always_comb begin
 	rx_state_next = rx_state;
 
 	wr_en = '0;
-	din.tvalid = '0;
-	din.tlast = '0;
-	din.tkeep = '0;
-	din.tdata = '0;
-	din.tuser = '0;
+
+	din.data_valid = '0;
+
+	din.tlp.tvalid = '0;
+	din.tlp.tlast = '0;
+	din.tlp.tkeep = '0;
+	din.tlp.tdata = '0;
+	din.tlp.tuser = '0;
 
 	fifo_read_req = '0;
 
@@ -224,27 +228,34 @@ always_comb begin
 	RX_PAYLOAD_TLP: begin
 		if (!full) begin
 			if (eth_tlast) begin
-				rx_state_next = RX_HDRCHK0;
+				rx_state_next = RX_PAYLOAD_TLP_BUBBLE;
 
 				fifo_read_req = 1'b1;
 			end
 
-			wr_en = 1'b1;
+			wr_en = '1;
 
-			din.tvalid = eth_tvalid;
-			din.tlast = eth_tlast;
-			din.tkeep = eth_tkeep;
-			din.tdata = {
+			din.data_valid = '1;
+
+			din.tlp.tvalid = eth_tvalid;
+			din.tlp.tlast = eth_tlast;
+			din.tlp.tkeep = eth_tkeep;
+			din.tlp.tdata = {
 				eth_tdata_conv.oct[3], eth_tdata_conv.oct[2],
 				eth_tdata_conv.oct[1], eth_tdata_conv.oct[0],
 				eth_tdata_conv.oct[7], eth_tdata_conv.oct[6],
 				eth_tdata_conv.oct[5], eth_tdata_conv.oct[4] 
 			};
-			//din.tuser = eth_tuser;
-			din.tuser = '0;
+			//din.tlp.tuser = eth_tuser;
+			din.tlp.tuser = '0;
 		end else begin
 			rx_state_next = RX_ERR_FIFOFULL;
 		end
+	end
+	RX_PAYLOAD_TLP_BUBBLE: begin
+		rx_state_next = RX_HDRCHK0;
+
+		wr_en = '1;
 	end
 	RX_PAYLOAD_CMD: begin
 		if (!fifo_cmd_i_full) begin
@@ -296,11 +307,13 @@ always_comb begin
 		if (!full) begin
 			rx_state_next = RX_HDRCHK0;
 
-			wr_en = 1'b1;
+			wr_en = '1;
 
-			din.tlast = 1'b1;
+			din.data_valid = '1;
 
-			fifo_read_req = 1'b1;
+			din.tlp.tlast = '1;
+
+			fifo_read_req = '1;
 		end
 	end
 	RX_ERR_NOTLP: begin
@@ -329,8 +342,8 @@ ila_0 ila_00 (
 	.probe4(fifo_cmd_i_full),
 	.probe5(fifo_pciecfg_i_wr_en),
 	.probe6(fifo_pciecfg_i_full),
-	.probe7(din.tvalid),
-	.probe8(din.tlast),
+	.probe7(din.tlp.tvalid),
+	.probe8(din.tlp.tlast),
 	.probe9(is_correct_packet1),
 	.probe10(is_correct_packet2),
 	.probe11(is_correct_packet3),

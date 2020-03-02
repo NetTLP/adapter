@@ -1,20 +1,22 @@
 `default_nettype none
 
-module eth_afifo (
+module eth_afifo
+	import nettlp_pkg::*;
+(
 	input  wire rst,
 	input  wire wr_clk,
 	input  wire rd_clk,
 	input  wire rd_en,
 	input  wire wr_en,
 
-	input  wire [77:0] din,
-	output wire [77:0] dout,
+	input  PCIE_FIFO64_TX din,
+	output PCIE_FIFO64_TX dout,
 	output wire empty,
 	output wire full
 );
 
 asfifo #(
-	.DATA_WIDTH(78),
+	.DATA_WIDTH($bits(PCIE_FIFO64_TX)),
 	.ADDRESS_WIDTH(7)
 ) asfifo0 (
 	.*

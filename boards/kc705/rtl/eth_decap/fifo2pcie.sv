@@ -36,10 +36,10 @@ module fifo2pcie
 logic [7:0] eth_pktcount;
 always_ff @(posedge pcie_clk) begin
 	if (pcie_rst) begin
-		eth_pktcount <= 0;
+		eth_pktcount <= '0;
 	end else begin
 		if (fifo_read_req)
-			eth_pktcount <= eth_pktcount + 1;
+			eth_pktcount <= eth_pktcount + '1;
 	end
 end
 
@@ -59,10 +59,10 @@ logic [7:0] tlp_pktcount;
 
 always_ff @(posedge pcie_clk) begin
 	if (pcie_rst) begin
-		tlp_pktcount <= 0;
+		tlp_pktcount <= '0;
 	end else begin
-		if (state == READ && dout.tlast) begin
-			tlp_pktcount <= tlp_pktcount + 1;
+		if (state == READ && dout.tlp.tlast) begin
+			tlp_pktcount <= tlp_pktcount + '1;
 		end
 	end
 end
@@ -72,38 +72,43 @@ end
 always_comb begin
 	state_next = state;
 
-	rd_en = 0;
+	rd_en = '0;
 
-	pcie_tx_req = 0;
+	pcie_tx_req = '0;
 
-	pcie_tvalid = 0;
-	pcie_tlast = 0;
-	pcie_tkeep = 0;
-	pcie_tdata = 0;
-	pcie_tuser = 0;
+	pcie_tvalid = '0;
+	pcie_tlast = '0;
+	pcie_tkeep = '0;
+	pcie_tdata = '0;
+	pcie_tuser = '0;
 
 	case (state)
 	IDLE: begin
 		if (tlp_pktcount != eth_pktcount) begin
-			pcie_tx_req = 1;
+			pcie_tx_req = '1;
 
 			if (pcie_tx_ack && !empty) begin  // TODO
-				state_next = READ;
+				if (dout.data_valid) begin
+					state_next = READ;
+				end else begin
+					// skip bubble
+					rd_en = '1;
+				end
 			end
 		end
 	end
 	READ: begin
-		rd_en = 1;
+		rd_en = '1;
 
-		pcie_tx_req = 1;
+		pcie_tx_req = '1;
 
-		pcie_tvalid = dout.tvalid;
-		pcie_tlast  = dout.tlast;
-		pcie_tkeep  = dout.tkeep;
-		pcie_tdata  = dout.tdata;
-		pcie_tuser  = dout.tuser;
+		pcie_tvalid = dout.tlp.tvalid;
+		pcie_tlast  = dout.tlp.tlast;
+		pcie_tkeep  = dout.tlp.tkeep;
+		pcie_tdata  = dout.tlp.tdata;
+		pcie_tuser  = dout.tlp.tuser;
 
-		if (dout.tlast) begin
+		if (dout.tlp.tlast) begin
 			//pcie_tx_req = 0;
 
 			state_next = IDLE;
@@ -113,6 +118,7 @@ always_comb begin
 end
 
 wire _unused_ok = &{
+	dout.data_valid,
 	pcie_tready,
 	1'b0
 };

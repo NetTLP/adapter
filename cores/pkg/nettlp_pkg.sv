@@ -91,11 +91,14 @@ package nettlp_pkg;
 
 	// PCIE_TX FIFO (78 bit)
 	typedef struct packed {
-		PCIE_TVALID64   tvalid;    // 1
-		PCIE_TLAST64    tlast;     // 1
-		PCIE_TKEEP64    tkeep;     // 8
-		PCIE_TDATA64    tdata;     // 64
-		PCIE_TUSER64_TX tuser;     // 4
+		bit data_valid;
+		struct packed {
+			PCIE_TVALID64   tvalid;    // 1
+			PCIE_TLAST64    tlast;     // 1
+			PCIE_TKEEP64    tkeep;     // 8
+			PCIE_TDATA64    tdata;     // 64
+			PCIE_TUSER64_TX tuser;     // 4
+		} tlp;
 	} PCIE_FIFO64_TX;
 	
 

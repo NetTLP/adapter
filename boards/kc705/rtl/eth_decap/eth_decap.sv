@@ -8,6 +8,7 @@ module eth_decap
 	import udp_pkg::*;
 	import pciecfg_pkg::*;
 	import nettlp_cmd_pkg::*;
+	import nettlp_pkg::*;
 #(
 	parameter PL_FAST_TRAIN       = "FALSE", // Simulation Speedup
 	parameter PCIE_EXT_CLK        = "TRUE",    // Use External Clocking Module
@@ -67,7 +68,7 @@ module eth_decap
  */
 wire fifo0_wr_en, fifo0_rd_en;
 wire fifo0_full, fifo0_empty;
-wire [77:0] fifo0_din, fifo0_dout;
+PCIE_FIFO64_TX fifo0_din, fifo0_dout;
 
 wire fifo_read_req_eth, fifo_read_req_pcie;
 eth_decap_core eth_decap_core0 (
