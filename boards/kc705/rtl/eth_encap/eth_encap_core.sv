@@ -177,8 +177,8 @@ always_ff @(posedge eth_clk) begin
 					tx_hdr4.udp.source <= udp_port_nettlp_cpl + {8'b0, dout.tlp.field.tag};
 					tx_hdr4.udp.dest <= udp_port_nettlp_cpl + {8'b0, dout.tlp.field.tag};
 				end else begin
-					tx_hdr4.udp.source <= udp_port_nettlp_mr + {8'b0, dout.tlp.field.tag};
-					tx_hdr4.udp.dest <= udp_port_nettlp_mr + {8'b0, dout.tlp.field.tag};
+					tx_hdr4.udp.source <= udp_port_nettlp_mr + {12'b0, dout.tlp.field.tag[3:0]};
+					tx_hdr4.udp.dest <= udp_port_nettlp_mr + {12'b0, dout.tlp.field.tag[3:0]};
 				end
 
 			end else if (!fifo_cmd_o_empty) begin
