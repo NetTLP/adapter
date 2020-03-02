@@ -20,9 +20,7 @@ module eth_encap_core
 	parameter eth_src   = 48'h00_11_22_33_44_55,
 	parameter eth_proto = ETH_P_IP,
 	parameter ip_saddr  = {8'd192, 8'd168, 8'd10, 8'd1},
-	parameter ip_daddr  = {8'd192, 8'd168, 8'd10, 8'd3},
-	parameter udp_sport = 16'h3000,
-	parameter udp_dport = 16'h3000
+	parameter ip_daddr  = {8'd192, 8'd168, 8'd10, 8'd3}
 )(
 	input wire eth_clk,
 	input wire eth_rst,
@@ -173,8 +171,16 @@ always_ff @(posedge eth_clk) begin
 				tx_hdr2.ip.tot_len <= { {4'h0, dout.tlp.field.len} + {5'h0, PACKET_HDR_LEN} - ETH_HDR_LEN };
 				tx_hdr3.ip.check <= ipcheck_gen(dout.tlp.field.len, adapter_reg_srcip, adapter_reg_dstip);
 				tx_hdr4.udp.len <= { {4'h0, dout.tlp.field.len} + {5'h0, NETTLP_HDR_LEN} + UDP_HDR_LEN };
-				tx_hdr4.udp.source <= udp_sport + {8'b0, dout.tlp.field.tag};
-				tx_hdr4.udp.dest <= udp_dport + {8'b0, dout.tlp.field.tag};
+
+				if (({dout.tlp.field.fmt, dout.tlp.field.pkttype} == {CPL_NODATA, COMPL}) ||
+					({dout.tlp.field.fmt, dout.tlp.field.pkttype} == {CPL_DATA, COMPL})) begin
+					tx_hdr4.udp.source <= udp_port_nettlp_cpl + {8'b0, dout.tlp.field.tag};
+					tx_hdr4.udp.dest <= udp_port_nettlp_cpl + {8'b0, dout.tlp.field.tag};
+				end else begin
+					tx_hdr4.udp.source <= udp_port_nettlp_mr + {8'b0, dout.tlp.field.tag};
+					tx_hdr4.udp.dest <= udp_port_nettlp_mr + {8'b0, dout.tlp.field.tag};
+				end
+
 			end else if (!fifo_cmd_o_empty) begin
 				if (fifo_cmd_o_dout.data_valid) begin
 					tx_mode <= MODE_NETTLP_CMD;
@@ -201,8 +207,8 @@ always_ff @(posedge eth_clk) begin
 				tx_hdr2.ip.tot_len <= '0;
 				tx_hdr3.ip.check <= '0;
 				tx_hdr4.udp.len <= '0;
-				tx_hdr4.udp.source <= udp_sport;
-				tx_hdr4.udp.dest <= udp_dport;
+				tx_hdr4.udp.source <= udp_port_nettlp_mr;
+				tx_hdr4.udp.dest <= udp_port_nettlp_mr;
 			end
 			
 		end

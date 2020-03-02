@@ -53,6 +53,9 @@
 
 
 package nettlp_pkg;
+	parameter udp_port_nettlp_cpl = 16'h3000;
+	parameter udp_port_nettlp_mr  = 16'h4000;
+
 	parameter PACKET_HDR_LEN = 11'd48;    // IPhdr + UDPhdr + NetTLPhdr
 
 	/* nettlp header */
