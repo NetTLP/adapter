@@ -70,13 +70,20 @@ package nettlp_pkg;
 	import pcie_tlp_pkg::*;
 
 	typedef struct packed {
-		TLP_LEN         tlp_len;   // 11
-		TLP_TAG         tlp_tag;   // 8
-		PCIE_TVALID64   tvalid;    // 1
-		PCIE_TLAST64    tlast;     // 1
-		PCIE_TKEEP64    tkeep;     // 8
-		PCIE_TDATA64    tdata;     // 64
-		PCIE_TUSER64_RX tuser;     // 22
+		bit data_valid;
+		struct packed {
+			struct packed {
+				TLPPacketFormat     fmt;     // 2
+				TLPPacketType       pkttype; // 5
+				TLPPacketLengthByte len;     // 12
+				TLPPacketTag        tag;     // 8
+			} field;
+			PCIE_TVALID64   tvalid;    // 1
+			PCIE_TLAST64    tlast;     // 1
+			PCIE_TKEEP64    tkeep;     // 8
+			PCIE_TDATA64    tdata;     // 64
+			PCIE_TUSER64_RX tuser;     // 22
+		} tlp;
 	} PCIE_FIFO64_RX;
 
 	// PCIE_TX FIFO (78 bit)

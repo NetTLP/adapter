@@ -61,14 +61,14 @@ module eth_encap_core
 
 /* function: ipcheck_gen() */
 function [15:0] ipcheck_gen (
-	input TLP_LEN tlp_len,
+	input TLPPacketLengthByte tlp_len,
 	input bit [31:0] saddr,
 	input bit [31:0] daddr
 );
 	bit [23:0] sum;
 	sum = {8'h0, IPVERSION, 4'd5, 8'h0}
 	    + { // tot_len
-		    {13'h0, tlp_len} +
+		    {12'h0, tlp_len} +
 		    {13'h0, PACKET_HDR_LEN} -
 		    {8'h0, ETH_HDR_LEN}
 	    }
@@ -115,7 +115,7 @@ always_ff @(posedge eth_clk) begin
 				tx_count <= tx_count + 1;
 			end
 		end else if (tx_state == TX_DATA) begin
-			if (eth_tready && dout.tlast) begin
+			if (eth_tready && dout.tlp.tlast) begin
 				tlp_sequence_count <= tlp_sequence_count + 16'd1;
 			end
 		end
@@ -170,18 +170,18 @@ always_ff @(posedge eth_clk) begin
 			if (!empty) begin
 				tx_mode <= MODE_TLP;
 
-				tx_hdr2.ip.tot_len <= { {5'h0, dout.tlp_len} + {5'h0, PACKET_HDR_LEN} - ETH_HDR_LEN };
-				tx_hdr3.ip.check <= ipcheck_gen(dout.tlp_len, adapter_reg_srcip, adapter_reg_dstip);
-				tx_hdr4.udp.len <= { {5'h0, dout.tlp_len} + {5'h0, NETTLP_HDR_LEN} + UDP_HDR_LEN };
-				tx_hdr4.udp.source <= udp_sport + {12'b0, dout.tlp_tag[3:0]};
-				tx_hdr4.udp.dest <= udp_dport + {12'b0, dout.tlp_tag[3:0]};
+				tx_hdr2.ip.tot_len <= { {4'h0, dout.tlp.field.len} + {5'h0, PACKET_HDR_LEN} - ETH_HDR_LEN };
+				tx_hdr3.ip.check <= ipcheck_gen(dout.tlp.field.len, adapter_reg_srcip, adapter_reg_dstip);
+				tx_hdr4.udp.len <= { {4'h0, dout.tlp.field.len} + {5'h0, NETTLP_HDR_LEN} + UDP_HDR_LEN };
+				tx_hdr4.udp.source <= udp_sport + {12'b0, dout.tlp.field.tag[3:0]};
+				tx_hdr4.udp.dest <= udp_dport + {12'b0, dout.tlp.field.tag[3:0]};
 			end else if (!fifo_cmd_o_empty) begin
 				if (fifo_cmd_o_dout.data_valid) begin
 					tx_mode <= MODE_NETTLP_CMD;
 				end
 
 				tx_hdr2.ip.tot_len <= { 16'd12 + {5'h0, PACKET_HDR_LEN} - ETH_HDR_LEN };
-				tx_hdr3.ip.check <= ipcheck_gen(11'd12, adapter_reg_srcip, adapter_reg_dstip);
+				tx_hdr3.ip.check <= ipcheck_gen(12'd12, adapter_reg_srcip, adapter_reg_dstip);
 				tx_hdr4.udp.len <= { 16'd12 + {5'h0, NETTLP_HDR_LEN} + UDP_HDR_LEN };
 				tx_hdr4.udp.source <= udp_nettlp_cmd_port;
 				tx_hdr4.udp.dest <= udp_nettlp_cmd_port;
@@ -191,7 +191,7 @@ always_ff @(posedge eth_clk) begin
 				end
 
 				tx_hdr2.ip.tot_len <= { 16'd12 + {5'h0, PACKET_HDR_LEN} - ETH_HDR_LEN };
-				tx_hdr3.ip.check <= ipcheck_gen(11'd12, adapter_reg_srcip, adapter_reg_dstip);
+				tx_hdr3.ip.check <= ipcheck_gen(12'd12, adapter_reg_srcip, adapter_reg_dstip);
 				tx_hdr4.udp.len <= { 16'd12 + {5'h0, NETTLP_HDR_LEN} + UDP_HDR_LEN };
 				tx_hdr4.udp.source <= udp_pciecfg_port;
 				tx_hdr4.udp.dest <= udp_pciecfg_port;
@@ -306,17 +306,17 @@ always_comb begin
 		eth_tdata  = endian_conv64(fifo_pciecfg_o_dout.pkt);
 	end
 	TX_DATA: begin
-		eth_tvalid = dout.tvalid;
-		eth_tlast  = dout.tlast;
-		eth_tkeep  = dout.tkeep;
+		eth_tvalid = dout.tlp.tvalid;
+		eth_tlast  = dout.tlp.tlast;
+		eth_tkeep  = dout.tlp.tkeep;
 		eth_tdata  = {   // byte order
-			dout.tdata.oct[4], dout.tdata.oct[5], dout.tdata.oct[6], dout.tdata.oct[7],
-			dout.tdata.oct[0], dout.tdata.oct[1], dout.tdata.oct[2], dout.tdata.oct[3]
+			dout.tlp.tdata.oct[4], dout.tlp.tdata.oct[5], dout.tlp.tdata.oct[6], dout.tlp.tdata.oct[7],
+			dout.tlp.tdata.oct[0], dout.tlp.tdata.oct[1], dout.tlp.tdata.oct[2], dout.tlp.tdata.oct[3]
 		};
 
 		if (eth_tready) begin
 			rd_en = 1;
-			if (dout.tlast) begin
+			if (dout.tlp.tlast) begin
 				tx_state_next = TX_IDLE;
 			end
 		end
@@ -327,7 +327,8 @@ always_comb begin
 end
 
 wire _unused_ok = &{
-	dout.tuser,
+	dout.data_valid,
+	dout.tlp.tuser,
 	adapter_reg_magic,
 	adapter_reg_dstport,
 	adapter_reg_srcport,

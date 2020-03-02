@@ -48,11 +48,6 @@
 
 package pcie_tlp_pkg;
 
-	typedef bit [10:0] TLP_LEN;  // max: 2048
-
-	typedef bit [7:0] TLP_TAG;
-
-
 	// tready
 	typedef bit PCIE_TREADY64;
 
@@ -66,6 +61,13 @@ package pcie_tlp_pkg;
 	typedef bit [7:0] PCIE_TKEEP64;
 
 	// tdata
+
+	typedef bit [9:0] TLPPacketLength;
+	typedef bit [11:0] TLPPacketLengthByte;  // max: 2048
+
+	typedef bit [7:0] TLPPacketTag;
+
+
 	typedef enum bit [1:0] {
 		MRD_3DW_NODATA = 2'b00,    // 32 bit
 		MRD_4DW_NODATA = 2'b01,    // 64 bit
@@ -96,7 +98,7 @@ package pcie_tlp_pkg;
 		struct packed {
 			// header 1
 			bit [15:0]      reqid;
-			bit [ 7:0]      tag;
+			TLPPacketTag    tag;
 			bit [ 3:0]      lastbe;
 			bit [ 3:0]      firstbe;
 
@@ -111,7 +113,7 @@ package pcie_tlp_pkg;
 			bit             poison;
 			bit [ 1:0]      attr;
 			bit [ 1:0]      r3;
-			bit [ 9:0]      length;
+			TLPPacketLength length;
 		} clk0_mem;
 
 		// clock 0: Completion Header
@@ -133,7 +135,7 @@ package pcie_tlp_pkg;
 			bit             poison;
 			bit [ 1:0]      attr;
 			bit [ 1:0]      r3;
-			bit [ 9:0]      length;
+			TLPPacketLength length;
 		} clk0_cpl;
 
 		// clock 1: Memory Request Header 32 bit address
@@ -163,7 +165,7 @@ package pcie_tlp_pkg;
 
 			// header 3
 			bit [15:0]      reqid;
-			bit [ 7:0]      tag;
+			TLPPacketTag    tag;
 			bit             r;
 			bit [ 6:0]      lower_addr;
 		} clk1_cpl;

@@ -82,25 +82,24 @@ end
 localparam [11:0] TLP_3DW_HDR_LEN = 12'd12;
 localparam [11:0] TLP_4DW_HDR_LEN = 12'd16;
 
-logic [10:0] bytelen3DW;
-logic [10:0] bytelen4DW;
-logic a, b;
-always_comb {a, bytelen3DW} = ({2'b0, pcie_tdata_nxt.clk0_mem.length} << 2) + TLP_3DW_HDR_LEN;
-always_comb {b, bytelen4DW} = ({2'b0, pcie_tdata_nxt.clk0_mem.length} << 2) + TLP_4DW_HDR_LEN;
-wire _unused_ok = &{ a, b, 1'b0 };
+TLPPacketLengthByte bytelen3DW;
+TLPPacketLengthByte bytelen4DW;
+always_comb bytelen3DW = ({2'b0, pcie_tdata_nxt.clk0_mem.length} << 2) + TLP_3DW_HDR_LEN;
+always_comb bytelen4DW = ({2'b0, pcie_tdata_nxt.clk0_mem.length} << 2) + TLP_4DW_HDR_LEN;
 
 always_comb begin
 	state_next = state;
 
 	wr_en = 0;
 
-	din.tlp_len = 0;
-	din.tlp_tag = 0;
-	din.tvalid = pcie_tvalid_nxt;
-	din.tlast = pcie_tlast_nxt;
-	din.tkeep = pcie_tkeep_nxt;
-	din.tdata = pcie_tdata_nxt;
-	din.tuser = pcie_tuser_nxt;
+	din.data_valid = 0;
+	din.tlp.field.len = 0;
+	din.tlp.field.tag = 0;
+	din.tlp.tvalid = pcie_tvalid_nxt;
+	din.tlp.tlast = pcie_tlast_nxt;
+	din.tlp.tkeep = pcie_tkeep_nxt;
+	din.tlp.tdata = pcie_tdata_nxt;
+	din.tlp.tuser = pcie_tuser_nxt;
 
 	case (state)
 	IDLE: begin
@@ -113,33 +112,33 @@ always_comb begin
 				case ({pcie_tdata_nxt.clk0_mem.format, pcie_tdata_nxt.clk0_mem.pkttype})
 					// Memory read request 3DW
 					{MRD_3DW_NODATA, MEMRW}: begin
-						din.tlp_len = TLP_3DW_HDR_LEN[10:0];
-						din.tlp_tag = pcie_tdata_nxt.clk0_mem.tag;
+						din.tlp.field.len = TLP_3DW_HDR_LEN;
+						din.tlp.field.tag = pcie_tdata_nxt.clk0_mem.tag;
 					end
 					// Memory read request 4DW
 					{MRD_4DW_NODATA, MEMRW}: begin
-						din.tlp_len = TLP_4DW_HDR_LEN[10:0];
-						din.tlp_tag = pcie_tdata_nxt.clk0_mem.tag;
+						din.tlp.field.len = TLP_4DW_HDR_LEN;
+						din.tlp.field.tag = pcie_tdata_nxt.clk0_mem.tag;
 					end
 					// Memory write request 3DW
 					{MWR_3DW_DATA, MEMRW}: begin
-						din.tlp_len = bytelen3DW[10:0];
-						din.tlp_tag = pcie_tdata_nxt.clk0_mem.tag;
+						din.tlp.field.len = bytelen3DW;
+						din.tlp.field.tag = pcie_tdata_nxt.clk0_mem.tag;
 					end
 					// Memory write request 4DW
-					{MWR_4DW_DATA,MEMRW}: begin
-						din.tlp_len = bytelen4DW[10:0];
-						din.tlp_tag = pcie_tdata_nxt.clk0_mem.tag;
+					{MWR_4DW_DATA, MEMRW}: begin
+						din.tlp.field.len = bytelen4DW;
+						din.tlp.field.tag = pcie_tdata_nxt.clk0_mem.tag;
 					end
 					// Completion: No data
 					{CPL_NODATA, COMPL}: begin
-						din.tlp_len = TLP_3DW_HDR_LEN[10:0];
-						din.tlp_tag = pcie_tdata.clk1_cpl.tag;
+						din.tlp.field.len = TLP_3DW_HDR_LEN;
+						din.tlp.field.tag = pcie_tdata.clk1_cpl.tag;
 					end
 					// Completion: data
 					{CPL_DATA, COMPL}: begin
-						din.tlp_len = bytelen3DW[10:0];
-						din.tlp_tag = pcie_tdata.clk1_cpl.tag;
+						din.tlp.field.len = bytelen3DW;
+						din.tlp.field.tag = pcie_tdata.clk1_cpl.tag;
 					end
 					default: begin
 						state_next = IDLE;
@@ -185,7 +184,7 @@ always_comb begin
 
 		wr_en = 1;
 
-		din.tlast = 1;
+		din.tlp.tlast = 1;
 	end
 	ERR_FIFOFULL: begin
 		if (!full) begin
@@ -193,7 +192,7 @@ always_comb begin
 
 			wr_en = 1;
 
-			din.tlast = 1;
+			din.tlp.tlast = 1;
 		end
 	end
 	default: begin
@@ -217,12 +216,12 @@ ila_0 ila_0_ins (
 		wr_en,
 		state,
 		full,
-		din.tlp_len,
-		din.tvalid,
-		din.tlast,
-		din.tkeep,
-		din.tdata,
-		din.tuser
+		din.tlp.field.len,
+		din.tlp.tvalid,
+		din.tlp.tlast,
+		din.tlp.tkeep,
+		din.tlp.tdata,
+		din.tlp.tuser
 	})
 );
 `endif
