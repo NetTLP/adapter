@@ -69,10 +69,6 @@ package nettlp_pkg;
 	// PCIE_RX FIFO (107 bit)
 	import pcie_tlp_pkg::*;
 
-	typedef bit [10:0] TLP_LEN;  // max: 2048
-
-	typedef bit [7:0] TLP_TAG;
-
 	typedef struct packed {
 		TLP_LEN         tlp_len;   // 11
 		TLP_TAG         tlp_tag;   // 8

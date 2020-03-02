@@ -48,6 +48,11 @@
 
 package pcie_tlp_pkg;
 
+	typedef bit [10:0] TLP_LEN;  // max: 2048
+
+	typedef bit [7:0] TLP_TAG;
+
+
 	// tready
 	typedef bit PCIE_TREADY64;
 
