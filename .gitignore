@@ -106,3 +106,9 @@
 !.gitkeep
 *.srcs
 build
+
+clock_control.v
+clock_control_program.v
+kcpsm6.v
+usage_statistics_webtalk.xml
+
