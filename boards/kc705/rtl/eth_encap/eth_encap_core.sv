@@ -213,32 +213,37 @@ end
 always_comb begin
 	tx_state_next = tx_state;
 
-	eth_tvalid = 0;
-	eth_tlast = 0;
+	eth_tvalid = '0;
+	eth_tlast = '0;
 	eth_tkeep = '0;
 	eth_tdata = '0;
-	eth_tuser = 0;
+	eth_tuser = '0;
 
-	rd_en = 0;
-	fifo_cmd_o_rd_en = 1'b0;
-	fifo_pciecfg_o_rd_en = 1'b0;
+	rd_en = '0;
+	fifo_cmd_o_rd_en = '0;
+	fifo_pciecfg_o_rd_en = '0;
 
 	case(tx_state)
 	TX_IDLE: begin
 		// TODO rd_en of afifo should be active on the next clock after the empty
+		if (!empty && !dout.data_valid) begin
+			rd_en = '1;
+		end
+
+		// TODO
 		if (!fifo_cmd_o_empty && !fifo_cmd_o_dout.data_valid) begin
-			fifo_cmd_o_rd_en = 1'b1;
+			fifo_cmd_o_rd_en = '1;
 		end
 
 		// TODO
 		if (!fifo_pciecfg_o_empty && !fifo_pciecfg_o_dout.data_valid) begin
-			fifo_pciecfg_o_rd_en = 1'b1;
+			fifo_pciecfg_o_rd_en = '1;
 		end
 
 		if (eth_tready) begin
-			if (!empty ||
-				(!fifo_cmd_o_empty && fifo_cmd_o_dout.data_valid) ||
-				(!fifo_pciecfg_o_empty && fifo_pciecfg_o_dout.data_valid)) begin
+			if ((!empty && dout.data_valid) ||
+			    (!fifo_cmd_o_empty && fifo_cmd_o_dout.data_valid) ||
+			    (!fifo_pciecfg_o_empty && fifo_pciecfg_o_dout.data_valid)) begin
 				tx_state_next = TX_READY;
 			end
 		end
@@ -247,7 +252,7 @@ always_comb begin
 		tx_state_next = TX_HDR;
 	end
 	TX_HDR: begin
-		eth_tvalid = 1'b1;
+		eth_tvalid = '1;
 		eth_tkeep = 8'b1111_1111;
 
 		case (tx_count)
@@ -256,7 +261,7 @@ always_comb begin
 		5'h2: eth_tdata = endian_conv64(tx_hdr2);
 		5'h3: eth_tdata = endian_conv64(tx_hdr3);
 		5'h4: eth_tdata = endian_conv64(tx_hdr4);
-		default: eth_tdata = 64'b0;
+		default: eth_tdata = '0;
 		endcase
 
 		if (eth_tready) begin
@@ -277,7 +282,7 @@ always_comb begin
 		if (eth_tready) begin
 			tx_state_next = TX_DATA;
 		end
-		eth_tvalid = 1'b1;
+		eth_tvalid = '1;
 		eth_tkeep = 8'b1111_1111;
 		eth_tdata = endian_conv64(tx_hdr5);
 	end
@@ -288,8 +293,8 @@ always_comb begin
 			fifo_cmd_o_rd_en = 1'b1;
 		end
 
-		eth_tvalid = 1'b1;
-		eth_tlast  = 1'b1;
+		eth_tvalid = '1;
+		eth_tlast  = '1;
 		eth_tkeep  = 8'b1111_1111;
 		eth_tdata  = endian_conv64(fifo_cmd_o_dout.pkt);
 	end
@@ -297,11 +302,11 @@ always_comb begin
 		if (eth_tready) begin
 			tx_state_next = TX_IDLE;
 
-			fifo_pciecfg_o_rd_en = 1'b1;
+			fifo_pciecfg_o_rd_en = '1;
 		end
 
-		eth_tvalid = 1'b1;
-		eth_tlast  = 1'b1;
+		eth_tvalid = '1;
+		eth_tlast  = '1;
 		eth_tkeep  = 8'b1111_1111;
 		eth_tdata  = endian_conv64(fifo_pciecfg_o_dout.pkt);
 	end
@@ -315,7 +320,7 @@ always_comb begin
 		};
 
 		if (eth_tready) begin
-			rd_en = 1;
+			rd_en = '1;
 			if (dout.tlp.tlast) begin
 				tx_state_next = TX_IDLE;
 			end
@@ -327,7 +332,8 @@ always_comb begin
 end
 
 wire _unused_ok = &{
-	dout.data_valid,
+	dout.tlp.field.fmt,
+	dout.tlp.field.pkttype,
 	dout.tlp.tuser,
 	adapter_reg_magic,
 	adapter_reg_dstport,

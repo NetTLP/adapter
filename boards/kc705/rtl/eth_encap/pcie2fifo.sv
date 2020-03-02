@@ -52,6 +52,7 @@ enum logic [2:0] {
 	IDLE,
 	HEADER,
 	DATA,
+	BUBBLE,
 	ERR_TIMEOUT,
 	ERR_FIFOFULL
 } state, state_next;
@@ -90,11 +91,15 @@ always_comb bytelen4DW = ({2'b0, pcie_tdata_nxt.clk0_mem.length} << 2) + TLP_4DW
 always_comb begin
 	state_next = state;
 
-	wr_en = 0;
+	wr_en = '0;
 
-	din.data_valid = 0;
-	din.tlp.field.len = 0;
-	din.tlp.field.tag = 0;
+	din.data_valid = '0;
+
+	din.tlp.field.fmt = '{default: '0};
+	din.tlp.field.pkttype = '{default: '0};
+	din.tlp.field.len = '0;
+	din.tlp.field.tag = '0;
+
 	din.tlp.tvalid = pcie_tvalid_nxt;
 	din.tlp.tlast = pcie_tlast_nxt;
 	din.tlp.tkeep = pcie_tkeep_nxt;
@@ -107,7 +112,12 @@ always_comb begin
 			if (pcie_tvalid_nxt && !pcie_tlast_nxt && !full) begin
 				state_next = HEADER;
 
-				wr_en = 1;
+				wr_en = '1;
+				din.data_valid = '1;
+
+				din.tlp.field.fmt = pcie_tdata_nxt.clk0_mem.format;
+
+				din.tlp.field.pkttype = pcie_tdata_nxt.clk0_mem.pkttype;
 
 				case ({pcie_tdata_nxt.clk0_mem.format, pcie_tdata_nxt.clk0_mem.pkttype})
 					// Memory read request 3DW
@@ -142,7 +152,7 @@ always_comb begin
 					end
 					default: begin
 						state_next = IDLE;
-						wr_en = 0;
+						wr_en = '0;
 					end
 				endcase
 			end
@@ -158,7 +168,8 @@ always_comb begin
 				end else
 					state_next = DATA;
 
-				wr_en = 1;
+				wr_en = '1;
+				din.data_valid = '1;
 			end else if (full) begin
 				state_next = ERR_FIFOFULL;
 			end
@@ -170,29 +181,37 @@ always_comb begin
 		end else if (pcie_tready_nxt) begin
 			if (pcie_tvalid_nxt && !full) begin
 				if (pcie_tlast_nxt) begin
-					state_next = IDLE;
+					state_next = BUBBLE;
 				end
 
-				wr_en = 1;
+				wr_en = '1;
+				din.data_valid = '1;
 			end else if (full) begin
 				state_next = ERR_FIFOFULL;
 			end
 		end
 	end
+	BUBBLE: begin
+		state_next = IDLE;
+
+		wr_en = '1;
+	end
 	ERR_TIMEOUT: begin
 		state_next = IDLE;
 
-		wr_en = 1;
+		wr_en = '1;
+		din.data_valid = '1;
 
-		din.tlp.tlast = 1;
+		din.tlp.tlast = '1;
 	end
 	ERR_FIFOFULL: begin
 		if (!full) begin
 			state_next = IDLE;
 
-			wr_en = 1;
+			wr_en = '1;
+			din.data_valid = '1;
 
-			din.tlp.tlast = 1;
+			din.tlp.tlast = '1;
 		end
 	end
 	default: begin
