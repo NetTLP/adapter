@@ -166,7 +166,9 @@ always_ff @(posedge eth_clk) begin
 			tx_hdr5.nthdr.tstamp <= tlp_timestamp_count;
 
 			if (!empty) begin
-				tx_mode <= MODE_TLP;
+				if (dout.data_valid) begin
+					tx_mode <= MODE_TLP;
+				end
 
 				tx_hdr2.ip.tot_len <= { {4'h0, dout.tlp.field.len} + {5'h0, PACKET_HDR_LEN} - ETH_HDR_LEN };
 				tx_hdr3.ip.check <= ipcheck_gen(dout.tlp.field.len, adapter_reg_srcip, adapter_reg_dstip);
