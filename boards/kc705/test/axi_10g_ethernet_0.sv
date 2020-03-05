@@ -81,16 +81,16 @@ end
 // m_axis_rx_tkeep
 // m_axis_rx_tlast
 // m_axis_rx_tuser
-device_eth device_eth0 (
-	.eth_clk(coreclk_out),
-	.sys_rst(reset),
-
-	.eth_rx_tvalid(m_axis_rx_tvalid),
-	.eth_rx_tdata(m_axis_rx_tdata),
-	.eth_rx_tkeep(m_axis_rx_tkeep),
-	.eth_rx_tlast(m_axis_rx_tlast),
-	.eth_rx_tuser(m_axis_rx_tuser)
-);
+//device_eth device_eth0 (
+//	.eth_clk(coreclk_out),
+//	.sys_rst(reset),
+//
+//	.eth_rx_tvalid(m_axis_rx_tvalid),
+//	.eth_rx_tdata(m_axis_rx_tdata),
+//	.eth_rx_tkeep(m_axis_rx_tkeep),
+//	.eth_rx_tlast(m_axis_rx_tlast),
+//	.eth_rx_tuser(m_axis_rx_tuser)
+//);
 
 // input
 wire _unused_ok = &{

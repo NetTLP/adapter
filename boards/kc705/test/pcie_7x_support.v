@@ -13,8 +13,8 @@ module pcie_7x_support #(
 	  parameter PCIE_USE_MODE           = "2.1"                    // PCIe use mode
 )(
 	// Tx
-	output reg  [(LINK_CAP_MAX_LINK_WIDTH - 1) : 0] pci_exp_txn,
-	output reg  [(LINK_CAP_MAX_LINK_WIDTH - 1) : 0] pci_exp_txp,
+	output logic  [(LINK_CAP_MAX_LINK_WIDTH - 1) : 0] pci_exp_txn,
+	output logic  [(LINK_CAP_MAX_LINK_WIDTH - 1) : 0] pci_exp_txp,
 
 	// Rx
 	input wire   [(LINK_CAP_MAX_LINK_WIDTH - 1) : 0] pci_exp_rxn,
@@ -23,14 +23,14 @@ module pcie_7x_support #(
 	//----------------------------------------------------------------------------------------------------------------//
 	// Clocking Sharing Interface                                                                                     //
 	//----------------------------------------------------------------------------------------------------------------//
-	output reg                                     pipe_pclk_out_slave,
-	output reg                                     pipe_rxusrclk_out,
-	output reg [(LINK_CAP_MAX_LINK_WIDTH - 1) : 0] pipe_rxoutclk_out,
-	output reg                                     pipe_dclk_out,
-	output reg                                     pipe_userclk1_out,
-	output reg                                     pipe_userclk2_out,
-	output reg                                     pipe_oobclk_out,
-	output reg                                     pipe_mmcm_lock_out,
+	output logic                                     pipe_pclk_out_slave,
+	output logic                                     pipe_rxusrclk_out,
+	output logic [(LINK_CAP_MAX_LINK_WIDTH - 1) : 0] pipe_rxoutclk_out,
+	output logic                                     pipe_dclk_out,
+	output logic                                     pipe_userclk1_out,
+	output logic                                     pipe_userclk2_out,
+	output logic                                     pipe_oobclk_out,
+	output logic                                     pipe_mmcm_lock_out,
 	input wire  [(LINK_CAP_MAX_LINK_WIDTH - 1) : 0] pipe_pclk_sel_slave,
 	input wire                                      pipe_mmcm_rst_n,
 
@@ -39,10 +39,10 @@ module pcie_7x_support #(
 	//----------------------------------------------------------------------------------------------------------------//
 
 	// Common
-	output reg                                     user_clk_out,
-	output reg                                     user_reset_out,
-	output reg                                     user_lnk_up,
-	output reg                                     user_app_rdy,
+	output logic                                     user_clk_out,
+	output logic                                     user_reset_out,
+	output logic                                     user_lnk_up,
+	output logic                                     user_app_rdy,
 
 	input wire                                      tx_cfg_gnt,
 	input wire                                      rx_np_ok,
@@ -64,7 +64,7 @@ module pcie_7x_support #(
 	//-----------
 	input wire   [C_DATA_WIDTH-1:0]                 s_axis_tx_tdata,
 	input wire                                      s_axis_tx_tvalid,
-	output reg                                      s_axis_tx_tready,
+	output logic                                      s_axis_tx_tready,
 	input wire   [KEEP_WIDTH-1:0]                   s_axis_tx_tkeep,
 	input wire                                      s_axis_tx_tlast,
 	input wire   [3:0]                              s_axis_tx_tuser,
@@ -79,12 +79,12 @@ module pcie_7x_support #(
 	output logic  [21:0]                             m_axis_rx_tuser,
 
 	// Flow Control
-	output reg  [11:0]                             fc_cpld,
-	output reg  [7:0]                              fc_cplh,
-	output reg  [11:0]                             fc_npd,
-	output reg  [7:0]                              fc_nph,
-	output reg  [11:0]                             fc_pd,
-	output reg  [7:0]                              fc_ph,
+	output logic  [11:0]                             fc_cpld,
+	output logic  [7:0]                              fc_cplh,
+	output logic  [11:0]                             fc_npd,
+	output logic  [7:0]                              fc_nph,
+	output logic  [11:0]                             fc_pd,
+	output logic  [7:0]                              fc_ph,
 	input wire   [2:0]                              fc_sel,
 
 	//----------------------------------------------------------------------------------------------------------------//
@@ -93,51 +93,51 @@ module pcie_7x_support #(
 	//------------------------------------------------//
 	// EP and RP                                      //
 	//------------------------------------------------//
-	output reg                                     tx_err_drop,
-	output reg                                     tx_cfg_req,
-	output reg  [5:0]                              tx_buf_av,
-	output reg   [15:0]                            cfg_status,
-	output reg   [15:0]                            cfg_command,
-	output reg   [15:0]                            cfg_dstatus,
-	output reg   [15:0]                            cfg_dcommand,
-	output reg   [15:0]                            cfg_lstatus,
-	output reg   [15:0]                            cfg_lcommand,
-	output reg   [15:0]                            cfg_dcommand2,
-	output reg   [2:0]                             cfg_pcie_link_state,
-	output reg                                     cfg_to_turnoff,
-	output reg   [7:0]                             cfg_bus_number,
-	output reg   [4:0]                             cfg_device_number,
-	output reg   [2:0]                             cfg_function_number,
+	output logic                                     tx_err_drop,
+	output logic                                     tx_cfg_req,
+	output logic  [5:0]                              tx_buf_av,
+	output logic   [15:0]                            cfg_status,
+	output logic   [15:0]                            cfg_command,
+	output logic   [15:0]                            cfg_dstatus,
+	output logic   [15:0]                            cfg_dcommand,
+	output logic   [15:0]                            cfg_lstatus,
+	output logic   [15:0]                            cfg_lcommand,
+	output logic   [15:0]                            cfg_dcommand2,
+	output logic   [2:0]                             cfg_pcie_link_state,
+	output logic                                     cfg_to_turnoff,
+	output logic   [7:0]                             cfg_bus_number,
+	output logic   [4:0]                             cfg_device_number,
+	output logic   [2:0]                             cfg_function_number,
 
-	output reg                                     cfg_pmcsr_pme_en,
-	output reg   [1:0]                             cfg_pmcsr_powerstate,
-	output reg                                     cfg_pmcsr_pme_status,
-	output reg                                     cfg_received_func_lvl_rst,
+	output logic                                     cfg_pmcsr_pme_en,
+	output logic   [1:0]                             cfg_pmcsr_powerstate,
+	output logic                                     cfg_pmcsr_pme_status,
+	output logic                                     cfg_received_func_lvl_rst,
 
 	//------------------------------------------------//
 	// RP Only                                        //
 	//------------------------------------------------//
-	output reg                                     cfg_bridge_serr_en,
-	output reg                                     cfg_slot_control_electromech_il_ctl_pulse,
-	output reg                                     cfg_root_control_syserr_corr_err_en,
-	output reg                                     cfg_root_control_syserr_non_fatal_err_en,
-	output reg                                     cfg_root_control_syserr_fatal_err_en,
-	output reg                                     cfg_root_control_pme_int_en,
-	output reg                                     cfg_aer_rooterr_corr_err_reporting_en,
-	output reg                                     cfg_aer_rooterr_non_fatal_err_reporting_en,
-	output reg                                     cfg_aer_rooterr_fatal_err_reporting_en,
-	output reg                                     cfg_aer_rooterr_corr_err_received,
-	output reg                                     cfg_aer_rooterr_non_fatal_err_received,
-	output reg                                     cfg_aer_rooterr_fatal_err_received,
+	output logic                                     cfg_bridge_serr_en,
+	output logic                                     cfg_slot_control_electromech_il_ctl_pulse,
+	output logic                                     cfg_root_control_syserr_corr_err_en,
+	output logic                                     cfg_root_control_syserr_non_fatal_err_en,
+	output logic                                     cfg_root_control_syserr_fatal_err_en,
+	output logic                                     cfg_root_control_pme_int_en,
+	output logic                                     cfg_aer_rooterr_corr_err_reporting_en,
+	output logic                                     cfg_aer_rooterr_non_fatal_err_reporting_en,
+	output logic                                     cfg_aer_rooterr_fatal_err_reporting_en,
+	output logic                                     cfg_aer_rooterr_corr_err_received,
+	output logic                                     cfg_aer_rooterr_non_fatal_err_received,
+	output logic                                     cfg_aer_rooterr_fatal_err_received,
 	//----------------------------------------------------------------------------------------------------------------//
 	// VC interface                                                                                                   //
 	//----------------------------------------------------------------------------------------------------------------//
 
-	output reg   [6:0]                              cfg_vc_tcvc_map,
+	output logic   [6:0]                              cfg_vc_tcvc_map,
 
 	// Management Interface
-	output reg   [31:0]                             cfg_mgmt_do,
-	output reg                                      cfg_mgmt_rd_wr_done,
+	output logic   [31:0]                             cfg_mgmt_do,
+	output logic                                      cfg_mgmt_rd_wr_done,
 	input wire    [31:0]                             cfg_mgmt_di,
 	input wire    [3:0]                              cfg_mgmt_byte_en,
 	input wire    [9:0]                              cfg_mgmt_dwaddr,
@@ -161,7 +161,7 @@ module pcie_7x_support #(
 	input wire                                       cfg_err_poisoned,
 	input wire                                       cfg_err_norecovery,
 	input wire   [47:0]                              cfg_err_tlp_cpl_header,
-	output reg                                      cfg_err_cpl_rdy,
+	output logic                                      cfg_err_cpl_rdy,
 	input wire                                       cfg_err_locked,
 	input wire                                       cfg_err_acs,
 	input wire                                       cfg_err_internal_uncor,
@@ -170,41 +170,41 @@ module pcie_7x_support #(
 	//----------------------------------------------------------------------------------------------------------------//
 	input wire   [127:0]                             cfg_err_aer_headerlog,
 	input wire   [4:0]                               cfg_aer_interrupt_msgnum,
-	output reg                                      cfg_err_aer_headerlog_set,
-	output reg                                      cfg_aer_ecrc_check_en,
-	output reg                                      cfg_aer_ecrc_gen_en,
+	output logic                                      cfg_err_aer_headerlog_set,
+	output logic                                      cfg_aer_ecrc_check_en,
+	output logic                                      cfg_aer_ecrc_gen_en,
 
-	output reg                                      cfg_msg_received,
-	output reg   [15:0]                             cfg_msg_data,
-	output reg                                      cfg_msg_received_pm_as_nak,
-	output reg                                      cfg_msg_received_setslotpowerlimit,
-	output reg                                      cfg_msg_received_err_cor,
-	output reg                                      cfg_msg_received_err_non_fatal,
-	output reg                                      cfg_msg_received_err_fatal,
-	output reg                                      cfg_msg_received_pm_pme,
-	output reg                                      cfg_msg_received_pme_to_ack,
-	output reg                                      cfg_msg_received_assert_int_a,
-	output reg                                      cfg_msg_received_assert_int_b,
-	output reg                                      cfg_msg_received_assert_int_c,
-	output reg                                      cfg_msg_received_assert_int_d,
-	output reg                                      cfg_msg_received_deassert_int_a,
-	output reg                                      cfg_msg_received_deassert_int_b,
-	output reg                                      cfg_msg_received_deassert_int_c,
-	output reg                                      cfg_msg_received_deassert_int_d,
+	output logic                                      cfg_msg_received,
+	output logic   [15:0]                             cfg_msg_data,
+	output logic                                      cfg_msg_received_pm_as_nak,
+	output logic                                      cfg_msg_received_setslotpowerlimit,
+	output logic                                      cfg_msg_received_err_cor,
+	output logic                                      cfg_msg_received_err_non_fatal,
+	output logic                                      cfg_msg_received_err_fatal,
+	output logic                                      cfg_msg_received_pm_pme,
+	output logic                                      cfg_msg_received_pme_to_ack,
+	output logic                                      cfg_msg_received_assert_int_a,
+	output logic                                      cfg_msg_received_assert_int_b,
+	output logic                                      cfg_msg_received_assert_int_c,
+	output logic                                      cfg_msg_received_assert_int_d,
+	output logic                                      cfg_msg_received_deassert_int_a,
+	output logic                                      cfg_msg_received_deassert_int_b,
+	output logic                                      cfg_msg_received_deassert_int_c,
+	output logic                                      cfg_msg_received_deassert_int_d,
 
 	//------------------------------------------------//
 	// EP Only                                        //
 	//------------------------------------------------//
 	// Interrupt Interface Signals
 	input wire                                       cfg_interrupt,
-	output reg                                      cfg_interrupt_rdy,
+	output logic                                      cfg_interrupt_rdy,
 	input wire                                       cfg_interrupt_assert,
 	input wire    [7:0]                              cfg_interrupt_di,
-	output reg   [7:0]                              cfg_interrupt_do,
-	output reg   [2:0]                              cfg_interrupt_mmenable,
-	output reg                                      cfg_interrupt_msienable,
-	output reg                                      cfg_interrupt_msixenable,
-	output reg                                      cfg_interrupt_msixfm,
+	output logic   [7:0]                              cfg_interrupt_do,
+	output logic   [2:0]                              cfg_interrupt_mmenable,
+	output logic                                      cfg_interrupt_msienable,
+	output logic                                      cfg_interrupt_msixenable,
+	output logic                                      cfg_interrupt_msixfm,
 	input wire                                       cfg_interrupt_stat,
 	input wire    [4:0]                              cfg_pciecap_interrupt_msgnum,
 
@@ -220,23 +220,23 @@ module pcie_7x_support #(
 	input wire                                       pl_directed_link_auton,
 	input wire                                       pl_upstream_prefer_deemph,
 
-	output reg                                      pl_sel_lnk_rate,
-	output reg   [1:0]                              pl_sel_lnk_width,
-	output reg   [5:0]                              pl_ltssm_state,
-	output reg   [1:0]                              pl_lane_reversal_mode,
-	output reg                                      pl_phy_lnk_up,
-	output reg   [2:0]                              pl_tx_pm_state,
-	output reg   [1:0]                              pl_rx_pm_state,
-	output reg                                      pl_link_upcfg_cap,
-	output reg                                      pl_link_gen2_cap,
-	output reg                                      pl_link_partner_gen2_supported,
-	output reg   [2:0]                              pl_initial_link_width,
-	output reg                                      pl_directed_change_done,
+	output logic                                      pl_sel_lnk_rate,
+	output logic   [1:0]                              pl_sel_lnk_width,
+	output logic   [5:0]                              pl_ltssm_state,
+	output logic   [1:0]                              pl_lane_reversal_mode,
+	output logic                                      pl_phy_lnk_up,
+	output logic   [2:0]                              pl_tx_pm_state,
+	output logic   [1:0]                              pl_rx_pm_state,
+	output logic                                      pl_link_upcfg_cap,
+	output logic                                      pl_link_gen2_cap,
+	output logic                                      pl_link_partner_gen2_supported,
+	output logic   [2:0]                              pl_initial_link_width,
+	output logic                                      pl_directed_change_done,
 
 	//------------------------------------------------//
 	// EP Only                                        //
 	//------------------------------------------------//
-	output reg                                      pl_received_hot_rst,
+	output logic                                      pl_received_hot_rst,
 
 	//------------------------------------------------//
 	// RP Only                                        //
@@ -252,8 +252,8 @@ module pcie_7x_support #(
 	input wire                                       pcie_drp_we,
 	input wire    [8:0]                              pcie_drp_addr,
 	input wire    [15:0]                             pcie_drp_di,
-	output reg                                      pcie_drp_rdy,
-	output reg   [15:0]                             pcie_drp_do,
+	output logic                                      pcie_drp_rdy,
+	output logic   [15:0]                             pcie_drp_do,
 
 	input wire                                       sys_clk,
 	input wire                                       sys_rst_n
@@ -287,6 +287,22 @@ always @(posedge sys_clk) begin
 		endcase
 	end
 end
+
+// input wire   [C_DATA_WIDTH-1:0]                 s_axis_tx_tdata,
+// input wire                                      s_axis_tx_tvalid,
+// output reg                                      s_axis_tx_tready,
+// input wire   [KEEP_WIDTH-1:0]                   s_axis_tx_tkeep,
+// input wire                                      s_axis_tx_tlast,
+// input wire   [3:0]                              s_axis_tx_tuser,
+// 
+// // AXI RX
+// //-----------
+// output logic [C_DATA_WIDTH-1:0]                  m_axis_rx_tdata,
+// output logic                                     m_axis_rx_tvalid,
+// input wire                                      m_axis_rx_tready,
+// output logic  [KEEP_WIDTH-1:0]                   m_axis_rx_tkeep,
+// output logic                                     m_axis_rx_tlast,
+// output logic  [21:0]                             m_axis_rx_tuser,
 
 // input ports
 wire _unused_ok = &{
@@ -361,6 +377,7 @@ wire _unused_ok = &{
 	s_axis_tx_tdata,
 	s_axis_tx_tkeep,
 	pipe_pclk_sel_slave,
+	m_axis_rx_tready,
 	1'b0
 };
 
@@ -461,11 +478,6 @@ always_comb fc_cplh = 'b0;
 always_comb fc_nph = 'b0;
 always_comb fc_ph = 'b0;
 always_comb pipe_rxoutclk_out = 'b0;
-always_comb m_axis_rx_tlast = 'b0;
-always_comb m_axis_rx_tvalid = 'b0;
-always_comb m_axis_rx_tuser = 'b0;
-always_comb m_axis_rx_tkeep = 'b0;
-always_comb m_axis_rx_tdata = 'b0;
 
 endmodule
 

@@ -104,6 +104,7 @@
 !*.mk
 !*.patch
 !.gitkeep
+!*.pcap
 *.srcs
 build
 
