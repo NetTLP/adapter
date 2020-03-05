@@ -33,6 +33,15 @@ $ cp v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control_program.v a
 
 $ source /tools/Xilinx/Vivado/2019.2/settings64.sh
 $ cd adapter/boards/kc705
+
+# verilator lint check
+$ make lint
+
+# verilator simulation
+$ make sim
+$ gtkwave ./wave.vcd
+
+# build the bit image
 $ make
 $ ls build/nettlp-adapter.bit
 ```
