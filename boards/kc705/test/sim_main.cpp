@@ -324,6 +324,10 @@ int main(int argc, char **argv)
 				}
 			}
 		} else {
+			eth_n = 0;
+			eth_pos = 0;
+			eth_intval = 5;
+
 			top->eth_tvalid = 0;
 			top->eth_tlast = 0;
 			top->eth_tkeep = 0;
@@ -368,6 +372,10 @@ int main(int argc, char **argv)
 				}
 			}
 		} else {
+			pcie_n = 0;
+			pcie_pos = 0;
+			pcie_intval = 5;
+
 			top->pcie_tvalid = 0;
 			top->pcie_tlast = 0;
 			top->pcie_tkeep = 0;

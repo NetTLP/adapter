@@ -261,6 +261,9 @@ module pcie_7x_support #(
 
 assign user_clk_out = sys_clk;
 
+assign user_lnk_up = 'b1;
+assign user_reset_out = 'b0;
+
 reg [1:0] state;
 always @(posedge sys_clk) begin
 	if (sys_rst_n) begin
@@ -442,8 +445,6 @@ always_comb pipe_userclk2_out = 'b0;
 always_comb tx_cfg_req = 'b0;
 always_comb tx_err_drop = 'b0;
 always_comb user_app_rdy = 'b0;
-always_comb user_lnk_up = 'b0;
-always_comb user_reset_out = 'b0;
 always_comb cfg_msg_data = 'b0;
 always_comb pcie_drp_do = 'b0;
 always_comb cfg_command = 'b0;

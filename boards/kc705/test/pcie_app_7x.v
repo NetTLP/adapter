@@ -93,6 +93,8 @@ module  pcie_app_7x #(
 	input wire [15:0] adapter_reg_srcport
 );
 
+always_comb m_axis_rx_tready = 'b1;
+
 // input ports
 wire _unused_ok = &{
 	cfg_to_turnoff,
@@ -148,7 +150,6 @@ always_comb cfg_pm_halt_aspm_l1 = 'b0;
 always_comb cfg_pm_wake = 'b0;
 always_comb cfg_trn_pending = 'b0;
 always_comb cfg_turnoff_ok = 'b0;
-always_comb m_axis_rx_tready = 'b0;
 always_comb pl_directed_link_auton = 'b0;
 always_comb pl_directed_link_speed = 'b0;
 always_comb pl_upstream_prefer_deemph = 'b0;

@@ -147,4 +147,5 @@ clean:
 	rm -f usage_statistics_webtalk.html usage_statistics_webtalk.xml
 	rm -f fsm_encoding.os
 	rm -rf build
+	rm -rf obj_dir
 
