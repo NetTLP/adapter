@@ -68,11 +68,19 @@ always_comb top0.eth_top0.u_axi_10g_ethernet_0.m_axis_rx_tdata  = eth_tdata_rev;
 always_comb top0.eth_top0.u_axi_10g_ethernet_0.m_axis_rx_tuser  = eth_tuser;
 
 // pcie_data
+wire [7:0] pcie_tkeep_rev = {
+	pcie_tkeep[3], pcie_tkeep[2], pcie_tkeep[1], pcie_tkeep[0],
+	pcie_tkeep[7], pcie_tkeep[6], pcie_tkeep[5], pcie_tkeep[4]
+};
+wire [63:0] pcie_tdata_rev = {
+	pcie_tdata[31:24], pcie_tdata[23:16], pcie_tdata[15: 8], pcie_tdata[ 7: 0],
+	pcie_tdata[63:56], pcie_tdata[55:48], pcie_tdata[47:40], pcie_tdata[39:32]
+};
 //always_comb pcie_tready = top0.pcie_top0.pcie_7x_support_i.m_axis_rx_tready;
 always_comb top0.pcie_top0.pcie_7x_support_i.m_axis_rx_tvalid = pcie_tvalid;
 always_comb top0.pcie_top0.pcie_7x_support_i.m_axis_rx_tlast  = pcie_tlast;
-always_comb top0.pcie_top0.pcie_7x_support_i.m_axis_rx_tkeep  = pcie_tkeep;
-always_comb top0.pcie_top0.pcie_7x_support_i.m_axis_rx_tdata  = pcie_tdata;
+always_comb top0.pcie_top0.pcie_7x_support_i.m_axis_rx_tkeep  = pcie_tkeep_rev;
+always_comb top0.pcie_top0.pcie_7x_support_i.m_axis_rx_tdata  = pcie_tdata_rev;
 always_comb top0.pcie_top0.pcie_7x_support_i.m_axis_rx_tuser  = pcie_tuser;
 
 top #(
