@@ -93,7 +93,7 @@ loadpcap(int fd, struct memh pkt[], int skip_iphdr)
 	}
 
 	/* check the pcap global header */
-	if (pcap_ghdr->magic_number != PCAP_NANO_MAGIC) {
+	if (pcap_ghdr->magic_number != PCAP_MAGIC) {
 		printf("unsupported pcap format: pcap_ghdr.magic_number=%X\n",
 				(int)pcap_ghdr->magic_number);
 		return -1;
@@ -109,6 +109,7 @@ loadpcap(int fd, struct memh pkt[], int skip_iphdr)
 		return -1;
 	}
 
+	int iphdr_len = sizeof(struct pkthdr);
 	int i;
 	for (i = 0; i < NPKT_MAX; i++) {
 		struct pcaprec_hdr_s *pcaphdr = (struct pcaprec_hdr_s *)&pcapbuf[0];
@@ -128,7 +129,6 @@ loadpcap(int fd, struct memh pkt[], int skip_iphdr)
 		}
 		//pr_debug("incl_len: %d, orig_len: %d\n", incl_len, orig_len);
 
-		int iphdr_len = sizeof(struct pkthdr);
 		int offset = 0;
 		if (skip_iphdr) {
 			if (lseek(fd, iphdr_len, SEEK_CUR) <= 0)
@@ -182,7 +182,7 @@ static inline void tick(Vtestbench *top, VerilatedVcdC *tfp)
 //#define tdata top->Vtestbench->top0->eth_top0->u_axi_10g_ethernet_0->device_eth0->eth_rx_tdata
 
 const static char *pcap_files[] = {
-	"test/pcap/x520-1500B-32pkt.pcap",
+	"test/pcap/simple-nic-ping.pcap",
 	NULL
 };
 
