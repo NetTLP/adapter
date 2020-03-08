@@ -49,39 +49,39 @@
 package pcie_tlp_pkg;
 
 	// tready
-	typedef bit PCIE_TREADY64;
+	typedef logic PCIE_TREADY64;
 
 	// tvalid
-	typedef bit PCIE_TVALID64;
+	typedef logic PCIE_TVALID64;
 
 	// tlast
-	typedef bit PCIE_TLAST64;
+	typedef logic PCIE_TLAST64;
 	
 	// tkeep
-	typedef bit [7:0] PCIE_TKEEP64;
+	typedef logic [7:0] PCIE_TKEEP64;
 
 	// tdata
 
-	typedef bit [9:0] TLPPacketLength;
-	typedef bit [11:0] TLPPacketLengthByte;  // max: 2048
+	typedef logic [9:0] TLPPacketLength;
+	typedef logic [11:0] TLPPacketLengthByte;  // max: 2048
 
-	typedef bit [7:0] TLPPacketTag;
+	typedef logic [7:0] TLPPacketTag;
 
 
-	typedef enum bit [1:0] {
+	typedef enum logic [1:0] {
 		MRD_3DW_NODATA = 2'b00,    // 32 bit
 		MRD_4DW_NODATA = 2'b01,    // 64 bit
 		MWR_3DW_DATA    = 2'b10,    // 32 bit
 		MWR_4DW_DATA    = 2'b11     // 64 bit
 	} TLPPacketFormat;
 
-	typedef enum bit [1:0] {
+	typedef enum logic [1:0] {
 		CPL_NODATA = 2'b00,
 		CPL_DATA   = 2'b10
 	} TLPCplFormat;
 
 
-	typedef enum bit [4:0] {
+	typedef enum logic [4:0] {
 	MEMRW    = 5'b00000,
 	CFG0RW   = 5'b00100,
 	COMPL    = 5'b01010
@@ -89,112 +89,112 @@ package pcie_tlp_pkg;
 
 	typedef union packed {
 	    // for initialize
-	    bit [63:0] raw;
+	    logic [63:0] raw;
 	    
 		// octet
-		bit [7:0][7:0] oct;
+		logic [7:0][7:0] oct;
 
 		// clock 0: Memory Request Header
 		struct packed {
 			// header 1
-			bit [15:0]      reqid;
+			logic [15:0]      reqid;
 			TLPPacketTag    tag;
-			bit [ 3:0]      lastbe;
-			bit [ 3:0]      firstbe;
+			logic [ 3:0]      lastbe;
+			logic [ 3:0]      firstbe;
 
 			// header 0
-			bit             r0;
+			logic             r0;
 			TLPPacketFormat format;
 			TLPPacketType   pkttype;
-			bit             r1;
-			bit [ 2:0]      tclass;
-			bit [ 3:0]      r2;
-			bit             digest;
-			bit             poison;
-			bit [ 1:0]      attr;
-			bit [ 1:0]      r3;
+			logic             r1;
+			logic [ 2:0]      tclass;
+			logic [ 3:0]      r2;
+			logic             digest;
+			logic             poison;
+			logic [ 1:0]      attr;
+			logic [ 1:0]      r3;
 			TLPPacketLength length;
 		} clk0_mem;
 
 		// clock 0: Completion Header
 		struct packed {
 			// header 1
-			bit [15:0]      cplid;
-			bit [ 2:0]      cplsta;
-			bit             bcm;
-			bit [11:0]      bytecount;
+			logic [15:0]      cplid;
+			logic [ 2:0]      cplsta;
+			logic             bcm;
+			logic [11:0]      bytecount;
 
 			// header 0
-			bit             r0;
+			logic             r0;
 			TLPCplFormat    format;
 			TLPPacketType   pkttype;
-			bit             r1;
-			bit [ 2:0]      tclass;
-			bit [ 3:0]      r2;
-			bit             digest;
-			bit             poison;
-			bit [ 1:0]      attr;
-			bit [ 1:0]      r3;
+			logic             r1;
+			logic [ 2:0]      tclass;
+			logic [ 3:0]      r2;
+			logic             digest;
+			logic             poison;
+			logic [ 1:0]      attr;
+			logic [ 1:0]      r3;
 			TLPPacketLength length;
 		} clk0_cpl;
 
 		// clock 1: Memory Request Header 32 bit address
 		struct packed {
 			// data
-			bit [31:0]      data;
+			logic [31:0]      data;
 
 			// header 3
-			bit [29:0]      addr;
-			bit [ 1:0]      r4;
+			logic [29:0]      addr;
+			logic [ 1:0]      r4;
 		} clk1_mem32;
 
 		// clock 1: Memory Request Header 64 bit address
 		struct packed {
 			// header 4
-			bit [29:0]      addr_low;
-			bit [ 1:0]      r4;
+			logic [29:0]      addr_low;
+			logic [ 1:0]      r4;
 
 			// header 3
-			bit [31:0]      addr_high;
+			logic [31:0]      addr_high;
 		} clk1_mem64;
 
 		// clock 1: Completion Header
 		struct packed {
 			// data
-			bit [31:0]      data;
+			logic [31:0]      data;
 
 			// header 3
-			bit [15:0]      reqid;
+			logic [15:0]      reqid;
 			TLPPacketTag    tag;
-			bit             r;
-			bit [ 6:0]      lower_addr;
+			logic             r;
+			logic [ 6:0]      lower_addr;
 		} clk1_cpl;
 		
 		// data
 		struct packed {
 			// data 2
-			bit [31:0]      data1;
+			logic [31:0]      data1;
 
 			// data 1
-			bit [31:0]      data0;
+			logic [31:0]      data0;
 		} data;
 
 	} PCIE_TDATA64;
 
 	// tuser (RX)
 	typedef struct packed {
-		bit       eof;
-		bit [3:0] eof_offset;
-		bit [1:0] reserved;
-		bit       sof;
-		bit [3:0] sof_offset;
-		bit [7:0] bar;
-		bit       err_fwd;
-		bit       ecrc_err;
+		logic       eof;
+		logic [3:0] eof_offset;
+		logic [1:0] reserved;
+		logic       sof;
+		logic [3:0] sof_offset;
+		logic [7:0] bar;
+		logic       err_fwd;
+		logic       ecrc_err;
 	} PCIE_TUSER64_RX;
 
 	// tuser (TX)
-	typedef bit [3:0] PCIE_TUSER64_TX;
+	typedef logic [3:0] PCIE_TUSER64_TX;
 
 
 endpackage :pcie_tlp_pkg

@@ -259,13 +259,13 @@ module pcie_7x_support #(
 	input wire                                       sys_rst_n
 );
 
-assign user_clk_out = sys_clk;
+always_comb user_clk_out = top0.clk200;
 
 assign user_lnk_up = 'b1;
 assign user_reset_out = 'b0;
 
 reg [1:0] state;
-always @(posedge sys_clk) begin
+always @(posedge user_clk_out) begin
 	if (sys_rst_n) begin
 		state <= 2'b0;
 		cfg_mgmt_rd_wr_done <= 1'b0;

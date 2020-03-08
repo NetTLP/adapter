@@ -62,8 +62,8 @@ package nettlp_pkg;
 	parameter NETTLP_HDR_LEN = 11'd6;
 
 	typedef struct packed {
-		bit [15:0] seq;
-		bit [31:0] tstamp;
+		logic [15:0] seq;
+		logic [31:0] tstamp;
 	} nettlp_hdr;
 
 
@@ -73,7 +73,7 @@ package nettlp_pkg;
 	import pcie_tlp_pkg::*;
 
 	typedef struct packed {
-		bit data_valid;
+		logic data_valid;
 		struct packed {
 			struct packed {
 				TLPPacketFormat     fmt;     // 2
@@ -91,7 +91,7 @@ package nettlp_pkg;
 
 	// PCIE_TX FIFO (78 bit)
 	typedef struct packed {
-		bit data_valid;
+		logic data_valid;
 		struct packed {
 			PCIE_TVALID64   tvalid;    // 1
 			PCIE_TLAST64    tlast;     // 1
@@ -107,8 +107,8 @@ package nettlp_pkg;
 	// clock 0
 	typedef struct packed {
 		struct packed {
-			bit [5:0][7:0] h_dest;
-			bit [1:0][7:0] h_source0;
+			logic [5:0][7:0] h_dest;
+			logic [1:0][7:0] h_source0;
 		} eth;
 
 	} PACKET_QWORD0;
@@ -116,81 +116,81 @@ package nettlp_pkg;
 	// clock 1
 	typedef struct packed {
 		struct packed {
-			bit [3:0][7:0] h_source1;
-			bit [15:0]     h_proto;
+			logic [3:0][7:0] h_source1;
+			logic [15:0]     h_proto;
 		} eth;
 		struct packed {
-			bit [3:0] version;
-			bit [3:0] ihl;
-			bit [7:0] tos;
+			logic [3:0] version;
+			logic [3:0] ihl;
+			logic [7:0] tos;
 		} ip;
 	} PACKET_QWORD1;
 
 	// clock 2
 	typedef struct packed {
 		struct packed {
-			bit [15:0] tot_len;
-			bit [15:0] id;
-			bit [15:0] frag_off;
-			bit [7:0]  ttl;
-			bit [7:0]  protocol;
+			logic [15:0] tot_len;
+			logic [15:0] id;
+			logic [15:0] frag_off;
+			logic [7:0]  ttl;
+			logic [7:0]  protocol;
 		} ip;
 	} PACKET_QWORD2;
 
 	// clock 3
 	typedef struct packed {
 		struct packed {
-			bit [15:0] check;
-			bit [31:0] saddr;
-			bit [15:0] daddr0;
+			logic [15:0] check;
+			logic [31:0] saddr;
+			logic [15:0] daddr0;
 		} ip;
 	} PACKET_QWORD3;
 
 	// clock 4
 	typedef struct packed {
 		struct packed {
-			bit [15:0] daddr1;
+			logic [15:0] daddr1;
 		} ip;
 		struct packed {
-			bit [15:0] source;
-			bit [15:0] dest;
-			bit [15:0] len;
+			logic [15:0] source;
+			logic [15:0] dest;
+			logic [15:0] len;
 		} udp;
 	} PACKET_QWORD4;
 
 	// clock 5
 	typedef struct packed {
 		struct packed {
-			bit [15:0] check;
+			logic [15:0] check;
 		} udp;
 		nettlp_hdr nthdr;
 	} PACKET_QWORD5;
 
 
 	// tready
-	typedef bit ETH_TREADY64;
+	typedef logic ETH_TREADY64;
 
 	// tvalid
-	typedef bit ETH_TVALID64;
+	typedef logic ETH_TVALID64;
 
 	// tlast
-	typedef bit ETH_TLAST64;
+	typedef logic ETH_TLAST64;
 	
 	// tkeep
-	typedef bit [7:0] ETH_TKEEP64;
+	typedef logic [7:0] ETH_TKEEP64;
 
 	// tuser (RX)
-	typedef bit ETH_TUSER64_RX;
+	typedef logic ETH_TUSER64_RX;
 
 	// tuser (TX)
-	typedef bit ETH_TUSER64_TX;
+	typedef logic ETH_TUSER64_TX;
 
 	// tdata (RX)
-	typedef bit [63:0] ETH_TDATA64_RX;
+	typedef logic [63:0] ETH_TDATA64_RX;
 
 	// tdata (TX)
 	typedef union packed {
-		bit [7:0][7:0] oct;
+		logic [7:0][7:0] oct;
 		PACKET_QWORD0 clk0;
 		PACKET_QWORD1 clk1;
 		PACKET_QWORD2 clk2;

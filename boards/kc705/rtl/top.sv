@@ -68,8 +68,8 @@ IBUFDS IBUFDS_clk200 (
 wire clk156;
 
 // sys_rst_156
-reg [13:0] cold_counter156 = 14'd0;
-reg sys_rst156;
+reg [13:0] cold_counter156 = 14'd1;
+reg sys_rst156 = 1'b1;
 always @(posedge clk156) begin
 	if (cold_counter156 != COLD_RESET_INTVAL) begin
 		cold_counter156 <= cold_counter156 + 14'd1;

@@ -14,8 +14,8 @@ static int debug = 0;
 
 
 #define SFP_CLK               (64/2)        // 6.4 ns (156.25 MHz)
-#define SYS_CLK               (50/2)        // 200 MHz
-#define PCIE_REF_CLK          (100/2)       // 100 MHz
+#define CLK200_CLK            (50/2)        // 200 MHz
+#define SYS_CLK               (100/2)       // 100 MHz
 
 #define WAVE_FILE_NAME        "wave.vcd"
 #define SIM_TIME_RESOLUTION   "100 ps"
@@ -279,7 +279,7 @@ int main(int argc, char **argv)
 		}
 
 		//clk200
-		if ((t % PCIE_REF_CLK) == 0) {
+		if ((t % CLK200_CLK) == 0) {
 			top->clk200_p = ~top->clk200_p;
 			top->clk200_n = ~top->clk200_n;
 		}
@@ -336,8 +336,8 @@ int main(int argc, char **argv)
 		}
 
 		// PCIe link from pcap files
-		if ((t > 0) && !top->sys_rst156) {
-			if (top->sys_clk_p && ((t % SYS_CLK) == 0)) {
+		if ((t > 0) && !top->pcie_rst) {
+			if (top->clk200_p && ((t % CLK200_CLK) == 0)) {
 				nleft = pcie_data[pcie_n].len - pcie_pos;
 				//printf("%d %d %d\n", pcie_n, pcie_data[pcie_n].len, pcie_pos);
 				if (nleft > 8) {
