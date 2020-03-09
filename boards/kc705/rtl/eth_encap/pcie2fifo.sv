@@ -52,30 +52,12 @@ enum logic [2:0] {
 	IDLE,
 	HEADER,
 	DATA,
-	BUBBLE,
-	ERR_TIMEOUT,
-	ERR_FIFOFULL
+	ERR_FIFOFULL,
+	BUBBLE
 } state, state_next;
 
 always_ff @(posedge pcie_clk) begin
 	state <= state_next;
-end
-
-// timeout counter
-localparam timeout_val = 500;
-
-logic [9:0] timeout;
-
-always_ff @(posedge pcie_clk) begin
-	if (pcie_rst)
-		timeout <= 0;
-	else  begin
-		if (state == IDLE) begin
-			timeout <= 0;
-		end else begin
-			timeout <= timeout + 1;
-		end
-	end
 end
 
 
@@ -83,10 +65,8 @@ end
 localparam [11:0] TLP_3DW_HDR_LEN = 12'd12;
 localparam [11:0] TLP_4DW_HDR_LEN = 12'd16;
 
-TLPPacketLengthByte bytelen3DW;
-TLPPacketLengthByte bytelen4DW;
-always_comb bytelen3DW = ({2'b0, pcie_tdata_nxt.clk0_mem.length} << 2) + TLP_3DW_HDR_LEN;
-always_comb bytelen4DW = ({2'b0, pcie_tdata_nxt.clk0_mem.length} << 2) + TLP_4DW_HDR_LEN;
+wire TLPPacketLengthByte bytelen3DW = ({2'b0, pcie_tdata_nxt.clk0_mem.length} << 2) + TLP_3DW_HDR_LEN;
+wire TLPPacketLengthByte bytelen4DW = ({2'b0, pcie_tdata_nxt.clk0_mem.length} << 2) + TLP_4DW_HDR_LEN;
 
 always_comb begin
 	state_next = state;
@@ -159,12 +139,10 @@ always_comb begin
 		end
 	end
 	HEADER: begin
-		if (timeout == timeout_val) begin
-			state_next = ERR_TIMEOUT;
-		end else if (pcie_tready_nxt) begin
+		if (pcie_tready_nxt) begin
 			if (pcie_tvalid_nxt && !full) begin
 				if (pcie_tlast_nxt) begin
-					state_next = IDLE;
+					state_next = BUBBLE;
 				end else
 					state_next = DATA;
 
@@ -176,9 +154,7 @@ always_comb begin
 		end
 	end
 	DATA: begin
-		if (timeout == timeout_val) begin
-			state_next = ERR_TIMEOUT;
-		end else if (pcie_tready_nxt) begin
+		if (pcie_tready_nxt) begin
 			if (pcie_tvalid_nxt && !full) begin
 				if (pcie_tlast_nxt) begin
 					state_next = BUBBLE;
@@ -191,22 +167,9 @@ always_comb begin
 			end
 		end
 	end
-	BUBBLE: begin
-		state_next = IDLE;
-
-		wr_en = '1;
-	end
-	ERR_TIMEOUT: begin
-		state_next = IDLE;
-
-		wr_en = '1;
-		din.data_valid = '1;
-
-		din.tlp.tlast = '1;
-	end
 	ERR_FIFOFULL: begin
 		if (!full) begin
-			state_next = IDLE;
+			state_next = BUBBLE;
 
 			wr_en = '1;
 			din.data_valid = '1;
@@ -214,36 +177,16 @@ always_comb begin
 			din.tlp.tlast = '1;
 		end
 	end
+	BUBBLE: begin
+		state_next = IDLE;
+
+		wr_en = '1;
+	end
 	default: begin
 		state_next = IDLE;
 	end
 	endcase
 end
-
-`ifdef NO
-ila_0 ila_0_ins (
-	.clk(pcie_clk),
-	.probe0({           // 97
-		pcie_tdata,
-		pcie_tkeep,
-		pcie_tlast,
-		pcie_tvalid,
-		pcie_tready,
-		pcie_tuser
-	}),
-	.probe1({           // 113: 4 + 109
-		wr_en,
-		state,
-		full,
-		din.tlp.field.len,
-		din.tlp.tvalid,
-		din.tlp.tlast,
-		din.tlp.tkeep,
-		din.tlp.tdata,
-		din.tlp.tuser
-	})
-);
-`endif
 
 endmodule
 
