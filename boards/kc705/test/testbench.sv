@@ -62,14 +62,16 @@ logic eth_tuser_nxt;
 always_ff @(posedge SFP_CLK_P) begin
 	eth_tvalid_nxt <= eth_tvalid;
 	eth_tlast_nxt <= eth_tlast;
-	eth_tkeep_nxt <= {
-		eth_tkeep[0], eth_tkeep[1], eth_tkeep[2], eth_tkeep[3],
-		eth_tkeep[4], eth_tkeep[5], eth_tkeep[6], eth_tkeep[7]
-	};
-	eth_tdata_nxt <= {
-		eth_tdata[ 7: 0], eth_tdata[15: 8], eth_tdata[23:16], eth_tdata[31:24],
-		eth_tdata[39:32], eth_tdata[47:40], eth_tdata[55:48], eth_tdata[63:56]
-	};
+//	eth_tkeep_nxt <= {
+//		eth_tkeep[0], eth_tkeep[1], eth_tkeep[2], eth_tkeep[3],
+//		eth_tkeep[4], eth_tkeep[5], eth_tkeep[6], eth_tkeep[7]
+//	};
+//	eth_tdata_nxt <= {
+//		eth_tdata[ 7: 0], eth_tdata[15: 8], eth_tdata[23:16], eth_tdata[31:24],
+//		eth_tdata[39:32], eth_tdata[47:40], eth_tdata[55:48], eth_tdata[63:56]
+//	};
+	eth_tkeep_nxt <= eth_tkeep;
+	eth_tdata_nxt <= eth_tdata;
 	eth_tuser_nxt <= eth_tuser;
 end
 always_comb top0.eth_top0.u_axi_10g_ethernet_0.m_axis_rx_tvalid = eth_tvalid_nxt;

@@ -63,29 +63,30 @@ enum logic [2:0] {
 	BUBBLE
 } state;
 
-wire [1:0] fmt = din.tlp.field.fmt;
-wire [4:0] pkttype = din.tlp.field.pkttype;
-wire [11:0] len = din.tlp.field.len;
-wire [7:0] tag = din.tlp.field.tag;
+`ifdef SIMULATION
+wire [1:0] debug_fmt = din.tlp.field.fmt;
+wire [4:0] debug_pkttype = din.tlp.field.pkttype;
+wire [11:0] debug_len = din.tlp.field.len;
+wire [7:0] debug_tag = din.tlp.field.tag;
 
-wire valid = din.tlp.tvalid;
-wire last = din.tlp.tlast;
-wire [7:0] keep = din.tlp.tkeep;
-wire [63:0] data = din.tlp.tdata;
-wire [21:0] user = din.tlp.tuser;
-
-wire _unused_ok = &{
-	fmt,
-	pkttype,
-	len,
-	tag,
-	valid,
-	last,
-	keep,
-	data,
-	user,
+wire debug_valid = din.tlp.tvalid;
+wire debug_last = din.tlp.tlast;
+wire [7:0] debug_keep = din.tlp.tkeep;
+wire [63:0] debug_data = din.tlp.tdata;
+wire [21:0] debug_user = din.tlp.tuser;
+wire _unused_ok_sim = &{
+	debug_fmt,
+	debug_pkttype,
+	debug_len,
+	debug_tag,
+	debug_valid,
+	debug_last,
+	debug_keep,
+	debug_data,
+	debug_user,
 	1'b0
 };
+`endif
 
 always_ff @(posedge pcie_clk) begin
 	if (pcie_rst) begin
@@ -165,7 +166,7 @@ always_ff @(posedge pcie_clk) begin
 			if (pcie_tready_nxt) begin
 				if (pcie_tvalid_nxt && !full) begin
 					if (pcie_tlast_nxt) begin
-						state <= IDLE;
+						state <= BUBBLE;
 					end else begin
 						state <= DATA;
 					end

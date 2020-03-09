@@ -64,7 +64,7 @@ module pcie_7x_support #(
 	//-----------
 	input wire   [C_DATA_WIDTH-1:0]                 s_axis_tx_tdata,
 	input wire                                      s_axis_tx_tvalid,
-	output logic                                      s_axis_tx_tready,
+	output logic                                    s_axis_tx_tready,
 	input wire   [KEEP_WIDTH-1:0]                   s_axis_tx_tkeep,
 	input wire                                      s_axis_tx_tlast,
 	input wire   [3:0]                              s_axis_tx_tuser,
@@ -261,6 +261,8 @@ module pcie_7x_support #(
 
 always_comb user_clk_out = top0.clk200;
 
+always_comb s_axis_tx_tready = 1'b1;
+
 assign user_lnk_up = 'b1;
 assign user_reset_out = 'b0;
 
@@ -418,7 +420,6 @@ always_comb pl_link_upcfg_cap = 'b0;
 always_comb pl_phy_lnk_up = 'b0;
 always_comb pl_received_hot_rst = 'b0;
 always_comb pl_sel_lnk_rate = 'b0;
-always_comb s_axis_tx_tready = 'b0;
 always_comb cfg_aer_rooterr_corr_err_received = 'b0;
 always_comb cfg_aer_rooterr_corr_err_reporting_en = 'b0;
 always_comb cfg_aer_rooterr_fatal_err_received = 'b0;

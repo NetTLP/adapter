@@ -262,8 +262,9 @@ int main(int argc, char **argv)
 		close(fd);
 	}
 
-	uint32_t eth_n = 0, eth_pos = 0, eth_intval = 5;
-	uint32_t pcie_n = 0, pcie_pos = 0, pcie_intval = 5;
+#define INTVAL  1
+	uint32_t eth_n = 0, eth_pos = 0, eth_intval = INTVAL;
+	uint32_t pcie_n = 0, pcie_pos = 0, pcie_intval = INTVAL;
 	int nleft;
 	while(!Verilated::gotFinish()) {
 		// SFP
@@ -317,7 +318,7 @@ int main(int argc, char **argv)
 					if (eth_intval == 0) {
 						++eth_n;
 						eth_pos = 0;
-						eth_intval = 5;
+						eth_intval = INTVAL;
 					} else {
 						--eth_intval;
 					}
@@ -326,7 +327,7 @@ int main(int argc, char **argv)
 		} else {
 			eth_n = 0;
 			eth_pos = 0;
-			eth_intval = 5;
+			eth_intval = INTVAL;
 
 			top->eth_tvalid = 0;
 			top->eth_tlast = 0;
@@ -365,7 +366,7 @@ int main(int argc, char **argv)
 					if (pcie_intval == 0) {
 						++pcie_n;
 						pcie_pos = 0;
-						pcie_intval = 5;
+						pcie_intval = INTVAL;
 					} else {
 						--pcie_intval;
 					}
@@ -374,7 +375,7 @@ int main(int argc, char **argv)
 		} else {
 			pcie_n = 0;
 			pcie_pos = 0;
-			pcie_intval = 5;
+			pcie_intval = INTVAL;
 
 			top->pcie_tvalid = 0;
 			top->pcie_tlast = 0;

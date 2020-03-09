@@ -57,6 +57,31 @@ module eth_encap_core
 	input FIFO_PCIECFG_T fifo_pciecfg_o_dout
 );
 
+`ifdef SIMULATION
+wire [1:0] debug_fmt = dout.tlp.field.fmt;
+wire [4:0] debug_pkttype = dout.tlp.field.pkttype;
+wire [11:0] debug_len = dout.tlp.field.len;
+wire [7:0] debug_tag = dout.tlp.field.tag;
+
+wire debug_valid = dout.tlp.tvalid;
+wire debug_last = dout.tlp.tlast;
+wire [7:0] debug_keep = dout.tlp.tkeep;
+wire [63:0] debug_data = dout.tlp.tdata;
+wire [21:0] debug_user = dout.tlp.tuser;
+wire _unused_ok_sim = &{
+	debug_fmt,
+	debug_pkttype,
+	debug_len,
+	debug_tag,
+	debug_valid,
+	debug_last,
+	debug_keep,
+	debug_data,
+	debug_user,
+	1'b0
+};
+`endif
+
 /* function: ipcheck_gen() */
 function [15:0] ipcheck_gen (
 	input TLPPacketLengthByte tlp_len,
@@ -340,29 +365,12 @@ always_comb begin
 end
 
 wire _unused_ok = &{
-	dout.tlp.field.fmt,
-	dout.tlp.field.pkttype,
 	dout.tlp.tuser,
 	adapter_reg_magic,
 	adapter_reg_dstport,
 	adapter_reg_srcport,
 	1'b0
 };
-
-`ifdef zero
-ila_0 ila_00 (
-	.clk(eth_clk),
-	.probe0(tx_state),
-	.probe1(rd_en),
-	.probe2(empty),
-	.probe3(eth_tready),
-	.probe4(eth_tvalid),
-	.probe5(eth_tlast),
-	.probe6(fifo_cmd_o_rd_en),
-	.probe7(fifo_cmd_o_empty),
-	.probe8(tx_state_next)
-);
-`endif
 
 endmodule
 

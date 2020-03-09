@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.101 (w)1999-2019 BSI
-[*] Fri Mar  6 14:31:28 2020
+[*] Mon Mar  9 09:24:34 2020
 [*]
-[dumpfile] "wave.vcd"
-[dumpfile_mtime] "Fri Mar  6 14:29:30 2020"
-[dumpfile_size] 1327455
-[savefile] "pcap.gtkw"
+[dumpfile] "/home/sora/wrk/src/github.com/NetTLP/adapter/boards/kc705/wave.vcd"
+[dumpfile_mtime] "Mon Mar  9 09:21:54 2020"
+[dumpfile_size] 1229303
+[savefile] "/home/sora/wrk/src/github.com/NetTLP/adapter/boards/kc705/pcap.gtkw"
 [timestart] 100
-[size] 1920 1043
+[size] 3770 2096
 [pos] -1 -1
-*-16.000000 145100 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-14.501064 272200 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.testbench.
 [treeopen] TOP.testbench.top0.
@@ -21,13 +21,28 @@
 [sst_width] 353
 [signals_width] 470
 [sst_expanded] 1
-[sst_vpaned_height] 298
+[sst_vpaned_height] 665
+@28
+TOP.testbench.pcie_tvalid
+TOP.testbench.pcie_tlast
+@22
+TOP.testbench.pcie_tkeep[7:0]
+TOP.testbench.pcie_tdata[63:0]
+TOP.testbench.pcie_tuser[21:0]
+@200
+-
+-
 @28
 TOP.testbench.top0.clk156
+@22
+TOP.testbench.top0.cold_counter156[13:0]
+@28
 TOP.testbench.top0.sys_rst156
+TOP.testbench.top0.pcie_rst
 @200
 -
 @28
+TOP.testbench.top0.clk200
 TOP.testbench.top0.pcie_top0.pcie_7x_support_i.user_clk_out
 @200
 -
@@ -45,9 +60,8 @@ TOP.testbench.top0.pcie_top0.pcie_7x_support_i.m_axis_rx_tuser[21:0]
 TOP.testbench.top0.eth_top0.u_axi_10g_ethernet_0.s_axis_tx_tready
 TOP.testbench.top0.eth_top0.u_axi_10g_ethernet_0.s_axis_tx_tvalid
 TOP.testbench.top0.eth_top0.u_axi_10g_ethernet_0.s_axis_tx_tlast
-@23
-TOP.testbench.top0.eth_top0.u_axi_10g_ethernet_0.s_axis_tx_tkeep[7:0]
 @22
+TOP.testbench.top0.eth_top0.u_axi_10g_ethernet_0.s_axis_tx_tkeep[7:0]
 TOP.testbench.top0.eth_top0.u_axi_10g_ethernet_0.s_axis_tx_tdata[63:0]
 @28
 TOP.testbench.top0.eth_top0.u_axi_10g_ethernet_0.s_axis_tx_tuser[0]
@@ -141,10 +155,51 @@ TOP.testbench.top0.pcie_top0.pcie_7x_support_i.s_axis_tx_tvalid
 TOP.testbench.top0.pcie_top0.pcie_7x_support_i.s_axis_tx_tlast
 @22
 TOP.testbench.top0.pcie_top0.pcie_7x_support_i.s_axis_tx_tkeep[7:0]
+@23
 TOP.testbench.top0.pcie_top0.pcie_7x_support_i.s_axis_tx_tdata[63:0]
+@22
 TOP.testbench.top0.pcie_top0.pcie_7x_support_i.s_axis_tx_tuser[3:0]
 @200
 -
+-
+-pcie2fifo0
+@28
+[color] 5
+TOP.testbench.top0.eth_encap0.pcie2fifo0.pcie_rst
+[color] 5
+TOP.testbench.top0.eth_encap0.pcie2fifo0.pcie_clk
+@200
+-
+@28
+TOP.testbench.top0.eth_encap0.pcie2fifo0.state[2:0]
+@200
+-
+@28
+TOP.testbench.top0.eth_encap0.pcie2fifo0.pcie_tready
+TOP.testbench.top0.eth_encap0.pcie2fifo0.pcie_tvalid
+TOP.testbench.top0.eth_encap0.pcie2fifo0.pcie_tlast
+@22
+TOP.testbench.top0.eth_encap0.pcie2fifo0.pcie_tkeep[7:0]
+TOP.testbench.top0.eth_encap0.pcie2fifo0.pcie_tdata[63:0]
+TOP.testbench.top0.eth_encap0.pcie2fifo0.pcie_tuser[21:0]
+@200
+-
+@28
+TOP.testbench.top0.eth_encap0.pcie2fifo0.pcie_tready_nxt
+TOP.testbench.top0.eth_encap0.pcie2fifo0.pcie_tvalid_nxt
+TOP.testbench.top0.eth_encap0.pcie2fifo0.pcie_tlast_nxt
+@22
+TOP.testbench.top0.eth_encap0.pcie2fifo0.pcie_tkeep_nxt[7:0]
+TOP.testbench.top0.eth_encap0.pcie2fifo0.pcie_tdata_nxt[63:0]
+TOP.testbench.top0.eth_encap0.pcie2fifo0.pcie_tuser_nxt[21:0]
+@200
+-
+@22
+TOP.testbench.top0.eth_encap0.pcie2fifo0.TLP_3DW_HDR_LEN[11:0]
+TOP.testbench.top0.eth_encap0.pcie2fifo0.TLP_4DW_HDR_LEN[11:0]
+TOP.testbench.top0.eth_encap0.pcie2fifo0.bytelen3DW[11:0]
+TOP.testbench.top0.eth_encap0.pcie2fifo0.bytelen4DW[11:0]
+@200
 -
 @28
 TOP.testbench.top0.eth_encap0.pcie2fifo0.wr_en
@@ -154,10 +209,31 @@ TOP.testbench.top0.eth_encap0.pcie2fifo0.din[123:0]
 TOP.testbench.top0.eth_encap0.pcie2fifo0.full
 @200
 -
+@28
+TOP.testbench.top0.eth_encap0.pcie2fifo0.debug_valid
+TOP.testbench.top0.eth_encap0.pcie2fifo0.debug_last
+@22
+TOP.testbench.top0.eth_encap0.pcie2fifo0.debug_keep[7:0]
+TOP.testbench.top0.eth_encap0.pcie2fifo0.debug_data[63:0]
+TOP.testbench.top0.eth_encap0.pcie2fifo0.debug_user[21:0]
+@28
+TOP.testbench.top0.eth_encap0.pcie2fifo0.debug_fmt[1:0]
+@22
+TOP.testbench.top0.eth_encap0.pcie2fifo0.debug_len[11:0]
+TOP.testbench.top0.eth_encap0.pcie2fifo0.debug_pkttype[4:0]
+TOP.testbench.top0.eth_encap0.pcie2fifo0.debug_tag[7:0]
+@200
+-
+-
+-eth_encap_core0
+@28
+[color] 5
+TOP.testbench.top0.eth_encap0.eth_encap_core0.eth_clk
+[color] 5
+TOP.testbench.top0.eth_encap0.eth_encap_core0.eth_rst
+@200
 -
 @28
-TOP.testbench.top0.eth_encap0.eth_encap_core0.eth_clk
-TOP.testbench.top0.eth_encap0.eth_encap_core0.eth_rst
 TOP.testbench.top0.eth_encap0.eth_encap_core0.rd_en
 TOP.testbench.top0.eth_encap0.eth_encap_core0.empty
 @22
@@ -167,7 +243,13 @@ TOP.testbench.top0.eth_encap0.eth_encap_core0.dout[123:0]
 @28
 TOP.testbench.top0.eth_encap0.eth_encap_core0.tx_state[2:0]
 TOP.testbench.top0.eth_encap0.eth_encap_core0.tx_state_next[2:0]
-TOP.testbench.top0.eth_encap0.eth_encap_core0.tx_mode[2:0]
+@200
+-
+@22
+TOP.testbench.top0.eth_encap0.eth_encap_core0.tlp_sequence_count[15:0]
+TOP.testbench.top0.eth_encap0.eth_encap_core0.tlp_timestamp_count[31:0]
+@200
+-
 @22
 TOP.testbench.top0.eth_encap0.eth_encap_core0.tx_count[4:0]
 TOP.testbench.top0.eth_encap0.eth_encap_core0.tx_hdr0[63:0]
@@ -176,6 +258,8 @@ TOP.testbench.top0.eth_encap0.eth_encap_core0.tx_hdr2[63:0]
 TOP.testbench.top0.eth_encap0.eth_encap_core0.tx_hdr3[63:0]
 TOP.testbench.top0.eth_encap0.eth_encap_core0.tx_hdr4[63:0]
 TOP.testbench.top0.eth_encap0.eth_encap_core0.tx_hdr5[63:0]
+@28
+TOP.testbench.top0.eth_encap0.eth_encap_core0.tx_mode[2:0]
 @200
 -
 @28
@@ -190,17 +274,64 @@ TOP.testbench.top0.eth_encap0.eth_encap_core0.eth_tuser
 @200
 -
 @28
-TOP.testbench.top0.eth_encap0.pciefifo_rx.asfifo0.rst
-TOP.testbench.top0.eth_encap0.pciefifo_rx.asfifo0.empty
-TOP.testbench.top0.eth_encap0.pciefifo_rx.asfifo0.full
-TOP.testbench.top0.eth_encap0.pciefifo_rx.asfifo0.wr_clk
-TOP.testbench.top0.eth_encap0.pciefifo_rx.asfifo0.wr_en
+TOP.testbench.top0.eth_encap0.eth_encap_core0.debug_valid
+TOP.testbench.top0.eth_encap0.eth_encap_core0.debug_last
 @22
-TOP.testbench.top0.eth_encap0.pciefifo_rx.asfifo0.din[123:0]
+TOP.testbench.top0.eth_encap0.eth_encap_core0.debug_keep[7:0]
+TOP.testbench.top0.eth_encap0.eth_encap_core0.debug_data[63:0]
+TOP.testbench.top0.eth_encap0.eth_encap_core0.debug_user[21:0]
+@200
+-
 @28
-TOP.testbench.top0.eth_encap0.pciefifo_rx.asfifo0.rd_clk
-TOP.testbench.top0.eth_encap0.pciefifo_rx.asfifo0.rd_en
+TOP.testbench.top0.eth_encap0.eth_encap_core0.debug_fmt[1:0]
 @22
-TOP.testbench.top0.eth_encap0.pciefifo_rx.asfifo0.dout[123:0]
+TOP.testbench.top0.eth_encap0.eth_encap_core0.debug_len[11:0]
+TOP.testbench.top0.eth_encap0.eth_encap_core0.debug_pkttype[4:0]
+TOP.testbench.top0.eth_encap0.eth_encap_core0.debug_tag[7:0]
+@200
+-
+-
+@28
+TOP.testbench.top0.eth_decap0.eth_decap_core0.eth_clk
+TOP.testbench.top0.eth_decap0.eth_decap_core0.eth_rst
+@22
+TOP.testbench.top0.eth_decap0.eth_decap_core0.rx_state[3:0]
+TOP.testbench.top0.eth_decap0.eth_decap_core0.rx_state_next[3:0]
+@200
+-
+@28
+TOP.testbench.top0.eth_decap0.eth_decap_core0.eth_tvalid
+TOP.testbench.top0.eth_decap0.eth_decap_core0.eth_tlast
+@22
+TOP.testbench.top0.eth_decap0.eth_decap_core0.eth_tkeep[7:0]
+TOP.testbench.top0.eth_decap0.eth_decap_core0.eth_tdata[63:0]
+TOP.testbench.top0.eth_decap0.eth_decap_core0.eth_tdata_conv[63:0]
+@28
+TOP.testbench.top0.eth_decap0.eth_decap_core0.eth_tuser
+@200
+-
+@28
+TOP.testbench.top0.eth_decap0.eth_decap_core0.is_correct_packet1
+TOP.testbench.top0.eth_decap0.eth_decap_core0.is_correct_packet2
+TOP.testbench.top0.eth_decap0.eth_decap_core0.is_correct_packet3
+TOP.testbench.top0.eth_decap0.eth_decap_core0.is_correct_packet4_cmd
+TOP.testbench.top0.eth_decap0.eth_decap_core0.is_correct_packet4_pciecfg
+TOP.testbench.top0.eth_decap0.eth_decap_core0.is_correct_packet4_tlp
+@200
+-
+@22
+TOP.testbench.top0.eth_decap0.eth_decap_core0.rx_hdr1[63:0]
+TOP.testbench.top0.eth_decap0.eth_decap_core0.rx_hdr2[63:0]
+TOP.testbench.top0.eth_decap0.eth_decap_core0.rx_hdr3[63:0]
+TOP.testbench.top0.eth_decap0.eth_decap_core0.rx_hdr4[63:0]
+TOP.testbench.top0.eth_decap0.eth_decap_core0.rx_hdr5[63:0]
+@200
+-
+@28
+TOP.testbench.top0.eth_decap0.eth_decap_core0.wr_en
+@22
+TOP.testbench.top0.eth_decap0.eth_decap_core0.din[78:0]
+@28
+TOP.testbench.top0.eth_decap0.eth_decap_core0.full
 [pattern_trace] 1
 [pattern_trace] 0

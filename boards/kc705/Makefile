@@ -115,10 +115,10 @@ $(build_dir)/$(rtl_dir)/pcie_pio: $(XCIS)
 	cp -R $(build_dir)/ip/pcie_7x/pcie_pio $(build_dir)/$(rtl_dir)/
 
 lint:
-	verilator -Wall --lint-only -Wno-PINCONNECTEMPTY --top-module testbench -sv $(PKG_SRC) test/testbench.sv $(SIM_SRC) $(RTL_SRC)
+	verilator -Wall --lint-only -Wno-PINCONNECTEMPTY -DSIMULATION --top-module testbench -sv $(PKG_SRC) test/testbench.sv $(SIM_SRC) $(RTL_SRC)
 
 sim:
-	verilator -Wall -Wno-PINCONNECTEMPTY --cc --trace --exe test/sim_main.cpp --top-module testbench -sv $(PKG_SRC) test/testbench.sv $(SIM_SRC) $(RTL_SRC)
+	verilator -Wall -Wno-PINCONNECTEMPTY -DSIMULATION --cc --trace --exe test/sim_main.cpp --top-module testbench -sv $(PKG_SRC) test/testbench.sv $(SIM_SRC) $(RTL_SRC)
 	make -j -C obj_dir -f Vtestbench.mk Vtestbench
 	obj_dir/Vtestbench
 
