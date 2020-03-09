@@ -14,9 +14,9 @@ set_property -dict [list                                          \
 	CONFIG.Component_Name {$module_name}                      \
 	CONFIG.Fifo_Implementation {Independent_Clocks_Block_RAM} \
 	CONFIG.Performance_Options {First_Word_Fall_Through}      \
-	CONFIG.Input_Data_Width {64}                              \
+	CONFIG.Input_Data_Width {65}                              \
 	CONFIG.Input_Depth {2048}                                 \
-	CONFIG.Output_Data_Width {64}                             \
+	CONFIG.Output_Data_Width {65}                             \
 	CONFIG.Output_Depth {2048}                                \
 	CONFIG.Reset_Type {Asynchronous_Reset}                    \
 	CONFIG.Full_Flags_Reset_Value {1}                         \
@@ -27,7 +27,7 @@ set_property -dict [list                                          \
 	CONFIG.Full_Threshold_Negate_Value {2046}                 \
 	CONFIG.Empty_Threshold_Assert_Value {4}                   \
 	CONFIG.Empty_Threshold_Negate_Value {5}                   \
-	CONFIG.Enable_Safety_Circuit {true}                       \
+	CONFIG.Enable_Safety_Circuit {false}                      \
 ] [get_ips $module_name]
 
 generate_target {instantiation_template} [get_ips $module_name]

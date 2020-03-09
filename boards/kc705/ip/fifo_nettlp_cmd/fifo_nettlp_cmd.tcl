@@ -12,9 +12,9 @@ create_ip -name $ip_name -vendor $ip_vendor -library ip -version $ip_version -mo
 
 set_property -dict [list                                        \
 	CONFIG.Performance_Options {First_Word_Fall_Through}    \
-	CONFIG.Input_Data_Width {64}                            \
+	CONFIG.Input_Data_Width {65}                            \
 	CONFIG.Input_Depth {2048}                               \
-	CONFIG.Output_Data_Width {64}                           \
+	CONFIG.Output_Data_Width {65}                           \
 	CONFIG.Output_Depth {2048}                              \
 	CONFIG.Use_Extra_Logic {true}                           \
 	CONFIG.Data_Count_Width {12}                            \

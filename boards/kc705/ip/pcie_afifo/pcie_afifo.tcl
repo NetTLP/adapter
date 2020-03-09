@@ -27,7 +27,7 @@ set_property -dict [list                                          \
 	CONFIG.Full_Threshold_Negate_Value {2046}                 \
 	CONFIG.Empty_Threshold_Assert_Value {4}                   \
 	CONFIG.Empty_Threshold_Negate_Value {5}                   \
-	CONFIG.Enable_Safety_Circuit {true}                       \
+	CONFIG.Enable_Safety_Circuit {false}                      \
 ] [get_ips $module_name]
 
 generate_target {instantiation_template} [get_ips $module_name]

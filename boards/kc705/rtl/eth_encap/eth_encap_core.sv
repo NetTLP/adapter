@@ -31,7 +31,7 @@ module eth_encap_core
 	input  wire           empty,
 
 	// Eth+IP+UDP + TLP packet
-	input  ETH_TREADY64    eth_tready,
+	input  wire ETH_TREADY64    eth_tready,
 	output ETH_TVALID64    eth_tvalid,
 	output ETH_TLAST64     eth_tlast,
 	output ETH_TKEEP64     eth_tkeep,
@@ -365,6 +365,8 @@ always_comb begin
 end
 
 wire _unused_ok = &{
+	dout.tlp.field.fmt,	
+	dout.tlp.field.pkttype,	
 	dout.tlp.tuser,
 	adapter_reg_magic,
 	adapter_reg_dstport,

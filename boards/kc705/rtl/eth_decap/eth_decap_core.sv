@@ -22,11 +22,11 @@ module eth_decap_core
 	input wire eth_rst,
 
 	// packet in
-	input ETH_TVALID64   eth_tvalid,
-	input ETH_TLAST64    eth_tlast,
-	input ETH_TKEEP64    eth_tkeep,
-	input ETH_TDATA64_RX eth_tdata,
-	input ETH_TUSER64_RX eth_tuser,
+	input wire ETH_TVALID64   eth_tvalid,
+	input wire ETH_TLAST64    eth_tlast,
+	input wire ETH_TKEEP64    eth_tkeep,
+	input wire ETH_TDATA64_RX eth_tdata,
+	input wire ETH_TUSER64_RX eth_tuser,
 
 	// TLP packet (FIFO write)
 	output logic          wr_en,

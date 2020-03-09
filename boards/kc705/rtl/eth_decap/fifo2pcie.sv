@@ -24,7 +24,7 @@ module fifo2pcie
 	input wire        pcie_tx_ack,
 
 	// Eth+IP+UDP + TLP packet
-	input  PCIE_TREADY64   pcie_tready,
+	input  wire PCIE_TREADY64   pcie_tready,
 	output PCIE_TVALID64   pcie_tvalid,
 	output PCIE_TLAST64    pcie_tlast,
 	output PCIE_TKEEP64    pcie_tkeep,
