@@ -8,21 +8,21 @@ module pciecfg
 	// data input
 	input wire fifo_pciecfg_i_wr_en,
 	output wire fifo_pciecfg_i_full,
-	input FIFO_PCIECFG_T fifo_pciecfg_i_din,
+	input wire FIFO_PCIECFG_T fifo_pciecfg_i_din,
 
 	// data output
 	input wire fifo_pciecfg_o_rd_en,
 	output wire fifo_pciecfg_o_empty,
-	output FIFO_PCIECFG_T fifo_pciecfg_o_dout,
+	output wire FIFO_PCIECFG_T fifo_pciecfg_o_dout,
 
 	// pcie configration interface
-	output logic [9:0]  cfg_mgmt_dwaddr,
-	output logic        cfg_mgmt_rd_en,
-	input wire [31:0]   cfg_mgmt_do,
-	output logic        cfg_mgmt_wr_en,
-	output logic [3:0]  cfg_mgmt_byte_en,
-	output logic [31:0] cfg_mgmt_di,
-	input wire          cfg_mgmt_rd_wr_done
+	output wire [9:0] cfg_mgmt_dwaddr,
+	output wire cfg_mgmt_rd_en,
+	input wire [31:0] cfg_mgmt_do,
+	output wire cfg_mgmt_wr_en,
+	output wire [3:0] cfg_mgmt_byte_en,
+	output wire [31:0] cfg_mgmt_di,
+	input wire cfg_mgmt_rd_wr_done
 );
 
 wire fifo_pciecfg_i_rd_en;

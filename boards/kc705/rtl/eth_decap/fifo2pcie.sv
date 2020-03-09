@@ -14,7 +14,7 @@ module fifo2pcie
 
 	// TLP packet (FIFO read)
 	output logic         rd_en,
-	input PCIE_FIFO64_TX dout,
+	input wire PCIE_FIFO64_TX dout,
 	input wire           empty,
 
 	//input wire [7:0] eth_pktcount,

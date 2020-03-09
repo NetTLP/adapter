@@ -7,21 +7,21 @@ module nettlp_cmd
 	// data input
 	input wire fifo_cmd_i_wr_en,
 	output wire fifo_cmd_i_full,
-	input FIFO_NETTLP_CMD_T fifo_cmd_i_din,
+	input wire FIFO_NETTLP_CMD_T fifo_cmd_i_din,
 
 	// data output
 	input wire fifo_cmd_o_rd_en,
 	output wire fifo_cmd_o_empty,
-	output FIFO_NETTLP_CMD_T fifo_cmd_o_dout,
+	output wire FIFO_NETTLP_CMD_T fifo_cmd_o_dout,
 
 	// adapter registers
-	output logic [31:0] adapter_reg_magic,
-	output logic [47:0] adapter_reg_dstmac,
-	output logic [47:0] adapter_reg_srcmac,
-	output logic [31:0] adapter_reg_dstip,
-	output logic [31:0] adapter_reg_srcip,
-	output logic [15:0] adapter_reg_dstport,
-	output logic [15:0] adapter_reg_srcport
+	output wire [31:0] adapter_reg_magic,
+	output wire [47:0] adapter_reg_dstmac,
+	output wire [47:0] adapter_reg_srcmac,
+	output wire [31:0] adapter_reg_dstip,
+	output wire [31:0] adapter_reg_srcip,
+	output wire [15:0] adapter_reg_dstport,
+	output wire [15:0] adapter_reg_srcport
 );
 
 wire fifo_cmd_i_rd_en;

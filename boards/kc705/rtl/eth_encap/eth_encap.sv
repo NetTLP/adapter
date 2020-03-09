@@ -34,12 +34,12 @@ module eth_encap
 
 	input wire eth_clk,
 
-	input  wire         eth_tx_tready,
-	output logic        eth_tx_tvalid,
-	output logic [63:0] eth_tx_tdata,
-	output logic [ 7:0] eth_tx_tkeep,
-	output logic        eth_tx_tlast,
-	output logic        eth_tx_tuser,
+	input  wire        eth_tx_tready,
+	output wire        eth_tx_tvalid,
+	output wire [63:0] eth_tx_tdata,
+	output wire [ 7:0] eth_tx_tkeep,
+	output wire        eth_tx_tlast,
+	output wire        eth_tx_tuser,
 
 	input wire pcie_clk,
 
@@ -61,12 +61,12 @@ module eth_encap
 	// cmd
 	output wire             fifo_cmd_o_rd_en,
 	input wire              fifo_cmd_o_empty,
-	input FIFO_NETTLP_CMD_T fifo_cmd_o_dout,
+	input wire FIFO_NETTLP_CMD_T fifo_cmd_o_dout,
 
 	// pciecfg
 	output wire          fifo_pciecfg_o_rd_en,
 	input wire           fifo_pciecfg_o_empty,
-	input FIFO_PCIECFG_T fifo_pciecfg_o_dout
+	input wire FIFO_PCIECFG_T fifo_pciecfg_o_dout
 );
 
 /*

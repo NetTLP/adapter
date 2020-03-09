@@ -52,12 +52,12 @@ module eth_decap
 
 	// to pcie configuration space fifo
 	output logic          fifo_pciecfg_i_wr_en,
-	output FIFO_PCIECFG_T fifo_pciecfg_i_din,
+	output wire FIFO_PCIECFG_T fifo_pciecfg_i_din,
 	input wire            fifo_pciecfg_i_full,
 	
 	// to nettlp command fifo
 	output wire              fifo_cmd_i_wr_en,
-	output FIFO_NETTLP_CMD_T fifo_cmd_i_din,
+	output wire FIFO_NETTLP_CMD_T fifo_cmd_i_din,
 	input wire               fifo_cmd_i_full
 );
 

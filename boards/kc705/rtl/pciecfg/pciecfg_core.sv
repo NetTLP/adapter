@@ -7,7 +7,7 @@ module pciecfg_core
 	// data input
 	output logic fifo_pciecfg_i_rd_en,
 	input wire fifo_pciecfg_i_empty,
-	input FIFO_PCIECFG_T fifo_pciecfg_i_dout,
+	input wire FIFO_PCIECFG_T fifo_pciecfg_i_dout,
 
 	// data output
 	output logic fifo_pciecfg_o_wr_en,

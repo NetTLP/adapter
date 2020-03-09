@@ -8,7 +8,7 @@ module nettlp_cmd_core
 	// data input
 	output logic fifo_cmd_i_rd_en,
 	input wire fifo_cmd_i_empty,
-	input FIFO_NETTLP_CMD_T fifo_cmd_i_dout,
+	input wire FIFO_NETTLP_CMD_T fifo_cmd_i_dout,
 
 	// data output
 	output logic fifo_cmd_o_wr_en,

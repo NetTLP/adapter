@@ -27,11 +27,11 @@ module eth_encap_core
 
 	// TLP packet (FIFO read)
 	output logic          rd_en,
-	input  PCIE_FIFO64_RX dout,
+	input  wire PCIE_FIFO64_RX dout,
 	input  wire           empty,
 
 	// Eth+IP+UDP + TLP packet
-	input  wire ETH_TREADY64    eth_tready,
+	input wire ETH_TREADY64 eth_tready,
 	output ETH_TVALID64    eth_tvalid,
 	output ETH_TLAST64     eth_tlast,
 	output ETH_TKEEP64     eth_tkeep,
@@ -49,12 +49,12 @@ module eth_encap_core
 	// cmd
 	output logic            fifo_cmd_o_rd_en,
 	input wire              fifo_cmd_o_empty,
-	input FIFO_NETTLP_CMD_T fifo_cmd_o_dout,
+	input wire FIFO_NETTLP_CMD_T fifo_cmd_o_dout,
 
 	// pciecfg
 	output logic         fifo_pciecfg_o_rd_en,
 	input wire           fifo_pciecfg_o_empty,
-	input FIFO_PCIECFG_T fifo_pciecfg_o_dout
+	input wire FIFO_PCIECFG_T fifo_pciecfg_o_dout
 );
 
 `ifdef SIMULATION
