@@ -24,13 +24,13 @@ package nettlp_cmd_pkg;
 
 	parameter ADAPTER_REG_REQUESTER_ID = 8'h10;
 
-	typedef bit [7:0] NETTLP_CMD_OPCODE_T;
+	typedef logic [7:0] NETTLP_CMD_OPCODE_T;
 
-	typedef bit [7:0] NETTLP_CMD_DWADDR_T;
+	typedef logic [7:0] NETTLP_CMD_DWADDR_T;
 
-	typedef bit [31:0] NETTLP_CMD_DATA_T;
+	typedef logic [31:0] NETTLP_CMD_DATA_T;
 
-	typedef bit [15:0] NETTLP_CMD_CHECKSUM_T;
+	typedef logic [15:0] NETTLP_CMD_CHECKSUM_T;
 
 	/* nettlp command packet */
 	typedef struct packed {
@@ -42,9 +42,9 @@ package nettlp_cmd_pkg;
 
 	/* nettlp command fifo */
 	typedef struct packed {
-		bit data_valid;
+		logic data_valid;
 		struct packed {
-			bit [15:0] udp_check;
+			logic [15:0] udp_check;
 			NETTLP_CMD_OPCODE_T opcode;
 			NETTLP_CMD_DWADDR_T dwaddr;
 			NETTLP_CMD_DATA_T data;

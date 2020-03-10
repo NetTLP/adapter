@@ -4,7 +4,7 @@ package utils_pkg;
 
 	/* 8 bit reverse */
 	function byte reverse8 (
-		input byte a
+		input [7:0] a
 	);
 	begin
 		reverse8 = { a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7] };
@@ -13,7 +13,7 @@ package utils_pkg;
 
 	/* 8 bit reverse */
 	function byte bit_reverse8 (
-		input byte a
+		input [7:0] a
 	);
 		for (int i = 0; i < $bits(a); i++) begin
 			bit_reverse8[$bits(a)-i-1] = a[i];
@@ -22,7 +22,7 @@ package utils_pkg;
 
 	/* 32 bit reverse */
 	function int bit_reverse32 (
-		input int a
+		input [31:0] a
 	);
 		for (int i = 0; i < $bits(a); i++) begin
 			bit_reverse32[$bits(a)-i-1] = a[i];
@@ -31,7 +31,7 @@ package utils_pkg;
 
 	/* 64 bit reverse */
 	function longint bit_reverse64 (
-		input longint a
+		input [63:0] a
 	);
 		for (int i = 0; i < $bits(a); i++) begin
 			bit_reverse64[$bits(a)-i-1] = a[i];

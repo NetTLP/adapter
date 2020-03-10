@@ -20,15 +20,15 @@ package pciecfg_pkg;
 	parameter PCIECFG_REG_BAR5      = 10'h09;
 	parameter PCIECFG_REG_BAR6      = 10'h0A;
 
-	typedef bit [1:0] PCIECFG_OPCODE_T;
+	typedef logic [1:0] PCIECFG_OPCODE_T;
 
-	typedef bit [3:0] PCIECFG_BYTE_MASK_T;
+	typedef logic [3:0] PCIECFG_BYTE_MASK_T;
 
-	typedef bit [9:0] PCIECFG_DWADDR_T;
+	typedef logic [9:0] PCIECFG_DWADDR_T;
 
-	typedef bit [31:0] PCIECFG_DATA_T;
+	typedef logic [31:0] PCIECFG_DATA_T;
 
-	typedef bit [15:0] PCIECFG_CHECKSUM_T;
+	typedef logic [15:0] PCIECFG_CHECKSUM_T;
 
 
 	/* nettlp pcie configuration packet */
@@ -42,9 +42,9 @@ package pciecfg_pkg;
 
 	/* nettlp pcie configuration fifo */
 	typedef struct packed {
-		bit data_valid;
+		logic data_valid;
 		struct packed {
-			bit [15:0] udp_check;
+			logic [15:0] udp_check;
 			PCIECFG_OPCODE_T opcode;
 			PCIECFG_BYTE_MASK_T byte_mask;
 			PCIECFG_DWADDR_T dwaddr;

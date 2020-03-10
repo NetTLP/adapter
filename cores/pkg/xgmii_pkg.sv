@@ -6,7 +6,7 @@ package xgmii_pkg;
 	parameter XGMII_ERROR = 8'hfe;
 
 	// control
-	typedef enum bit { data, ctrl } xgmii_ctrl_opc;
+	typedef enum logic { data, ctrl } xgmii_ctrl_opc;
 	typedef xgmii_ctrl_opc [7:0] xgmii_ctrl_t;
 
 	// data
@@ -15,7 +15,7 @@ package xgmii_pkg;
 	//                     terminate = XGMII_TERM,
 	//                     error     = XGMII_ERROR } xgmii_data_opc;
 	//typedef xgmii_data_opc [7:0] xgmii_data_t;
-	typedef bit [7:0][7:0] xgmii_data_t;
+	typedef logic [7:0][7:0] xgmii_data_t;
 
 	typedef struct packed {
 		xgmii_ctrl_t ctrl;

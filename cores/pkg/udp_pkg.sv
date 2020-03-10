@@ -4,10 +4,10 @@ package udp_pkg;
 
 	/* UDP header */
 	typedef struct packed {
-		bit [15:0] source;
-		bit [15:0] dest;
-		bit [15:0] len;
-		bit [15:0] check;
+		logic [15:0] source;
+		logic [15:0] dest;
+		logic [15:0] len;
+		logic [15:0] check;
 	} udphdr;
 
 	/* udp_init */

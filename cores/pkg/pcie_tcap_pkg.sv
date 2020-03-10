@@ -17,9 +17,9 @@ package pcie_tcap_pkg;
 	parameter PCIE_TCAP_LEN = 6;
 
 	typedef struct packed {
-		bit [ 1:0] dir;
-		bit [13:0] rsrv;
-		bit [31:0] seq;
+		logic [ 1:0] dir;
+		logic [13:0] rsrv;
+		logic [31:0] seq;
 	} pcie_tcaphdr;
 
 	function pcie_tcaphdr tcap_init();

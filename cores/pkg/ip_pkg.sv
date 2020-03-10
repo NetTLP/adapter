@@ -12,17 +12,17 @@ package ip_pkg;
 
 	/* IP header */
 	typedef struct packed {
-		bit [3:0] version;
-		bit [3:0] ihl;
-		bit [7:0] tos;
-		bit [15:0] tot_len;
-		bit [15:0] id;
-		bit [15:0] frag_off;
-		bit [7:0] ttl;
-		bit [7:0] protocol;
-		bit [15:0] check;
-		bit [3:0][7:0] saddr;
-		bit [3:0][7:0] daddr;
+		logic [3:0] version;
+		logic [3:0] ihl;
+		logic [7:0] tos;
+		logic [15:0] tot_len;
+		logic [15:0] id;
+		logic [15:0] frag_off;
+		logic [7:0] ttl;
+		logic [7:0] protocol;
+		logic [15:0] check;
+		logic [3:0][7:0] saddr;
+		logic [3:0][7:0] daddr;
 		/* The options start here */
 	} iphdr;
 
@@ -51,7 +51,7 @@ package ip_pkg;
 
 	 /* ip_init */
 	function iphdr ip_init (
-		input bit [15:0] frame_len
+		input [15:0] frame_len
 	);
 		ip_init.version  = IPVERSION;
 		ip_init.ihl      = 4'd5;

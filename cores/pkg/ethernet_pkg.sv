@@ -24,7 +24,7 @@ package ethernet_pkg;
 	typedef struct packed {
 		macaddr_t h_dest;
 		macaddr_t h_source;
-		bit [15:0] h_proto;
+		logic [15:0] h_proto;
 	} ethhdr;
 
 	/* eth_init */
