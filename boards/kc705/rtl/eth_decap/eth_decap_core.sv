@@ -140,20 +140,22 @@ wire is_correct_packet2 = (rx_hdr2.ip.protocol == IP4_PROTO_UDP);
 
 wire is_correct_packet3 = (rx_hdr3.ip.saddr == ip_daddr);
 
+ // dest port: 0x3000 or 0x4000
 wire is_correct_packet4_tlp = (
-	{rx_hdr3.ip.daddr0, rx_hdr4.ip.daddr1} == ip_saddr &&
-	//rx_hdr4.udp.source[15:12] == 4'b0011 &&   // src port: 0x3000 + (TLP_tag & 0xF)
-	rx_hdr4.udp.dest[15:12] == 4'b0011        // dest port: 0x3000 + (TLP_tag & 0xF)
+	({rx_hdr3.ip.daddr0, rx_hdr4.ip.daddr1} == ip_saddr) &&
+	(rx_hdr4.udp.dest[15:12] == 4'b0011 || rx_hdr4.udp.dest[15:12] == 4'b0100)
 );
 
+// dest port: 0x5002
 wire is_correct_packet4_cmd = (
-	{rx_hdr3.ip.daddr0, rx_hdr4.ip.daddr1} == ip_saddr &&
-	rx_hdr4.udp.dest == udp_nettlp_cmd_port     // dest port: 0x4002
+	({rx_hdr3.ip.daddr0, rx_hdr4.ip.daddr1} == ip_saddr) &&
+	(rx_hdr4.udp.dest == udp_nettlp_cmd_port)
 );
 
+// dest port: 0x5001
 wire is_correct_packet4_pciecfg = (
-	{rx_hdr3.ip.daddr0, rx_hdr4.ip.daddr1} == ip_saddr &&
-	rx_hdr4.udp.dest == udp_pciecfg_port        // dest port: 0x4001
+	({rx_hdr3.ip.daddr0, rx_hdr4.ip.daddr1} == ip_saddr) &&
+	(rx_hdr4.udp.dest == udp_pciecfg_port)
 );
 
 
