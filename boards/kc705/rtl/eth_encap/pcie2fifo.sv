@@ -142,7 +142,11 @@ always_comb begin
 		if (pcie_tready_nxt) begin
 			if (pcie_tvalid_nxt && !full) begin
 				if (pcie_tlast_nxt) begin
-					state_next = BUBBLE;
+					if (pcie_tvalid) begin
+						state_next = IDLE;
+					end else begin
+						state_next = BUBBLE;
+					end
 				end else
 					state_next = DATA;
 
@@ -157,7 +161,11 @@ always_comb begin
 		if (pcie_tready_nxt) begin
 			if (pcie_tvalid_nxt && !full) begin
 				if (pcie_tlast_nxt) begin
-					state_next = BUBBLE;
+					if (pcie_tvalid) begin
+						state_next = IDLE;
+					end else begin
+						state_next = BUBBLE;
+					end
 				end
 
 				wr_en = '1;
@@ -169,7 +177,11 @@ always_comb begin
 	end
 	ERR_FIFOFULL: begin
 		if (!full) begin
-			state_next = BUBBLE;
+			if (pcie_tvalid) begin
+				state_next = IDLE;
+			end else begin
+				state_next = BUBBLE;
+			end
 
 			wr_en = '1;
 			din.data_valid = '1;
@@ -187,6 +199,29 @@ always_comb begin
 	end
 	endcase
 end
+
+ila_0 ila_0_ins (
+	.clk(pcie_clk),
+	.probe0(pcie_tready),
+	.probe1(pcie_tvalid),
+	.probe2(pcie_tlast),
+	.probe3(pcie_tkeep),
+	.probe4(pcie_tdata),
+	.probe5(pcie_tuser),
+	.probe6(state),
+	.probe7(wr_en),
+	.probe8(full),
+	.probe9(din.data_valid),
+	.probe10(din.tlp.field.fmt),
+	.probe11(din.tlp.field.pkttype),
+	.probe12(din.tlp.field.len),
+	.probe13(din.tlp.field.tag),
+	.probe14(din.tlp.tvalid),
+	.probe15(din.tlp.tlast),
+	.probe16(din.tlp.tkeep),
+	.probe17(din.tlp.tdata),
+	.probe18(din.tlp.tuser)
+);
 
 endmodule
 

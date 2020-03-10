@@ -105,14 +105,14 @@ pcie_afifo pciefifo_rx (
 	.rst(pcie_rst),
 
 	.wr_clk(pcie_clk),    // data in (PCIe)
-	.rd_clk(eth_clk),      // data out (Eth)
-
 	.wr_en(fifo0_wr_en),
-	.rd_en(fifo0_rd_en),
-	.full(fifo0_full),
-	.empty(fifo0_empty),
 	.din(fifo0_din),
-	.dout(fifo0_dout)
+	.full(fifo0_full),
+
+	.rd_clk(eth_clk),      // data out (Eth)
+	.rd_en(fifo0_rd_en),
+	.dout(fifo0_dout),
+	.empty(fifo0_empty)
 );
 
 /*
