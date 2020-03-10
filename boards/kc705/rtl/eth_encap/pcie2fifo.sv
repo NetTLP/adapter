@@ -200,6 +200,7 @@ always_comb begin
 	endcase
 end
 
+`ifdef zero
 ila_0 ila_0_ins (
 	.clk(pcie_clk),
 	.probe0(pcie_tready),
@@ -222,6 +223,7 @@ ila_0 ila_0_ins (
 	.probe17(din.tlp.tdata),
 	.probe18(din.tlp.tuser)
 );
+`endif
 
 endmodule
 

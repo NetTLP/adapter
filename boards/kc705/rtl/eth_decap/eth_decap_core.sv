@@ -333,24 +333,21 @@ wire _unused_ok = &{
 };
 
 `ifdef zero
-ila_0 ila_00 (
+ila_0 ila_0_ins (
 	.clk(eth_clk),
 	.probe0(rx_state),  // 4
-	.probe1(wr_en),
-	.probe2(full),
-	.probe3(fifo_cmd_i_wr_en),
-	.probe4(fifo_cmd_i_full),
-	.probe5(fifo_pciecfg_i_wr_en),
-	.probe6(fifo_pciecfg_i_full),
-	.probe7(din.tlp.tvalid),
-	.probe8(din.tlp.tlast),
-	.probe9(is_correct_packet1),
-	.probe10(is_correct_packet2),
-	.probe11(is_correct_packet3),
-	.probe12(is_correct_packet4_tlp),
-	.probe13(is_correct_packet4_cmd),
-	.probe14(eth_tvalid),
-	.probe15(eth_tlast)
+	.probe1(eth_tvalid),
+	.probe2(eth_tlast),
+	.probe3(eth_tkeep),
+	.probe4(eth_tdata),
+	.probe5(eth_tuser),
+	.probe6(wr_en),
+	.probe7(din.data_valid),
+	.probe8(din.tlp.tvalid),
+	.probe9(din.tlp.tlast),
+	.probe10(din.tlp.tkeep),
+	.probe11(din.tlp.tdata),
+	.probe12(din.tlp.tuser)
 );
 `endif
 
